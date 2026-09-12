@@ -1,1 +1,3 @@
 .amp/portals/
+dist/
+node_modules/

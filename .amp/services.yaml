@@ -1,6 +1,6 @@
 services:
   tic-tac-toe:
-    command: python3 -m http.server "$PORT" --bind 0.0.0.0
+    command: npm run dev -- --host 0.0.0.0 --port "$PORT"
     health: /
     agent: control
     portal:

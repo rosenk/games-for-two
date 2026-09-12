@@ -15,106 +15,10 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="game-shell">
-      <header class="game-header">
-        <div>
-          <p class="eyebrow">На един или два телефона</p>
-          <h1>Морски шах<span aria-hidden="true">.</span></h1>
-        </div>
-        <button class="icon-button" id="reset-score" type="button">
-          <span aria-hidden="true">↻</span>
-          Нулирай резултата
-        </button>
-      </header>
-
-      <section class="scoreboard" aria-label="Резултат">
-        <article class="player-card player-x active" data-player-card="X">
-          <span class="player-symbol" aria-hidden="true">×</span>
-          <div>
-            <span class="player-label" id="label-x">Играч 1</span>
-            <strong id="score-x">0</strong>
-          </div>
-        </article>
-
-        <div class="draw-score">
-          <span>Равни</span>
-          <strong id="score-draw">0</strong>
-        </div>
-
-        <article class="player-card player-o" data-player-card="O">
-          <span class="player-symbol" aria-hidden="true">○</span>
-          <div>
-            <span class="player-label" id="label-o">Играч 2</span>
-            <strong id="score-o">0</strong>
-          </div>
-        </article>
-      </section>
-
-      <section class="online-card" id="online-card" aria-labelledby="online-title">
-        <div class="online-summary">
-          <span class="online-icon" aria-hidden="true">2P</span>
-          <div>
-            <p class="online-kicker">Онлайн игра</p>
-            <h2 id="online-title">Играй с приятел</h2>
-            <p id="online-description" aria-live="polite">Различни мрежи · нужен е интернет.</p>
-          </div>
-        </div>
-        <div class="online-actions">
-          <button class="online-primary" id="create-online" type="button">
-            Създай двубой
-          </button>
-          <button class="online-primary" id="share-game" type="button" hidden>
-            Сподели линка
-          </button>
-          <button class="online-secondary" id="audio-toggle" type="button" hidden>
-            Микрофон
-          </button>
-          <button class="online-secondary" id="leave-game" type="button" hidden>
-            Излез
-          </button>
-        </div>
-      </section>
-
-      <section class="play-area" aria-labelledby="game-status">
-        <div class="turn-indicator">
-          <span class="turn-dot" aria-hidden="true"></span>
-          <p id="game-status" aria-live="polite">
-            Играч 1 е на ход <strong>×</strong>
-          </p>
-        </div>
-
-        <div class="board" id="board" role="grid" aria-label="Дъска за морски шах">
-          <button class="cell" type="button" data-cell="0" role="gridcell" aria-label="Горе вляво"></button>
-          <button class="cell" type="button" data-cell="1" role="gridcell" aria-label="Горе в средата"></button>
-          <button class="cell" type="button" data-cell="2" role="gridcell" aria-label="Горе вдясно"></button>
-          <button class="cell" type="button" data-cell="3" role="gridcell" aria-label="В средата вляво"></button>
-          <button class="cell" type="button" data-cell="4" role="gridcell" aria-label="В центъра"></button>
-          <button class="cell" type="button" data-cell="5" role="gridcell" aria-label="В средата вдясно"></button>
-          <button class="cell" type="button" data-cell="6" role="gridcell" aria-label="Долу вляво"></button>
-          <button class="cell" type="button" data-cell="7" role="gridcell" aria-label="Долу в средата"></button>
-          <button class="cell" type="button" data-cell="8" role="gridcell" aria-label="Долу вдясно"></button>
-        </div>
-
-        <button class="new-round" id="new-round" type="button">
-          <span>Нов рунд</span>
-          <span aria-hidden="true">→</span>
-        </button>
-      </section>
-    </main>
-
-    <div class="background-shape shape-one" aria-hidden="true"></div>
-    <div class="background-shape shape-two" aria-hidden="true"></div>
-
-    <audio id="remote-audio" autoplay playsinline></audio>
-
-    <script
-      src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"
-      integrity="sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu"
-      crossorigin="anonymous"
-    ></script>
-    <script src="app.js"></script>
+    <div id="app"></div>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>
