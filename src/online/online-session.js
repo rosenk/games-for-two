@@ -2,6 +2,17 @@ import Peer from "peerjs";
 
 import { isValidMatchToken } from "./match-url.js";
 
+const otherPlayer = (player) => player === "X" ? "O" : "X";
+
+export function playerForRole(roomId, role) {
+  const hash = [...roomId].reduce(
+    (value, character) => (value * 31 + character.charCodeAt(0)) >>> 0,
+    0,
+  );
+  const hostPlayer = hash % 2 === 0 ? "X" : "O";
+  return role === "host" ? hostPlayer : otherPlayer(hostPlayer);
+}
+
 export function createOnlineState() {
   return {
     mode: "local",
@@ -11,6 +22,7 @@ export function createOnlineState() {
     inviteUrl: "",
     error: "",
     audioEnabled: false,
+    remoteAudioEnabled: false,
     audioConnected: false,
     audioBusy: false,
     audioError: "",
@@ -50,6 +62,7 @@ export class OnlineSession {
       inviteUrl: this.inviteUrl,
       error: this.error,
       audioEnabled: Boolean(this.localStream),
+      remoteAudioEnabled: this.remoteAudioReady,
       audioConnected: this.audioConnected,
       audioBusy: this.audioBusy,
       audioError: this.audioError,
@@ -62,13 +75,13 @@ export class OnlineSession {
   }
 
   host(roomId, guestToken, inviteUrl) {
-    this.configure("host", "X", roomId, guestToken, inviteUrl);
+    this.configure("host", playerForRole(roomId, "host"), roomId, guestToken, inviteUrl);
     if (!this.validateMatch()) return;
     this.startHostPeer();
   }
 
   join(roomId, guestToken) {
-    this.configure("guest", "O", roomId, guestToken, "");
+    this.configure("guest", playerForRole(roomId, "guest"), roomId, guestToken, "");
     if (!this.validateMatch()) return;
     this.startGuestPeer();
   }
@@ -275,7 +288,7 @@ export class OnlineSession {
     }
 
     if (this.mode === "host") {
-      if (data.type === "move") this.callbacks.onMove(data.index);
+      if (data.type === "move") this.callbacks.onMove(data.index, otherPlayer(this.localPlayer));
       else if (data.type === "new-round") this.callbacks.onNewRound();
       else if (data.type === "reset-score") this.callbacks.onResetScore();
       else return;

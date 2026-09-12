@@ -153,7 +153,7 @@
           movePending = false;
         }
       },
-      onMove: (index) => updateGame((current) => makeMove(current, index, "O"), false),
+      onMove: (index, player) => updateGame((current) => makeMove(current, index, player), false),
       onNewRound: () => updateGame(startRound, false),
       onResetScore: () => updateGame(resetScore, false),
     });
@@ -177,12 +177,17 @@
 </script>
 
 <main class="game-shell">
-  <Scoreboard {game} {online} {waiting} onReset={requestScoreReset} />
+  <Scoreboard
+    {game}
+    {online}
+    {waiting}
+    onReset={requestScoreReset}
+    onAudio={() => session.toggleAudio()}
+  />
   <OnlinePanel
     {online}
     onCreate={createOnlineGame}
     onShare={shareGame}
-    onAudio={() => session.toggleAudio()}
     onLeave={leaveGame}
   />
   <GameBoard {game} {online} {canMove} {waiting} onPlay={playCell} onNewRound={requestNewRound} />

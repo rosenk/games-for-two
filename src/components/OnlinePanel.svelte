@@ -1,5 +1,5 @@
 <script>
-  let { online, onCreate, onShare, onAudio, onLeave } = $props();
+  let { online, onCreate, onShare, onLeave } = $props();
   let shareLabel = $state("Сподели линка");
 
   let copy = $derived.by(() => {
@@ -57,19 +57,6 @@
     {/if}
     {#if online.mode === "host" && online.inviteUrl}
       <button class="online-primary" type="button" onclick={share}>{shareLabel}</button>
-    {/if}
-    {#if online.connected}
-      <button
-        id="audio-toggle"
-        class="online-secondary"
-        class:active={online.audioEnabled}
-        type="button"
-        onclick={onAudio}
-        disabled={online.audioBusy}
-        aria-pressed={online.audioEnabled}
-      >
-        {online.audioEnabled ? "Спри микрофона" : "Микрофон"}
-      </button>
     {/if}
     {#if online.mode !== "local"}
       <button class="online-secondary" type="button" onclick={onLeave}>Излез</button>
