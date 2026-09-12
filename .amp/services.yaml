@@ -1,0 +1,9 @@
+services:
+  tic-tac-toe:
+    command: python3 -m http.server "$PORT" --bind 0.0.0.0
+    health: /
+    agent: control
+    portal:
+      url: /
+      title: Морски шах
+      description: Преглед и тест на играта.
