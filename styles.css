@@ -31,6 +31,10 @@ button {
   font: inherit;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .game-shell {
   position: relative;
   z-index: 1;
@@ -192,6 +196,150 @@ h1 span {
   padding: 12px;
 }
 
+.online-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(20, 31, 49, 0.66);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.online-card.phase-connected {
+  border-color: rgba(86, 216, 201, 0.3);
+  background: rgba(86, 216, 201, 0.06);
+}
+
+.online-card.phase-error {
+  border-color: rgba(255, 122, 89, 0.32);
+}
+
+.online-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.online-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 43px;
+  height: 43px;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(86, 216, 201, 0.1);
+  color: var(--o);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.phase-waiting .online-icon,
+.phase-connecting .online-icon {
+  animation: connection-pulse 1.2s ease-in-out infinite alternate;
+}
+
+.online-kicker,
+.online-summary h2,
+.online-summary p {
+  margin: 0;
+}
+
+.online-kicker {
+  color: var(--o);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.online-summary h2 {
+  margin: 1px 0 2px;
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.online-summary #online-description {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.online-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.online-actions button {
+  min-height: 40px;
+  border-radius: 11px;
+  padding: 9px 13px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.online-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.online-primary {
+  border: 1px solid rgba(86, 216, 201, 0.24);
+  background: var(--o);
+  color: #0b2826;
+}
+
+.online-primary:hover {
+  background: #6de4d6;
+}
+
+.online-secondary {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: #bdc5d3;
+}
+
+.online-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+#audio-toggle.active {
+  border-color: rgba(86, 216, 201, 0.35);
+  background: rgba(86, 216, 201, 0.18);
+  color: var(--o);
+  box-shadow: inset 0 0 0 1px rgba(86, 216, 201, 0.08);
+}
+
+#audio-toggle.active::before {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--o);
+  box-shadow: 0 0 0 3px rgba(86, 216, 201, 0.12);
+  content: "";
+  vertical-align: 1px;
+}
+
+.online-actions button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+  transform: none;
+}
+
+#remote-audio {
+  display: none;
+}
+
 .play-area {
   border: 1px solid var(--line);
   border-radius: 26px;
@@ -243,6 +391,11 @@ h1 span {
 .turn-indicator.finished .turn-dot {
   background: #f4ca64;
   box-shadow: 0 0 0 5px rgba(244, 202, 100, 0.11);
+}
+
+.turn-indicator.waiting .turn-dot {
+  background: #6f7b90;
+  box-shadow: 0 0 0 5px rgba(137, 148, 168, 0.1);
 }
 
 .board {
@@ -333,6 +486,13 @@ h1 span {
   transform: translateX(3px);
 }
 
+.new-round:disabled,
+.icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .background-shape {
   position: fixed;
   z-index: 0;
@@ -371,6 +531,13 @@ button:focus-visible {
   to {
     border-color: rgba(244, 202, 100, 0.9);
     transform: translateY(-2px);
+  }
+}
+
+@keyframes connection-pulse {
+  to {
+    background: rgba(86, 216, 201, 0.2);
+    box-shadow: 0 0 0 5px rgba(86, 216, 201, 0.05);
   }
 }
 
@@ -424,6 +591,58 @@ button:focus-visible {
   .draw-score {
     min-width: 58px;
     padding: 8px;
+  }
+
+  .online-card {
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .online-summary {
+    gap: 9px;
+  }
+
+  .online-icon {
+    width: 37px;
+    height: 37px;
+    border-radius: 11px;
+    font-size: 0.66rem;
+  }
+
+  .online-summary h2 {
+    font-size: 0.8rem;
+  }
+
+  .online-summary #online-description {
+    max-width: 145px;
+    font-size: 0.62rem;
+  }
+
+  .online-actions {
+    flex-direction: column;
+  }
+
+  .online-actions button {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.62rem;
+  }
+
+  .online-card.phase-connected {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .phase-connected .online-summary #online-description {
+    max-width: none;
+  }
+
+  .phase-connected .online-actions {
+    flex-direction: row;
+  }
+
+  .phase-connected .online-actions button {
+    flex: 1;
   }
 
   .play-area {

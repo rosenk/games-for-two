@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#101827" />
     <meta
       name="description"
-      content="Морски шах за двама играчи на един екран."
+      content="Морски шах за двама играчи на един или два телефона."
     />
     <title>Морски шах</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,7 +21,7 @@
     <main class="game-shell">
       <header class="game-header">
         <div>
-          <p class="eyebrow">Игра за двама</p>
+          <p class="eyebrow">На един или два телефона</p>
           <h1>Морски шах<span aria-hidden="true">.</span></h1>
         </div>
         <button class="icon-button" id="reset-score" type="button">
@@ -34,7 +34,7 @@
         <article class="player-card player-x active" data-player-card="X">
           <span class="player-symbol" aria-hidden="true">×</span>
           <div>
-            <span class="player-label">Играч 1</span>
+            <span class="player-label" id="label-x">Играч 1</span>
             <strong id="score-x">0</strong>
           </div>
         </article>
@@ -47,10 +47,35 @@
         <article class="player-card player-o" data-player-card="O">
           <span class="player-symbol" aria-hidden="true">○</span>
           <div>
-            <span class="player-label">Играч 2</span>
+            <span class="player-label" id="label-o">Играч 2</span>
             <strong id="score-o">0</strong>
           </div>
         </article>
+      </section>
+
+      <section class="online-card" id="online-card" aria-labelledby="online-title">
+        <div class="online-summary">
+          <span class="online-icon" aria-hidden="true">2P</span>
+          <div>
+            <p class="online-kicker">Онлайн игра</p>
+            <h2 id="online-title">Играй с приятел</h2>
+            <p id="online-description" aria-live="polite">Създай частен линк и го изпрати.</p>
+          </div>
+        </div>
+        <div class="online-actions">
+          <button class="online-primary" id="create-online" type="button">
+            Създай двубой
+          </button>
+          <button class="online-primary" id="share-game" type="button" hidden>
+            Сподели линка
+          </button>
+          <button class="online-secondary" id="audio-toggle" type="button" hidden>
+            Микрофон
+          </button>
+          <button class="online-secondary" id="leave-game" type="button" hidden>
+            Излез
+          </button>
+        </div>
       </section>
 
       <section class="play-area" aria-labelledby="game-status">
@@ -83,6 +108,13 @@
     <div class="background-shape shape-one" aria-hidden="true"></div>
     <div class="background-shape shape-two" aria-hidden="true"></div>
 
+    <audio id="remote-audio" autoplay playsinline></audio>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"
+      integrity="sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu"
+      crossorigin="anonymous"
+    ></script>
     <script src="app.js"></script>
   </body>
 </html>
