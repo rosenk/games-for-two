@@ -56,6 +56,10 @@ function createLocalSession() {
     connected: false,
     inviteUrl: "",
     error: "",
+    roomId: "",
+    guestToken: "",
+    reconnectTimer: null,
+    reconnectEnabled: true,
     localStream: null,
     remoteAudioReady: false,
     call: null,
@@ -70,6 +74,13 @@ function playerName(player) {
 
 function playerMark(player) {
   return player === "X" ? "×" : "○";
+}
+
+function randomToken(prefix) {
+  if (crypto.randomUUID) return `${prefix}${crypto.randomUUID()}`;
+
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return `${prefix}${[...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
 }
 
 function displayName(player) {
@@ -181,16 +192,20 @@ function renderOnline() {
     onlineDescription.textContent = online.error || "Опитайте отново след малко.";
   } else if (online.mode === "local") {
     onlineTitle.textContent = "Играй с приятел";
-    onlineDescription.textContent = "Създай частен линк и го изпрати.";
+    onlineDescription.textContent = "Различни мрежи · нужен е интернет.";
   } else if (online.phase === "creating") {
     onlineTitle.textContent = "Създаваме двубоя…";
     onlineDescription.textContent = "Това обикновено отнема няколко секунди.";
   } else if (online.mode === "host" && online.phase === "waiting") {
     onlineTitle.textContent = "Двубоят е готов";
     onlineDescription.textContent = "Сподели линка и остави тази страница отворена.";
-  } else if (online.phase === "connecting") {
-    onlineTitle.textContent = "Влизате в двубоя…";
-    onlineDescription.textContent = "Свързваме двата телефона директно.";
+  } else if (online.phase === "connecting" || online.phase === "reconnecting") {
+    onlineTitle.textContent = online.phase === "connecting"
+      ? "Влизате в двубоя…"
+      : "Възстановяваме връзката…";
+    onlineDescription.textContent = navigator.onLine
+      ? "Двубоят ще продължи автоматично."
+      : "Чакаме интернет връзка.";
   } else if (online.phase === "connected") {
     onlineTitle.textContent = "Играете онлайн";
     if (online.audioError) {
@@ -463,7 +478,16 @@ function handleConnectionData(data) {
   } else if (data.type === "state") {
     applyRemoteState(data.state);
   } else if (data.type === "full") {
+    online.reconnectEnabled = false;
     showOnlineError("В този двубой вече има двама играчи.");
+  } else if (data.type === "replaced") {
+    online.reconnectEnabled = false;
+    if (online.localStream) {
+      online.localStream.getTracks().forEach((track) => track.stop());
+      online.localStream = null;
+    }
+    closeAudioCall();
+    showOnlineError("Двубоят продължава в другия браузър.");
   }
 }
 
@@ -477,9 +501,15 @@ function handleConnectionEnd(connection) {
   closeAudioCall();
 
   if (online.mode === "host") {
-    online.phase = "waiting";
+    online.phase = navigator.onLine ? "waiting" : "reconnecting";
     online.error = "";
+    if (!online.peer || online.peer.destroyed) scheduleHostReconnect(0);
+    else if (online.peer.disconnected) reconnectSignaling(online.peer);
   } else if (online.mode === "guest") {
+    if (online.reconnectEnabled) {
+      scheduleGuestReconnect();
+      return;
+    }
     online.phase = "error";
     online.error ||= "Другият играч прекъсна връзката.";
   }
@@ -490,9 +520,13 @@ function handleConnectionEnd(connection) {
 
 function attachConnection(connection) {
   online.connection = connection;
+  online.connected = false;
+  online.remoteAudioReady = false;
+  closeAudioCall();
 
   connection.on("open", () => {
     if (online.connection !== connection) return;
+    clearReconnectTimer();
     online.connected = true;
     online.phase = "connected";
     online.error = "";
@@ -504,31 +538,109 @@ function attachConnection(connection) {
     maybeStartAudioCall();
   });
 
-  connection.on("data", handleConnectionData);
+  connection.on("data", (data) => {
+    if (online.connection === connection) handleConnectionData(data);
+  });
   connection.on("close", () => handleConnectionEnd(connection));
   connection.on("error", () => handleConnectionEnd(connection));
 }
 
-function rejectExtraConnection(connection) {
+function rejectConnection(connection) {
   connection.on("open", () => {
     connection.send({ type: "full" });
     window.setTimeout(() => connection.close(), 150);
   });
 }
 
-function reconnectPeer(peer) {
+function clearReconnectTimer(session = online) {
+  if (!session.reconnectTimer) return;
+  window.clearTimeout(session.reconnectTimer);
+  session.reconnectTimer = null;
+}
+
+function reconnectSignaling(peer) {
   window.setTimeout(() => {
-    if (online.peer === peer && peer.disconnected && !peer.destroyed) {
-      try {
-        peer.reconnect();
-      } catch {
-        showOnlineError("Не успяхме да възстановим връзката.");
-      }
+    if (online.peer !== peer || peer.destroyed || !peer.disconnected) return;
+
+    try {
+      peer.reconnect();
+    } catch {
+      if (online.connected) return;
+      if (online.mode === "host") scheduleHostReconnect();
+      else if (online.mode === "guest") scheduleGuestReconnect();
     }
   }, 1000);
 }
 
+function scheduleHostReconnect(delay = 1500) {
+  if (online.mode !== "host" || online.connected || online.reconnectTimer) return;
+
+  online.phase = online.inviteUrl ? "reconnecting" : "creating";
+  renderOnline();
+  renderGame();
+  online.reconnectTimer = window.setTimeout(() => {
+    online.reconnectTimer = null;
+    startHostPeer();
+  }, delay);
+}
+
+function scheduleGuestReconnect(delay = 1500) {
+  if (
+    online.mode !== "guest"
+    || online.connected
+    || !online.reconnectEnabled
+    || online.reconnectTimer
+  ) return;
+
+  online.phase = "reconnecting";
+  online.error = "";
+  renderOnline();
+  renderGame();
+  online.reconnectTimer = window.setTimeout(() => {
+    online.reconnectTimer = null;
+    startGuestPeer();
+  }, delay);
+}
+
+function replaceCurrentPeer(peer) {
+  const previousPeer = online.peer;
+  online.peer = peer;
+  if (previousPeer && previousPeer !== peer && !previousPeer.destroyed) {
+    previousPeer.destroy();
+  }
+}
+
+function handleHostConnection(connection) {
+  if (connection.metadata?.playerToken !== online.guestToken) {
+    rejectConnection(connection);
+    return;
+  }
+
+  if (online.connection) {
+    const previousConnection = online.connection;
+    if (previousConnection.open) {
+      try {
+        previousConnection.send({ type: "replaced" });
+      } catch {}
+      window.setTimeout(() => previousConnection.close(), 250);
+    } else {
+      previousConnection.close();
+    }
+
+    online.connection = null;
+    online.connected = false;
+    online.remoteAudioReady = false;
+    closeAudioCall();
+  }
+
+  online.phase = "waiting";
+  attachConnection(connection);
+  renderOnline();
+  renderGame();
+}
+
 function showOnlineError(message) {
+  clearReconnectTimer();
   online.connected = false;
   online.phase = "error";
   online.error = message;
@@ -537,11 +649,55 @@ function showOnlineError(message) {
   renderGame();
 }
 
+function startHostPeer() {
+  if (online.mode !== "host" || online.connected) return;
+  if (!navigator.onLine) {
+    scheduleHostReconnect();
+    return;
+  }
+
+  const peer = new window.Peer(online.roomId);
+  replaceCurrentPeer(peer);
+
+  peer.on("open", () => {
+    if (online.peer !== peer) return;
+    clearReconnectTimer();
+
+    if (!online.inviteUrl) {
+      const inviteUrl = new URL(window.location.href);
+      inviteUrl.search = "";
+      inviteUrl.hash = "";
+      inviteUrl.searchParams.set("room", online.roomId);
+      inviteUrl.searchParams.set("player", online.guestToken);
+      online.inviteUrl = inviteUrl.toString();
+    }
+
+    online.phase = online.connected ? "connected" : "waiting";
+    renderOnline();
+    renderGame();
+  });
+
+  peer.on("connection", (connection) => {
+    if (online.peer !== peer) return connection.close();
+    handleHostConnection(connection);
+  });
+  peer.on("call", handleIncomingCall);
+  peer.on("disconnected", () => reconnectSignaling(peer));
+  peer.on("close", () => {
+    if (online.peer === peer && !online.connected) scheduleHostReconnect();
+  });
+  peer.on("error", () => {
+    if (online.peer === peer && !online.connected) scheduleHostReconnect();
+  });
+}
+
 function createOnlineGame() {
   leaveOnlineGame(false);
   online.mode = "host";
   online.localPlayer = "X";
   online.phase = "creating";
+  online.roomId = randomToken("ttt-");
+  online.guestToken = randomToken("p-");
   resetMatch();
   renderOnline();
 
@@ -553,69 +709,64 @@ function createOnlineGame() {
     return;
   }
 
-  const peer = new window.Peer();
-  online.peer = peer;
-
-  peer.on("open", (id) => {
-    if (online.peer !== peer) return;
-    const inviteUrl = new URL(window.location.href);
-    inviteUrl.search = "";
-    inviteUrl.hash = "";
-    inviteUrl.searchParams.set("room", id);
-    online.inviteUrl = inviteUrl.toString();
-    online.phase = "waiting";
-    renderOnline();
-    renderGame();
-  });
-
-  peer.on("connection", (connection) => {
-    if (online.peer !== peer) return connection.close();
-    if (online.connection) return rejectExtraConnection(connection);
-    attachConnection(connection);
-  });
-
-  peer.on("call", handleIncomingCall);
-
-  peer.on("disconnected", () => reconnectPeer(peer));
-  peer.on("error", () => showOnlineError("Не успяхме да създадем двубоя."));
+  startHostPeer();
 }
 
-function joinOnlineGame(roomId) {
-  leaveOnlineGame(false);
-  online.mode = "guest";
-  online.localPlayer = "O";
-  online.phase = "connecting";
-  resetMatch();
-  renderOnline();
-
-  if (!/^[A-Za-z0-9_-]{1,100}$/.test(roomId) || typeof window.Peer !== "function") {
-    showOnlineError("Линкът за двубоя е невалиден.");
+function startGuestPeer() {
+  if (online.mode !== "guest" || online.connected || !online.reconnectEnabled) return;
+  if (!navigator.onLine) {
+    scheduleGuestReconnect();
     return;
   }
 
   const peer = new window.Peer();
-  online.peer = peer;
+  replaceCurrentPeer(peer);
 
   peer.on("open", () => {
-    if (online.peer !== peer) return;
-    attachConnection(peer.connect(roomId, { reliable: true }));
+    if (online.peer !== peer || online.connected) return;
+    const connection = peer.connect(online.roomId, {
+      reliable: true,
+      metadata: { playerToken: online.guestToken },
+    });
+    attachConnection(connection);
   });
 
   peer.on("connection", (connection) => connection.close());
   peer.on("call", handleIncomingCall);
-  peer.on("disconnected", () => reconnectPeer(peer));
-  peer.on("error", (error) => {
-    const message = error.type === "peer-unavailable"
-      ? "Двубоят не е активен. Нека приятелят ти създаде нов линк."
-      : "Не успяхме да се свържем с двубоя.";
-    showOnlineError(message);
+  peer.on("disconnected", () => reconnectSignaling(peer));
+  peer.on("close", () => {
+    if (online.peer === peer && !online.connected) scheduleGuestReconnect();
   });
+  peer.on("error", () => {
+    if (online.peer === peer && !online.connected) scheduleGuestReconnect();
+  });
+}
+
+function joinOnlineGame(roomId, guestToken) {
+  leaveOnlineGame(false);
+  online.mode = "guest";
+  online.localPlayer = "O";
+  online.phase = "connecting";
+  online.roomId = roomId;
+  online.guestToken = guestToken;
+  resetMatch();
+  renderOnline();
+
+  const validToken = (value) => /^[A-Za-z0-9_-]{1,100}$/.test(value || "");
+  if (!validToken(roomId) || !validToken(guestToken) || typeof window.Peer !== "function") {
+    online.reconnectEnabled = false;
+    showOnlineError("Линкът за двубоя е невалиден.");
+    return;
+  }
+
+  startGuestPeer();
 }
 
 function leaveOnlineGame(updateUrl = true) {
   const previousOnline = online;
   online = createLocalSession();
 
+  clearReconnectTimer(previousOnline);
   if (previousOnline.call) previousOnline.call.close();
   if (previousOnline.localStream) {
     previousOnline.localStream.getTracks().forEach((track) => track.stop());
@@ -626,6 +777,7 @@ function leaveOnlineGame(updateUrl = true) {
   if (updateUrl) {
     const url = new URL(window.location.href);
     url.searchParams.delete("room");
+    url.searchParams.delete("player");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   }
 
@@ -686,8 +838,37 @@ shareButton.addEventListener("click", shareGame);
 audioButton.addEventListener("click", toggleAudio);
 leaveButton.addEventListener("click", () => leaveOnlineGame());
 
+window.addEventListener("online", () => {
+  if (online.mode === "host" && !online.connected) {
+    clearReconnectTimer();
+    if (online.peer?.disconnected && !online.peer.destroyed) reconnectSignaling(online.peer);
+    else if (!online.peer || online.peer.destroyed) scheduleHostReconnect(0);
+    else {
+      online.phase = "waiting";
+      renderOnline();
+      renderGame();
+    }
+  } else if (online.mode === "guest" && !online.connected && online.reconnectEnabled) {
+    clearReconnectTimer();
+    scheduleGuestReconnect(0);
+  }
+});
+
+window.addEventListener("offline", () => {
+  if (online.mode === "local") return;
+  if (online.connection) online.connection.close();
+  else {
+    online.connected = false;
+    online.phase = "reconnecting";
+    closeAudioCall();
+    renderOnline();
+    renderGame();
+  }
+});
+
 renderGame();
 renderOnline();
 
-const requestedRoom = new URLSearchParams(window.location.search).get("room");
-if (requestedRoom) joinOnlineGame(requestedRoom);
+const urlParams = new URLSearchParams(window.location.search);
+const requestedRoom = urlParams.get("room");
+if (requestedRoom) joinOnlineGame(requestedRoom, urlParams.get("player"));

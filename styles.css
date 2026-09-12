@@ -542,14 +542,24 @@ button:focus-visible {
 }
 
 @media (max-width: 560px) {
+  body {
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .game-shell {
     width: min(100% - 22px, 500px);
-    padding: 26px 0 22px;
+    height: 100%;
+    padding: max(12px, env(safe-area-inset-top)) 0 max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
   }
 
   .game-header {
     align-items: flex-end;
-    margin-bottom: 22px;
+    flex: 0 0 auto;
+    margin-bottom: 10px;
   }
 
   .icon-button {
@@ -565,7 +575,9 @@ button:focus-visible {
   }
 
   .scoreboard {
+    flex: 0 0 auto;
     gap: 7px;
+    margin-bottom: 8px;
   }
 
   .player-card {
@@ -594,7 +606,9 @@ button:focus-visible {
   }
 
   .online-card {
+    flex: 0 0 auto;
     gap: 9px;
+    margin-bottom: 8px;
     padding: 11px;
   }
 
@@ -646,16 +660,37 @@ button:focus-visible {
   }
 
   .play-area {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 0;
     border-radius: 22px;
-    padding: 18px 14px;
+    padding: 12px 14px;
+  }
+
+  .turn-indicator {
+    flex: 0 0 auto;
+    margin: 0;
   }
 
   .board {
+    flex: 0 0 auto;
+    width: min(100%, 455px, calc(100svh - 401px));
     gap: 8px;
   }
 
   .cell {
     border-radius: 14px;
+    font-size: clamp(2.4rem, 13vw, 5.2rem);
+  }
+
+  .new-round {
+    flex: 0 0 auto;
+    min-height: 40px;
+    margin: 0 auto;
+    padding: 10px 16px;
   }
 }
 
