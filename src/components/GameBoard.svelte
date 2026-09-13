@@ -5,10 +5,16 @@
 
   const mark = (player) => player === "X" ? "×" : "○";
   const name = (player) => player === "X" ? "Играч 1" : "Играч 2";
+  const localTurnMessage = "Ваш ред";
   const displayName = (player) => {
     if (online.mode === "local" || online.mode === "matching") return name(player);
     return player === online.localPlayer ? "Вие" : "Противникът";
   };
+  let reminderTurn = $derived(
+    online.mode !== "local" && canMove
+      ? `${online.localPlayer}:${game.currentPlayer}:${game.board.map((cell) => cell || "-").join("")}`
+      : "",
+  );
 
   let status = $derived.by(() => {
     if (waiting) {
@@ -29,8 +35,25 @@
     }
     if (game.gameOver) return ["Равенство — чудесна игра!", ""];
     if (online.mode === "local") return [`${name(game.currentPlayer)} е на ход`, mark(game.currentPlayer)];
-    if (game.currentPlayer === online.localPlayer) return ["Ваш ред", mark(game.currentPlayer)];
+    if (game.currentPlayer === online.localPlayer) return [localTurnMessage, mark(game.currentPlayer)];
     return ["Ход на противника", mark(game.currentPlayer)];
+  });
+
+  $effect(() => {
+    if (!reminderTurn) return;
+
+    let reminder;
+    const timer = window.setTimeout(() => {
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+      reminder = new SpeechSynthesisUtterance(localTurnMessage);
+      reminder.lang = "bg-BG";
+      window.speechSynthesis.speak(reminder);
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(timer);
+      if (reminder) window.speechSynthesis.cancel();
+    };
   });
 </script>
 

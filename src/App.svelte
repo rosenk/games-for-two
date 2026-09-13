@@ -129,6 +129,7 @@
   async function createOnlineGame() {
     matchmaker.cancel();
     hostGame(await createRoomId(browserSecret));
+    await shareGame();
   }
 
   async function findOpponent() {
