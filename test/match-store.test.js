@@ -28,8 +28,8 @@ function memoryStorage() {
 
 test("restores each hosted room with its opponent and game state", async () => {
   const storage = memoryStorage();
-  const firstRoom = await createRoomId(browserSecret, "b".repeat(22));
-  const secondRoom = await createRoomId(browserSecret, "c".repeat(22));
+  const firstRoom = await createRoomId(browserSecret, "b".repeat(32));
+  const secondRoom = await createRoomId(browserSecret, "c".repeat(32));
   const playedGame = serializeGame(makeMove(createGameState(), 8, "X"));
 
   saveHostedMatch(storage, firstRoom, {
@@ -52,8 +52,8 @@ test("restores each hosted room with its opponent and game state", async () => {
 
 test("expires inactive rooms without touching active rooms", async () => {
   const storage = memoryStorage();
-  const expiredRoom = await createRoomId(browserSecret, "d".repeat(22));
-  const activeRoom = await createRoomId(browserSecret, "e".repeat(22));
+  const expiredRoom = await createRoomId(browserSecret, "d".repeat(32));
+  const activeRoom = await createRoomId(browserSecret, "e".repeat(32));
   const match = { playerTokenHash: null, game: serializeGame(createGameState()) };
 
   saveHostedMatch(storage, expiredRoom, match, 1000);
@@ -66,7 +66,7 @@ test("expires inactive rooms without touching active rooms", async () => {
 
 test("removes a room after a graceful exit", async () => {
   const storage = memoryStorage();
-  const roomId = await createRoomId(browserSecret, "f".repeat(22));
+  const roomId = await createRoomId(browserSecret, "f".repeat(32));
   saveHostedMatch(storage, roomId, {
     playerTokenHash: null,
     game: serializeGame(createGameState()),
@@ -79,7 +79,7 @@ test("removes a room after a graceful exit", async () => {
 
 test("discards a corrupted game snapshot", async () => {
   const storage = memoryStorage();
-  const roomId = await createRoomId(browserSecret, "g".repeat(22));
+  const roomId = await createRoomId(browserSecret, "a".repeat(32));
 
   storage.setItem(`tic-tac-toe:match:${roomId}`, JSON.stringify({
     version: 1,

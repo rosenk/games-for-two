@@ -8,9 +8,12 @@ export default defineConfig(({ command }) => ({
     {
       name: "development-source-entry",
       apply: "serve",
-      transformIndexHtml: (html) => html
-        .replace('    <link rel="stylesheet" href="./styles.css" />\n', "")
-        .replace('src="./app.js"', 'src="/src/main.js"'),
+      transformIndexHtml: {
+        order: "pre",
+        handler: (html) => html
+          .replace('    <link rel="stylesheet" href="./styles.css" />\n', "")
+          .replace('src="./app.js"', 'src="/src/main.js"'),
+      },
     },
   ],
   server: {

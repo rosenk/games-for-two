@@ -46,6 +46,7 @@ export class OnlineSession {
     this.connection = null;
     this.reconnectTimer = null;
     this.heartbeatTimer = null;
+    this.arrivalTimer = null;
     this.reconnectEnabled = true;
     this.localStream = null;
     this.remoteAudioReady = false;
@@ -161,6 +162,7 @@ export class OnlineSession {
     this.audioBusy = false;
     this.clearReconnectTimer();
     this.clearHeartbeatTimer();
+    this.clearArrivalTimer();
 
     if (call) call.close();
     if (stream) stream.getTracks().forEach((track) => track.stop());
@@ -369,7 +371,7 @@ export class OnlineSession {
       activated = true;
       this.clearReconnectTimer();
       this.connected = true;
-      this.phase = "connected";
+      this.phase = "arrived";
       this.error = "";
       this.audioError = "";
       this.emit();
@@ -378,6 +380,13 @@ export class OnlineSession {
       else this.startHeartbeat();
       if (this.localStream) this.send({ type: "audio-ready" });
       this.maybeStartAudioCall();
+      this.clearArrivalTimer();
+      this.arrivalTimer = window.setTimeout(() => {
+        this.arrivalTimer = null;
+        if (this.connection !== connection || !this.connected) return;
+        this.phase = "connected";
+        this.emit();
+      }, 1600);
     };
     connection.on("open", activate);
     connection.on("data", (data) => {
@@ -395,6 +404,7 @@ export class OnlineSession {
     this.connected = false;
     this.remoteAudioReady = false;
     this.clearHeartbeatTimer();
+    this.clearArrivalTimer();
     this.closeAudioCall();
 
     if (this.mode === "host") {
@@ -422,9 +432,18 @@ export class OnlineSession {
   }
 
   async handleHostConnection(connection) {
+    if (!this.connected) {
+      this.phase = "joining";
+      this.emit();
+    }
+
     const playerToken = connection.metadata?.playerToken;
     if (!isValidMatchToken(playerToken)) {
       this.rejectConnection(connection);
+      if (!this.connected) {
+        this.phase = "waiting";
+        this.emit();
+      }
       return;
     }
 
@@ -432,6 +451,10 @@ export class OnlineSession {
     if (this.mode !== "host") return connection.close();
     if (this.acceptedPlayerTokenHash && playerTokenHash !== this.acceptedPlayerTokenHash) {
       this.rejectConnection(connection);
+      if (!this.connected) {
+        this.phase = "waiting";
+        this.emit();
+      }
       return;
     }
     if (!this.acceptedPlayerTokenHash) {
@@ -456,7 +479,7 @@ export class OnlineSession {
       this.closeAudioCall();
     }
 
-    this.phase = "waiting";
+    this.phase = "joining";
     this.attachConnection(connection);
     this.callbacks.onActivity?.();
     this.emit();
@@ -480,6 +503,12 @@ export class OnlineSession {
     if (!this.heartbeatTimer) return;
     window.clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
+  }
+
+  clearArrivalTimer() {
+    if (!this.arrivalTimer) return;
+    window.clearTimeout(this.arrivalTimer);
+    this.arrivalTimer = null;
   }
 
   startHeartbeat() {

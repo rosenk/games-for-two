@@ -14,6 +14,8 @@
     if (waiting) {
       if (online.phase === "creating") return ["Създаваме двубоя…", ""];
       if (online.mode === "host" && online.phase === "waiting") return ["Чакаме другия играч…", ""];
+      if (online.phase === "joining") return ["Другият играч се включва…", ""];
+      if (online.phase === "expired") return ["Двубоят изтече.", ""];
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }

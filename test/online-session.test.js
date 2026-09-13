@@ -33,9 +33,10 @@ test("reports when the remote player starts and stops their microphone", () => {
 
 test("host binds the first valid player token hash and rejects a different one", async () => {
   let acceptedHash = "";
+  const phases = [];
   const session = new OnlineSession({
     getRemoteAudio: () => null,
-    onChange: () => {},
+    onChange: (state) => phases.push(state.phase),
     onOpponentAccepted: (playerTokenHash) => {
       acceptedHash = playerTokenHash;
     },
@@ -61,6 +62,7 @@ test("host binds the first valid player token hash and rejects a different one",
   assert.match(acceptedHash, /^[A-Za-z0-9_-]{43}$/);
   assert.equal(session.connection, first);
   assert.equal(typeof other.handlers.open, "function");
+  assert.equal(phases.includes("joining"), true);
 });
 
 test("a restored host accepts only the previously bound player", async () => {
@@ -106,4 +108,89 @@ test("graceful leave notifies the connected opponent", () => {
 
   assert.deepEqual(sent, [{ type: "leave" }]);
   assert.equal(session.mode, "local");
+});
+
+test("remote graceful leave releases the hosted room", () => {
+  let released = false;
+  let closed = false;
+  const session = new OnlineSession({
+    getRemoteAudio: () => null,
+    onChange: () => {},
+    onRemoteLeave: () => {
+      released = true;
+    },
+  });
+  session.mode = "host";
+  session.acceptedPlayerTokenHash = "a".repeat(43);
+  session.connection = {
+    close: () => {
+      closed = true;
+    },
+  };
+
+  session.handleConnectionData({ type: "leave" });
+
+  assert.equal(released, true);
+  assert.equal(closed, true);
+  assert.equal(session.acceptedPlayerTokenHash, "");
+});
+
+test("inactive matches notify the opponent and enter the expired state", () => {
+  const sent = [];
+  const phases = [];
+  const session = new OnlineSession({
+    getRemoteAudio: () => null,
+    onChange: (state) => phases.push(state.phase),
+  });
+  session.mode = "host";
+  session.connection = {
+    open: true,
+    send: (message) => sent.push(message),
+    close() {},
+  };
+
+  session.expire();
+
+  assert.deepEqual(sent, [{ type: "expired" }]);
+  assert.equal(phases.at(-1), "expired");
+  assert.equal(session.connected, false);
+});
+
+test("shows a brief arrival phase before the stable connected state", () => {
+  const originalWindow = globalThis.window;
+  let finishArrival;
+  globalThis.window = {
+    clearInterval() {},
+    clearTimeout() {},
+    setTimeout(callback) {
+      finishArrival = callback;
+      return 1;
+    },
+  };
+
+  try {
+    const phases = [];
+    const session = new OnlineSession({
+      getGameState: () => ({}),
+      getRemoteAudio: () => null,
+      onChange: (state) => phases.push(state.phase),
+    });
+    const connection = {
+      open: true,
+      handlers: {},
+      on(event, handler) {
+        this.handlers[event] = handler;
+      },
+      send() {},
+    };
+    session.mode = "host";
+
+    session.attachConnection(connection);
+    assert.equal(phases.at(-1), "arrived");
+
+    finishArrival();
+    assert.equal(phases.at(-1), "connected");
+  } finally {
+    globalThis.window = originalWindow;
+  }
 });

@@ -1,7 +1,7 @@
 const matchParameters = ["room", "player", "host", "role"];
 const tokenPattern = /^[A-Za-z0-9_-]{1,100}$/;
 const browserSecretPattern = /^[A-Za-z0-9_-]{43}$/;
-const roomPattern = /^ttt-([A-Za-z0-9_-]{22})([A-Za-z0-9_-]{22})$/;
+const roomPattern = /^ttt-([a-f0-9]{32})([a-f0-9]{32})$/;
 const browserSecretKey = "tic-tac-toe:browser-secret";
 
 const encoder = new TextEncoder();
@@ -17,7 +17,11 @@ function randomValue(byteLength) {
   return encode(crypto.getRandomValues(new Uint8Array(byteLength)));
 }
 
-async function sign(browserSecret, value) {
+function encodeHex(bytes) {
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function signatureBytes(browserSecret, value) {
   if (!browserSecretPattern.test(browserSecret || "")) {
     throw new TypeError("Invalid browser identity");
   }
@@ -29,7 +33,11 @@ async function sign(browserSecret, value) {
     false,
     ["sign"],
   );
-  return encode(new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(value))));
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(value)));
+}
+
+async function sign(browserSecret, value) {
+  return encode(await signatureBytes(browserSecret, value));
 }
 
 export function isValidMatchToken(value) {
@@ -53,17 +61,17 @@ export function getOrCreateBrowserSecret(storage) {
   return browserSecret;
 }
 
-export async function createRoomId(browserSecret, nonce = randomValue(16)) {
-  if (!/^[A-Za-z0-9_-]{22}$/.test(nonce)) throw new TypeError("Invalid room nonce");
-  const signature = await sign(browserSecret, `room:${nonce}`);
-  return `ttt-${nonce}${signature.slice(0, 22)}`;
+export async function createRoomId(browserSecret, nonce = encodeHex(crypto.getRandomValues(new Uint8Array(16)))) {
+  if (!/^[a-f0-9]{32}$/.test(nonce)) throw new TypeError("Invalid room nonce");
+  const signature = encodeHex(await signatureBytes(browserSecret, `room:${nonce}`));
+  return `ttt-${nonce}${signature.slice(0, 32)}`;
 }
 
 export async function isRoomHost(roomId, browserSecret) {
   const match = roomPattern.exec(roomId || "");
   if (!match) return false;
   const [, nonce, signature] = match;
-  return (await sign(browserSecret, `room:${nonce}`)).slice(0, 22) === signature;
+  return encodeHex(await signatureBytes(browserSecret, `room:${nonce}`)).slice(0, 32) === signature;
 }
 
 export async function playerTokenForRoom(browserSecret, roomId) {

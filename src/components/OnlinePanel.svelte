@@ -12,14 +12,25 @@
     if (online.phase === "creating") {
       return ["Създаваме двубоя…", "Това обикновено отнема няколко секунди."];
     }
+    if (online.phase === "expired") {
+      return ["Двубоят изтече", online.error || "Създай нов двубой, за да играете отново."];
+    }
     if (online.mode === "host" && online.phase === "waiting") {
       return ["Двубоят е готов", "Сподели линка и остави тази страница отворена."];
+    }
+    if (online.phase === "joining") {
+      return ["Другият играч се включва…", "Установяваме връзката с двубоя."];
     }
     if (online.phase === "connecting" || online.phase === "reconnecting") {
       return [
         online.phase === "connecting" ? "Влизате в двубоя…" : "Възстановяваме връзката…",
         online.networkOnline ? "Двубоят ще продължи автоматично." : "Чакаме интернет връзка.",
       ];
+    }
+    if (online.phase === "arrived") {
+      return online.mode === "host"
+        ? ["Другият играч е тук ✓", "Връзката е установена."]
+        : ["Свързахте се успешно ✓", "Двубоят е готов."];
     }
     if (online.phase === "connected") {
       if (online.audioError) return ["Играете онлайн", online.audioError];

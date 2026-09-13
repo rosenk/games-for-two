@@ -16,7 +16,7 @@ import {
 
 const browserOne = "a".repeat(43);
 const browserTwo = "b".repeat(43);
-const nonce = "c".repeat(22);
+const nonce = "c".repeat(32);
 
 test("keeps one stable identity in browser storage", () => {
   const values = new Map();
@@ -33,7 +33,7 @@ test("keeps one stable identity in browser storage", () => {
 test("recognizes only rooms signed by the current browser", async () => {
   const roomId = await createRoomId(browserOne, nonce);
 
-  assert.equal(roomId, "ttt-ccccccccccccccccccccccO9C1ICyvIIt7Sdsw2CgcLd");
+  assert.equal(roomId, "ttt-cccccccccccccccccccccccccccccccc5e326eae1acbdd13b4e93bfad5ba6cb4");
   assert.equal(isValidRoomId(roomId), true);
   assert.equal(await isRoomHost(roomId, browserOne), true);
   assert.equal(await isRoomHost(roomId, browserTwo), false);
@@ -41,7 +41,7 @@ test("recognizes only rooms signed by the current browser", async () => {
 
 test("derives stable, room-specific player tokens", async () => {
   const firstRoom = await createRoomId(browserOne, nonce);
-  const secondRoom = await createRoomId(browserOne, "d".repeat(22));
+  const secondRoom = await createRoomId(browserOne, "d".repeat(32));
 
   assert.equal(
     await playerTokenForRoom(browserOne, firstRoom),
