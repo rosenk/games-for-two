@@ -34,6 +34,7 @@
   let game = $state(createGameState());
   let online = $state(createOnlineState());
   let movePending = $state(false);
+  let roundCountdown = $state(5);
   let remoteAudio = $state();
   let session;
   let browserSecret;
@@ -47,6 +48,26 @@
       && (online.mode === "local"
         || (online.connected && game.currentPlayer === online.localPlayer && !movePending)),
   );
+
+  $effect(() => {
+    if (!game.gameOver || waiting) {
+      roundCountdown = 5;
+      return;
+    }
+
+    let secondsRemaining = 5;
+    roundCountdown = secondsRemaining;
+    const timer = window.setInterval(() => {
+      secondsRemaining -= 1;
+      roundCountdown = secondsRemaining;
+      if (secondsRemaining === 0) {
+        window.clearInterval(timer);
+        if (online.mode !== "guest") requestNewRound();
+      }
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  });
 
   function updateGame(change, broadcast = true) {
     game = change(game);
@@ -77,6 +98,7 @@
   }
 
   function requestNewRound() {
+    if (!game.gameOver) return;
     if (online.mode === "guest") session.send({ type: "new-round" });
     else updateGame(startRound, online.mode === "host");
   }
@@ -248,7 +270,15 @@
     onShare={shareGame}
     onLeave={leaveGame}
   />
-  <GameBoard {game} {online} {canMove} {waiting} onPlay={playCell} onNewRound={requestNewRound} />
+  <GameBoard
+    {game}
+    {online}
+    {canMove}
+    {waiting}
+    {roundCountdown}
+    onPlay={playCell}
+    onNewRound={requestNewRound}
+  />
 </main>
 
 <div class="background-shape shape-one" aria-hidden="true"></div>

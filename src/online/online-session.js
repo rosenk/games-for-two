@@ -44,6 +44,7 @@ export class OnlineSession {
     this.acceptedPlayerTokenHash = "";
     this.peer = null;
     this.connection = null;
+    this.connectionTimer = null;
     this.reconnectTimer = null;
     this.heartbeatTimer = null;
     this.arrivalTimer = null;
@@ -160,6 +161,7 @@ export class OnlineSession {
     this.remoteAudioReady = false;
     this.audioConnected = false;
     this.audioBusy = false;
+    this.clearConnectionTimer();
     this.clearReconnectTimer();
     this.clearHeartbeatTimer();
     this.clearArrivalTimer();
@@ -369,6 +371,7 @@ export class OnlineSession {
       if (this.connection !== connection) return;
       if (activated) return;
       activated = true;
+      this.clearConnectionTimer();
       this.clearReconnectTimer();
       this.connected = true;
       this.phase = "arrived";
@@ -395,6 +398,15 @@ export class OnlineSession {
     connection.on("close", () => this.handleConnectionEnd(connection));
     connection.on("error", () => this.handleConnectionEnd(connection));
     if (connection.open) activate();
+    else if (this.mode === "guest") {
+      this.clearConnectionTimer();
+      this.connectionTimer = window.setTimeout(() => {
+        this.connectionTimer = null;
+        if (this.connection !== connection || this.connected) return;
+        connection.close();
+        this.handleConnectionEnd(connection);
+      }, 10000);
+    }
   }
 
   handleConnectionEnd(connection) {
@@ -403,6 +415,7 @@ export class OnlineSession {
     this.connection = null;
     this.connected = false;
     this.remoteAudioReady = false;
+    this.clearConnectionTimer();
     this.clearHeartbeatTimer();
     this.clearArrivalTimer();
     this.closeAudioCall();
@@ -491,6 +504,12 @@ export class OnlineSession {
     this.phase = "error";
     this.error = message;
     this.emit();
+  }
+
+  clearConnectionTimer() {
+    if (!this.connectionTimer) return;
+    window.clearTimeout(this.connectionTimer);
+    this.connectionTimer = null;
   }
 
   clearReconnectTimer() {

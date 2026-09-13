@@ -194,3 +194,48 @@ test("shows a brief arrival phase before the stable connected state", () => {
     globalThis.window = originalWindow;
   }
 });
+
+test("retries when a guest connection never opens or fails", () => {
+  const originalWindow = globalThis.window;
+  const timers = [];
+  globalThis.window = {
+    clearInterval() {},
+    clearTimeout() {},
+    setTimeout(callback, delay) {
+      timers.push({ callback, delay });
+      return timers.length;
+    },
+  };
+
+  try {
+    const phases = [];
+    let closed = false;
+    const session = new OnlineSession({
+      getRemoteAudio: () => null,
+      onChange: (state) => phases.push(state.phase),
+    });
+    const connection = {
+      open: false,
+      handlers: {},
+      on(event, handler) {
+        this.handlers[event] = handler;
+      },
+      close() {
+        closed = true;
+      },
+    };
+    session.mode = "guest";
+    session.attachConnection(connection);
+
+    const connectionTimeout = timers.find(({ delay }) => delay === 10000);
+    assert.ok(connectionTimeout);
+    connectionTimeout.callback();
+
+    assert.equal(closed, true);
+    assert.equal(session.connection, null);
+    assert.equal(phases.at(-1), "reconnecting");
+    assert.equal(timers.some(({ delay }) => delay === 1500), true);
+  } finally {
+    globalThis.window = originalWindow;
+  }
+});

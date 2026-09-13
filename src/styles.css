@@ -516,29 +516,47 @@ button.player-audio:hover {
   justify-content: space-between;
   width: min(100%, 455px);
   margin: 20px auto 0;
-  border: 0;
+  border: 1px solid var(--line);
   border-radius: 15px;
   padding: 14px 18px;
-  background: #f4f6fa;
-  color: #101827;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
   font-size: 0.84rem;
   font-weight: 800;
   cursor: pointer;
-  transition: background 150ms ease, transform 150ms ease;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
-.new-round:hover {
-  background: #fff;
+.new-round:not(:disabled) {
+  border-color: rgba(244, 202, 100, 0.36);
+  background: rgba(244, 202, 100, 0.09);
+  color: #f8dc96;
+}
+
+.new-round:not(:disabled):hover {
+  border-color: rgba(244, 202, 100, 0.58);
+  background: rgba(244, 202, 100, 0.15);
   transform: translateY(-1px);
 }
 
-.new-round span:last-child {
-  font-size: 1.1rem;
-  transition: transform 150ms ease;
+.new-round .round-timer {
+  min-width: 50px;
+  border-radius: 9px;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #bdc5d3;
+  font-size: 0.7rem;
+  text-align: center;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
-.new-round:hover span:last-child {
-  transform: translateX(3px);
+.new-round:not(:disabled) .round-timer {
+  background: rgba(244, 202, 100, 0.14);
+  color: #f8dc96;
+}
+
+.new-round:not(:disabled):hover .round-timer {
+  transform: translateX(2px);
 }
 
 .new-round:disabled,

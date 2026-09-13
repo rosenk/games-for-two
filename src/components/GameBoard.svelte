@@ -1,7 +1,7 @@
 <script>
   import { cellLabels } from "../game/game-state.js";
 
-  let { game, online, canMove, waiting, onPlay, onNewRound } = $props();
+  let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
 
   const mark = (player) => player === "X" ? "×" : "○";
   const name = (player) => player === "X" ? "Играч 1" : "Играч 2";
@@ -63,8 +63,14 @@
     {/each}
   </div>
 
-  <button class="new-round" type="button" onclick={onNewRound} disabled={waiting}>
-    <span>Нов рунд</span>
-    <span aria-hidden="true">→</span>
+  <button
+    class="new-round"
+    type="button"
+    onclick={onNewRound}
+    disabled={waiting || !game.gameOver}
+    aria-label={game.gameOver ? `Нов рунд след ${roundCountdown} секунди` : "Нов рунд"}
+  >
+    <span>{game.gameOver ? "Нов рунд след" : "Нов рунд"}</span>
+    <span class="round-timer" aria-hidden="true">{game.gameOver ? `${roundCountdown} сек.` : "→"}</span>
   </button>
 </section>
