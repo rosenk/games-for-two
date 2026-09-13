@@ -29,18 +29,22 @@
     removeHostedMatch,
     saveHostedMatch,
   } from "./online/match-store.js";
+  import { Matchmaker } from "./online/matchmaker.js";
   import { createOnlineState, OnlineSession } from "./online/online-session.js";
 
   let game = $state(createGameState());
   let online = $state(createOnlineState());
+  let matchmakingAvailable = $state(false);
   let movePending = $state(false);
   let roundCountdown = $state(5);
   let remoteAudio = $state();
   let session;
+  let matchmaker;
   let browserSecret;
   let hostedRoomId = "";
   let hostedPlayerTokenHash = null;
   let hostedMatchUpdatedAt = 0;
+  let shareableMatch = $state(true);
 
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
@@ -108,12 +112,13 @@
     else updateGame(resetScore, online.mode === "host");
   }
 
-  function hostGame(roomId, storedMatch = null) {
+  function hostGame(roomId, storedMatch = null, shareable = true) {
     game = restoreGame(storedMatch?.game) || createGameState();
     movePending = false;
     hostedRoomId = roomId;
     hostedPlayerTokenHash = storedMatch?.playerTokenHash || null;
     hostedMatchUpdatedAt = storedMatch?.updatedAt || 0;
+    shareableMatch = shareable;
 
     const matchUrl = createMatchUrl(window.location.href, roomId);
     window.history.replaceState({}, "", matchPath(matchUrl));
@@ -122,7 +127,18 @@
   }
 
   async function createOnlineGame() {
+    matchmaker.cancel();
     hostGame(await createRoomId(browserSecret));
+  }
+
+  async function findOpponent() {
+    game = createGameState();
+    movePending = false;
+    hostedRoomId = "";
+    hostedPlayerTokenHash = null;
+    hostedMatchUpdatedAt = 0;
+    shareableMatch = false;
+    matchmaker.search(await createRoomId(browserSecret));
   }
 
   async function joinGame(roomId) {
@@ -138,6 +154,7 @@
   }
 
   function leaveGame() {
+    matchmaker.cancel();
     if (session.mode === "host") removeHostedMatch(localStorage, session.roomId);
     session.leave();
     game = createGameState();
@@ -145,6 +162,7 @@
     hostedRoomId = "";
     hostedPlayerTokenHash = null;
     hostedMatchUpdatedAt = 0;
+    shareableMatch = true;
     window.history.replaceState({}, "", clearMatchPath(window.location.href));
   }
 
@@ -183,6 +201,20 @@
   }
 
   onMount(() => {
+    matchmaker = new Matchmaker({
+      onWaiting: () => {
+        online = { ...createOnlineState(), mode: "matching", phase: "matching" };
+      },
+      onMatched: ({ role, roomId }) => {
+        if (role === "host") hostGame(roomId, null, false);
+        else joinGame(roomId);
+      },
+      onError: (error) => {
+        online = { ...createOnlineState(), phase: "error", error };
+      },
+    });
+    matchmakingAvailable = matchmaker.configured;
+
     session = new OnlineSession({
       getRemoteAudio: () => remoteAudio,
       getGameState: () => serializeGame(game),
@@ -242,8 +274,12 @@
     };
     const expiryTimer = window.setInterval(expireInactiveMatch, 60000);
 
-    const handleOnline = () => session.handleOnline();
-    const handleOffline = () => session.handleOffline();
+    const handleOnline = () => {
+      if (!matchmaker.active) session.handleOnline();
+    };
+    const handleOffline = () => {
+      if (!matchmaker.active) session.handleOffline();
+    };
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
@@ -251,6 +287,7 @@
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       window.clearInterval(expiryTimer);
+      matchmaker.cancel();
       session.destroy();
     };
   });
@@ -266,7 +303,10 @@
   />
   <OnlinePanel
     {online}
+    {matchmakingAvailable}
+    {shareableMatch}
     onCreate={createOnlineGame}
+    onFind={findOpponent}
     onShare={shareGame}
     onLeave={leaveGame}
   />

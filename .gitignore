@@ -1,4 +1,4 @@
 .amp/portals/
-.root-build/
+.wrangler/
 dist/
 node_modules/

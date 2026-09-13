@@ -1,5 +1,13 @@
 <script>
-  let { online, onCreate, onShare, onLeave } = $props();
+  let {
+    online,
+    matchmakingAvailable,
+    shareableMatch,
+    onCreate,
+    onFind,
+    onShare,
+    onLeave,
+  } = $props();
   let shareLabel = $state("Сподели линка");
 
   let copy = $derived.by(() => {
@@ -7,7 +15,12 @@
       return ["Онлайн режимът не се зареди", online.error || "Опитайте отново след малко."];
     }
     if (online.mode === "local") {
-      return ["Играй с приятел", "Различни мрежи · нужен е интернет."];
+      return matchmakingAvailable
+        ? ["Играй онлайн", "С приятел или с непознат · нужен е интернет."]
+        : ["Играй с приятел", "Различни мрежи · нужен е интернет."];
+    }
+    if (online.phase === "matching") {
+      return ["Търсим противник…", "Двубоят ще започне автоматично."];
     }
     if (online.phase === "creating") {
       return ["Създаваме двубоя…", "Това обикновено отнема няколко секунди."];
@@ -64,9 +77,19 @@
   </div>
   <div class="online-actions">
     {#if online.mode === "local"}
-      <button class="online-primary" type="button" onclick={onCreate}>Създай двубой</button>
+      {#if matchmakingAvailable}
+        <button class="online-primary" type="button" onclick={onFind}>Намери играч</button>
+      {/if}
+      <button
+        class:online-primary={!matchmakingAvailable}
+        class:online-secondary={matchmakingAvailable}
+        type="button"
+        onclick={onCreate}
+      >
+        {matchmakingAvailable ? "Покани приятел" : "Създай двубой"}
+      </button>
     {/if}
-    {#if online.mode === "host" && online.inviteUrl}
+    {#if online.mode === "host" && online.inviteUrl && shareableMatch}
       <button class="online-primary" type="button" onclick={share}>{shareLabel}</button>
     {/if}
     {#if online.mode !== "local"}

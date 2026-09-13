@@ -2,7 +2,9 @@
   let { game, online, waiting, onReset, onAudio } = $props();
 
   const label = (player) => {
-    if (online.mode === "local") return player === "X" ? "Играч 1" : "Играч 2";
+    if (online.mode === "local" || online.mode === "matching") {
+      return player === "X" ? "Играч 1" : "Играч 2";
+    }
     return online.localPlayer === player ? "Вие" : "Противник";
   };
 

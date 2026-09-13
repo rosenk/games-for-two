@@ -277,6 +277,10 @@ button.player-audio:hover {
   background: rgba(86, 216, 201, 0.06);
 }
 
+.online-card.phase-matching {
+  border-color: rgba(86, 216, 201, 0.22);
+}
+
 .online-card.phase-arrived {
   animation: player-arrival 450ms cubic-bezier(0.2, 1.2, 0.4, 1);
 }
@@ -308,6 +312,7 @@ button.player-audio:hover {
 }
 
 .phase-waiting .online-icon,
+.phase-matching .online-icon,
 .phase-connecting .online-icon,
 .phase-joining .online-icon,
 .phase-reconnecting .online-icon {

@@ -6,12 +6,13 @@
   const mark = (player) => player === "X" ? "×" : "○";
   const name = (player) => player === "X" ? "Играч 1" : "Играч 2";
   const displayName = (player) => {
-    if (online.mode === "local") return name(player);
+    if (online.mode === "local" || online.mode === "matching") return name(player);
     return player === online.localPlayer ? "Вие" : "Противникът";
   };
 
   let status = $derived.by(() => {
     if (waiting) {
+      if (online.phase === "matching") return ["Търсим противник…", ""];
       if (online.phase === "creating") return ["Създаваме двубоя…", ""];
       if (online.mode === "host" && online.phase === "waiting") return ["Чакаме другия играч…", ""];
       if (online.phase === "joining") return ["Другият играч се включва…", ""];
