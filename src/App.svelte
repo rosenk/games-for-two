@@ -15,9 +15,11 @@
   import {
     clearMatchPath,
     createMatchUrls,
+    createPlayerUrl,
     isValidMatchToken,
     matchPath,
     parseMatchRoute,
+    roomIdForHostToken,
   } from "./online/match-url.js";
   import { createOnlineState, OnlineSession } from "./online/online-session.js";
 
@@ -68,31 +70,42 @@
     else updateGame(resetScore, online.mode === "host");
   }
 
-  function hostGame(roomId, guestToken) {
+  async function hostGame(roomId, hostToken) {
     game = createGameState();
     movePending = false;
 
-    if (!isValidMatchToken(roomId) || !isValidMatchToken(guestToken)) {
-      session.host(roomId, guestToken, "");
+    if (
+      !isValidMatchToken(roomId)
+      || !isValidMatchToken(hostToken)
+      || await roomIdForHostToken(hostToken) !== roomId
+    ) {
+      session.host("", "");
       return;
     }
 
-    const { hostUrl, inviteUrl } = createMatchUrls(window.location.href, { roomId, guestToken });
+    const { hostUrl, inviteUrl } = createMatchUrls(window.location.href, { roomId, hostToken });
     window.history.replaceState({}, "", matchPath(hostUrl));
-    session.host(roomId, guestToken, inviteUrl);
+    session.host(roomId, inviteUrl);
   }
 
-  function createOnlineGame() {
-    hostGame(randomToken("ttt-"), randomToken("p-"));
+  async function createOnlineGame() {
+    const hostToken = randomToken("h-");
+    await hostGame(await roomIdForHostToken(hostToken), hostToken);
   }
 
   function joinGame(roomId, guestToken) {
     game = createGameState();
     movePending = false;
 
+    if (isValidMatchToken(roomId) && guestToken === null) {
+      guestToken = randomToken("p-");
+    }
     if (isValidMatchToken(roomId) && isValidMatchToken(guestToken)) {
-      const { inviteUrl } = createMatchUrls(window.location.href, { roomId, guestToken });
-      window.history.replaceState({}, "", matchPath(inviteUrl));
+      const playerUrl = createPlayerUrl(window.location.href, {
+        roomId,
+        playerToken: guestToken,
+      });
+      window.history.replaceState({}, "", matchPath(playerUrl));
     }
     session.join(roomId, guestToken);
   }
@@ -159,9 +172,9 @@
     });
 
     const route = parseMatchRoute(window.location.search);
-    if (route?.valid && route.role === "host") hostGame(route.roomId, route.guestToken);
+    if (route?.valid && route.role === "host") hostGame(route.roomId, route.hostToken);
     else if (route?.valid) joinGame(route.roomId, route.guestToken);
-    else if (route) joinGame(route.roomId, null);
+    else if (route) session.join("", null);
 
     const handleOnline = () => session.handleOnline();
     const handleOffline = () => session.handleOffline();

@@ -29,3 +29,30 @@ test("reports when the remote player starts and stops their microphone", () => {
   session.handleConnectionData({ type: "audio-off" });
   assert.equal(changes.at(-1).remoteAudioEnabled, false);
 });
+
+test("host binds the first valid player token and rejects a different one", () => {
+  const session = new OnlineSession({
+    getRemoteAudio: () => null,
+    onChange: () => {},
+  });
+  const connection = (playerToken) => ({
+    metadata: { playerToken },
+    open: false,
+    handlers: {},
+    on(event, handler) {
+      this.handlers[event] = handler;
+    },
+    close() {},
+  });
+  const first = connection("p-first");
+  const other = connection("p-other");
+
+  session.mode = "host";
+  session.localPlayer = "X";
+  session.handleHostConnection(first);
+  session.handleHostConnection(other);
+
+  assert.equal(session.guestToken, "p-first");
+  assert.equal(session.connection, first);
+  assert.equal(typeof other.handlers.open, "function");
+});

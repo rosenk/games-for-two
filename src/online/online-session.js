@@ -74,8 +74,8 @@ export class OnlineSession {
     this.callbacks.onChange(this.snapshot());
   }
 
-  host(roomId, guestToken, inviteUrl) {
-    this.configure("host", playerForRole(roomId, "host"), roomId, guestToken, inviteUrl);
+  host(roomId, inviteUrl) {
+    this.configure("host", playerForRole(roomId, "host"), roomId, null, inviteUrl);
     if (!this.validateMatch()) return;
     this.startHostPeer();
   }
@@ -102,7 +102,10 @@ export class OnlineSession {
   }
 
   validateMatch() {
-    if (isValidMatchToken(this.roomId) && isValidMatchToken(this.guestToken)) return true;
+    if (
+      isValidMatchToken(this.roomId)
+      && (this.mode === "host" || isValidMatchToken(this.guestToken))
+    ) return true;
     this.reconnectEnabled = false;
     this.showError("Линкът за двубоя е невалиден.");
     return false;
@@ -367,10 +370,12 @@ export class OnlineSession {
   }
 
   handleHostConnection(connection) {
-    if (connection.metadata?.playerToken !== this.guestToken) {
+    const playerToken = connection.metadata?.playerToken;
+    if (!isValidMatchToken(playerToken) || (this.guestToken && playerToken !== this.guestToken)) {
       this.rejectConnection(connection);
       return;
     }
+    this.guestToken ||= playerToken;
 
     if (this.connection) {
       const previousConnection = this.connection;
