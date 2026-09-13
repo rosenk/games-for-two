@@ -16,7 +16,7 @@
     clearMatchPath,
     createMatchUrl,
     createRoomId,
-    getOrCreateBrowserSecret,
+    getOrCreateTabSecret,
     isRoomHost,
     matchPath,
     parseMatchRoute,
@@ -40,7 +40,7 @@
   let remoteAudio = $state();
   let session;
   let matchmaker;
-  let browserSecret;
+  let tabSecret;
   let hostedRoomId = "";
   let hostedPlayerTokenHash = null;
   let hostedMatchUpdatedAt = 0;
@@ -128,7 +128,7 @@
 
   async function createOnlineGame() {
     matchmaker.cancel();
-    hostGame(await createRoomId(browserSecret));
+    hostGame(await createRoomId(tabSecret));
     await shareGame();
   }
 
@@ -139,7 +139,7 @@
     hostedPlayerTokenHash = null;
     hostedMatchUpdatedAt = 0;
     shareableMatch = false;
-    matchmaker.search(await createRoomId(browserSecret));
+    matchmaker.search(await createRoomId(tabSecret));
   }
 
   async function joinGame(roomId) {
@@ -151,7 +151,7 @@
 
     const matchUrl = createMatchUrl(window.location.href, roomId);
     window.history.replaceState({}, "", matchPath(matchUrl));
-    session.join(roomId, await playerTokenForRoom(browserSecret, roomId));
+    session.join(roomId, await playerTokenForRoom(tabSecret, roomId));
   }
 
   function leaveGame() {
@@ -245,11 +245,11 @@
       },
     });
 
-    browserSecret = getOrCreateBrowserSecret(localStorage);
+    tabSecret = getOrCreateTabSecret(sessionStorage);
     pruneHostedMatches(localStorage);
     const openMatchRoute = async () => {
       const route = parseMatchRoute(window.location.search);
-      if (route?.valid && await isRoomHost(route.roomId, browserSecret)) {
+      if (route?.valid && await isRoomHost(route.roomId, tabSecret)) {
         hostGame(route.roomId, loadHostedMatch(localStorage, route.roomId));
       }
       else if (route?.valid) await joinGame(route.roomId);
