@@ -1,54 +1,84 @@
 const matchParameters = ["room", "player", "host", "role"];
 const tokenPattern = /^[A-Za-z0-9_-]{1,100}$/;
+const browserSecretPattern = /^[A-Za-z0-9_-]{43}$/;
+const roomPattern = /^ttt-([A-Za-z0-9_-]{22})([A-Za-z0-9_-]{22})$/;
+const browserSecretKey = "tic-tac-toe:browser-secret";
+
+const encoder = new TextEncoder();
+
+function encode(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+function randomValue(byteLength) {
+  return encode(crypto.getRandomValues(new Uint8Array(byteLength)));
+}
+
+async function sign(browserSecret, value) {
+  if (!browserSecretPattern.test(browserSecret || "")) {
+    throw new TypeError("Invalid browser identity");
+  }
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(browserSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  return encode(new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(value))));
+}
 
 export function isValidMatchToken(value) {
   return tokenPattern.test(value || "");
 }
 
-export async function roomIdForHostToken(hostToken) {
-  if (!isValidMatchToken(hostToken)) throw new TypeError("Invalid host token");
-
-  const digest = new Uint8Array(await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(hostToken),
-  ));
-  const encoded = btoa(String.fromCharCode(...digest))
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
-  return `ttt-${encoded.slice(0, 22)}`;
+export function isValidRoomId(value) {
+  return roomPattern.test(value || "");
 }
 
-export function createMatchUrls(address, { roomId, hostToken }) {
-  if (!isValidMatchToken(roomId) || !isValidMatchToken(hostToken)) {
-    throw new TypeError("Invalid match tokens");
-  }
+export function getOrCreateBrowserSecret(storage) {
+  try {
+    const stored = storage.getItem(browserSecretKey);
+    if (browserSecretPattern.test(stored || "")) return stored;
+  } catch {}
 
-  const inviteUrl = new URL(address);
-  inviteUrl.search = "";
-  inviteUrl.hash = "";
-  inviteUrl.searchParams.set("room", roomId);
-
-  const hostUrl = new URL(inviteUrl);
-  hostUrl.searchParams.set("host", hostToken);
-
-  return {
-    hostUrl: hostUrl.toString(),
-    inviteUrl: inviteUrl.toString(),
-  };
+  const browserSecret = randomValue(32);
+  try {
+    storage.setItem(browserSecretKey, browserSecret);
+  } catch {}
+  return browserSecret;
 }
 
-export function createPlayerUrl(address, { roomId, playerToken }) {
-  if (!isValidMatchToken(roomId) || !isValidMatchToken(playerToken)) {
-    throw new TypeError("Invalid match tokens");
-  }
+export async function createRoomId(browserSecret, nonce = randomValue(16)) {
+  if (!/^[A-Za-z0-9_-]{22}$/.test(nonce)) throw new TypeError("Invalid room nonce");
+  const signature = await sign(browserSecret, `room:${nonce}`);
+  return `ttt-${nonce}${signature.slice(0, 22)}`;
+}
 
-  const playerUrl = new URL(address);
-  playerUrl.search = "";
-  playerUrl.hash = "";
-  playerUrl.searchParams.set("room", roomId);
-  playerUrl.searchParams.set("player", playerToken);
-  return playerUrl.toString();
+export async function isRoomHost(roomId, browserSecret) {
+  const match = roomPattern.exec(roomId || "");
+  if (!match) return false;
+  const [, nonce, signature] = match;
+  return (await sign(browserSecret, `room:${nonce}`)).slice(0, 22) === signature;
+}
+
+export async function playerTokenForRoom(browserSecret, roomId) {
+  if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
+  return `p-${await sign(browserSecret, `player:${roomId}`)}`;
+}
+
+export function createMatchUrl(address, roomId) {
+  if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
+
+  const matchUrl = new URL(address);
+  matchUrl.search = "";
+  matchUrl.hash = "";
+  matchUrl.searchParams.set("room", roomId);
+  return matchUrl.toString();
 }
 
 export function parseMatchRoute(search) {
@@ -56,20 +86,10 @@ export function parseMatchRoute(search) {
   const roomId = parameters.get("room");
   if (!roomId) return null;
 
-  const hasHostToken = parameters.has("host");
-  const hasGuestToken = parameters.has("player");
-  const hostToken = hasHostToken ? parameters.get("host") : null;
-  const guestToken = hasGuestToken ? parameters.get("player") : null;
   return {
-    role: hasHostToken ? "host" : "guest",
     roomId,
-    hostToken,
-    guestToken,
-    valid: !parameters.has("role")
-      && !(hasHostToken && hasGuestToken)
-      && isValidMatchToken(roomId)
-      && (!hasHostToken || isValidMatchToken(hostToken))
-      && (!hasGuestToken || isValidMatchToken(guestToken)),
+    valid: isValidRoomId(roomId)
+      && !matchParameters.slice(1).some((parameter) => parameters.has(parameter)),
   };
 }
 

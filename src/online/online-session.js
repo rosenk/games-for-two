@@ -40,7 +40,8 @@ export class OnlineSession {
     this.inviteUrl = "";
     this.error = "";
     this.roomId = "";
-    this.guestToken = "";
+    this.playerToken = "";
+    this.acceptedPlayerToken = "";
     this.peer = null;
     this.connection = null;
     this.reconnectTimer = null;
@@ -80,13 +81,13 @@ export class OnlineSession {
     this.startHostPeer();
   }
 
-  join(roomId, guestToken) {
-    this.configure("guest", playerForRole(roomId, "guest"), roomId, guestToken, "");
+  join(roomId, playerToken) {
+    this.configure("guest", playerForRole(roomId, "guest"), roomId, playerToken, "");
     if (!this.validateMatch()) return;
     this.startGuestPeer();
   }
 
-  configure(mode, localPlayer, roomId, guestToken, inviteUrl) {
+  configure(mode, localPlayer, roomId, playerToken, inviteUrl) {
     this.stopCurrentSession();
     this.mode = mode;
     this.localPlayer = localPlayer;
@@ -95,7 +96,8 @@ export class OnlineSession {
     this.inviteUrl = inviteUrl;
     this.error = "";
     this.roomId = roomId;
-    this.guestToken = guestToken;
+    this.playerToken = playerToken;
+    this.acceptedPlayerToken = "";
     this.reconnectEnabled = true;
     this.audioError = "";
     this.emit();
@@ -104,7 +106,7 @@ export class OnlineSession {
   validateMatch() {
     if (
       isValidMatchToken(this.roomId)
-      && (this.mode === "host" || isValidMatchToken(this.guestToken))
+      && (this.mode === "host" || isValidMatchToken(this.playerToken))
     ) return true;
     this.reconnectEnabled = false;
     this.showError("Линкът за двубоя е невалиден.");
@@ -120,7 +122,8 @@ export class OnlineSession {
     this.inviteUrl = "";
     this.error = "";
     this.roomId = "";
-    this.guestToken = "";
+    this.playerToken = "";
+    this.acceptedPlayerToken = "";
     this.reconnectEnabled = true;
     this.audioError = "";
     this.emit();
@@ -371,11 +374,14 @@ export class OnlineSession {
 
   handleHostConnection(connection) {
     const playerToken = connection.metadata?.playerToken;
-    if (!isValidMatchToken(playerToken) || (this.guestToken && playerToken !== this.guestToken)) {
+    if (
+      !isValidMatchToken(playerToken)
+      || (this.acceptedPlayerToken && playerToken !== this.acceptedPlayerToken)
+    ) {
       this.rejectConnection(connection);
       return;
     }
-    this.guestToken ||= playerToken;
+    this.acceptedPlayerToken ||= playerToken;
 
     if (this.connection) {
       const previousConnection = this.connection;
@@ -502,7 +508,7 @@ export class OnlineSession {
       if (this.peer !== peer || this.connected) return;
       this.attachConnection(peer.connect(this.roomId, {
         reliable: true,
-        metadata: { playerToken: this.guestToken },
+        metadata: { playerToken: this.playerToken },
       }));
     });
     peer.on("connection", (connection) => connection.close());

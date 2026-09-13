@@ -14,12 +14,13 @@
   } from "./game/game-state.js";
   import {
     clearMatchPath,
-    createMatchUrls,
-    createPlayerUrl,
-    isValidMatchToken,
+    createMatchUrl,
+    createRoomId,
+    getOrCreateBrowserSecret,
+    isRoomHost,
     matchPath,
     parseMatchRoute,
-    roomIdForHostToken,
+    playerTokenForRoom,
   } from "./online/match-url.js";
   import { createOnlineState, OnlineSession } from "./online/online-session.js";
 
@@ -28,6 +29,7 @@
   let movePending = $state(false);
   let remoteAudio = $state();
   let session;
+  let browserSecret;
 
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
@@ -35,12 +37,6 @@
       && (online.mode === "local"
         || (online.connected && game.currentPlayer === online.localPlayer && !movePending)),
   );
-
-  function randomToken(prefix) {
-    if (crypto.randomUUID) return `${prefix}${crypto.randomUUID()}`;
-    const bytes = crypto.getRandomValues(new Uint8Array(16));
-    return `${prefix}${[...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
-  }
 
   function updateGame(change, broadcast = true) {
     game = change(game);
@@ -70,44 +66,26 @@
     else updateGame(resetScore, online.mode === "host");
   }
 
-  async function hostGame(roomId, hostToken) {
+  function hostGame(roomId) {
     game = createGameState();
     movePending = false;
 
-    if (
-      !isValidMatchToken(roomId)
-      || !isValidMatchToken(hostToken)
-      || await roomIdForHostToken(hostToken) !== roomId
-    ) {
-      session.host("", "");
-      return;
-    }
-
-    const { hostUrl, inviteUrl } = createMatchUrls(window.location.href, { roomId, hostToken });
-    window.history.replaceState({}, "", matchPath(hostUrl));
-    session.host(roomId, inviteUrl);
+    const matchUrl = createMatchUrl(window.location.href, roomId);
+    window.history.replaceState({}, "", matchPath(matchUrl));
+    session.host(roomId, matchUrl);
   }
 
   async function createOnlineGame() {
-    const hostToken = randomToken("h-");
-    await hostGame(await roomIdForHostToken(hostToken), hostToken);
+    hostGame(await createRoomId(browserSecret));
   }
 
-  function joinGame(roomId, guestToken) {
+  async function joinGame(roomId) {
     game = createGameState();
     movePending = false;
 
-    if (isValidMatchToken(roomId) && guestToken === null) {
-      guestToken = randomToken("p-");
-    }
-    if (isValidMatchToken(roomId) && isValidMatchToken(guestToken)) {
-      const playerUrl = createPlayerUrl(window.location.href, {
-        roomId,
-        playerToken: guestToken,
-      });
-      window.history.replaceState({}, "", matchPath(playerUrl));
-    }
-    session.join(roomId, guestToken);
+    const matchUrl = createMatchUrl(window.location.href, roomId);
+    window.history.replaceState({}, "", matchPath(matchUrl));
+    session.join(roomId, await playerTokenForRoom(browserSecret, roomId));
   }
 
   function leaveGame() {
@@ -171,10 +149,14 @@
       onResetScore: () => updateGame(resetScore, false),
     });
 
-    const route = parseMatchRoute(window.location.search);
-    if (route?.valid && route.role === "host") hostGame(route.roomId, route.hostToken);
-    else if (route?.valid) joinGame(route.roomId, route.guestToken);
-    else if (route) session.join("", null);
+    browserSecret = getOrCreateBrowserSecret(localStorage);
+    const openMatchRoute = async () => {
+      const route = parseMatchRoute(window.location.search);
+      if (route?.valid && await isRoomHost(route.roomId, browserSecret)) hostGame(route.roomId);
+      else if (route?.valid) await joinGame(route.roomId);
+      else if (route) session.join("", null);
+    };
+    openMatchRoute();
 
     const handleOnline = () => session.handleOnline();
     const handleOffline = () => session.handleOffline();

@@ -52,7 +52,7 @@ test("host binds the first valid player token and rejects a different one", () =
   session.handleHostConnection(first);
   session.handleHostConnection(other);
 
-  assert.equal(session.guestToken, "p-first");
+  assert.equal(session.acceptedPlayerToken, "p-first");
   assert.equal(session.connection, first);
   assert.equal(typeof other.handlers.open, "function");
 });
