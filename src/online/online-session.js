@@ -306,11 +306,11 @@ export class OnlineSession {
       this.reconnectEnabled = false;
       if (this.mode === "host") {
         this.acceptedPlayerTokenHash = "";
-        this.callbacks.onRemoteLeave?.();
         this.connection?.close();
       } else {
         this.showError("Другият играч напусна двубоя.");
       }
+      this.callbacks.onRemoteLeave?.();
       return;
     }
 

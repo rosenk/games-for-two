@@ -238,11 +238,9 @@
       },
       onActivity: persistHostedMatch,
       onRemoteLeave: () => {
-        removeHostedMatch(localStorage, hostedRoomId);
-        game = createGameState();
-        movePending = false;
-        hostedPlayerTokenHash = null;
-        hostedMatchUpdatedAt = 0;
+        const findAnotherOpponent = !shareableMatch;
+        leaveGame();
+        if (findAnotherOpponent) findOpponent();
       },
     });
 

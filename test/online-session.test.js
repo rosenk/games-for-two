@@ -135,6 +135,23 @@ test("remote graceful leave releases the hosted room", () => {
   assert.equal(session.acceptedPlayerTokenHash, "");
 });
 
+test("remote graceful leave also notifies the guest", () => {
+  let notified = false;
+  const session = new OnlineSession({
+    getRemoteAudio: () => null,
+    onChange: () => {},
+    onRemoteLeave: () => {
+      notified = true;
+    },
+  });
+  session.mode = "guest";
+
+  session.handleConnectionData({ type: "leave" });
+
+  assert.equal(notified, true);
+  assert.equal(session.reconnectEnabled, false);
+});
+
 test("inactive matches notify the opponent and enter the expired state", () => {
   const sent = [];
   const phases = [];
