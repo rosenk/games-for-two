@@ -1,6 +1,6 @@
 import Peer from "peerjs";
 
-import { isValidMatchToken } from "./match-url.js";
+import { hashPlayerToken, isValidMatchToken, isValidRoomId } from "./match-url.js";
 
 const otherPlayer = (player) => player === "X" ? "O" : "X";
 
@@ -41,10 +41,11 @@ export class OnlineSession {
     this.error = "";
     this.roomId = "";
     this.playerToken = "";
-    this.acceptedPlayerToken = "";
+    this.acceptedPlayerTokenHash = "";
     this.peer = null;
     this.connection = null;
     this.reconnectTimer = null;
+    this.heartbeatTimer = null;
     this.reconnectEnabled = true;
     this.localStream = null;
     this.remoteAudioReady = false;
@@ -75,8 +76,9 @@ export class OnlineSession {
     this.callbacks.onChange(this.snapshot());
   }
 
-  host(roomId, inviteUrl) {
+  host(roomId, inviteUrl, acceptedPlayerTokenHash = "") {
     this.configure("host", playerForRole(roomId, "host"), roomId, null, inviteUrl);
+    this.acceptedPlayerTokenHash = acceptedPlayerTokenHash;
     if (!this.validateMatch()) return;
     this.startHostPeer();
   }
@@ -97,7 +99,7 @@ export class OnlineSession {
     this.error = "";
     this.roomId = roomId;
     this.playerToken = playerToken;
-    this.acceptedPlayerToken = "";
+    this.acceptedPlayerTokenHash = "";
     this.reconnectEnabled = true;
     this.audioError = "";
     this.emit();
@@ -105,7 +107,7 @@ export class OnlineSession {
 
   validateMatch() {
     if (
-      isValidMatchToken(this.roomId)
+      isValidRoomId(this.roomId)
       && (this.mode === "host" || isValidMatchToken(this.playerToken))
     ) return true;
     this.reconnectEnabled = false;
@@ -114,6 +116,7 @@ export class OnlineSession {
   }
 
   leave() {
+    this.send({ type: "leave" });
     this.stopCurrentSession();
     this.mode = "local";
     this.localPlayer = null;
@@ -123,9 +126,20 @@ export class OnlineSession {
     this.error = "";
     this.roomId = "";
     this.playerToken = "";
-    this.acceptedPlayerToken = "";
+    this.acceptedPlayerTokenHash = "";
     this.reconnectEnabled = true;
     this.audioError = "";
+    this.emit();
+  }
+
+  expire() {
+    this.send({ type: "expired" });
+    this.stopCurrentSession();
+    this.phase = "expired";
+    this.connected = false;
+    this.inviteUrl = "";
+    this.error = "Двубоят изтече след 24 часа без активност.";
+    this.reconnectEnabled = false;
     this.emit();
   }
 
@@ -146,6 +160,7 @@ export class OnlineSession {
     this.audioConnected = false;
     this.audioBusy = false;
     this.clearReconnectTimer();
+    this.clearHeartbeatTimer();
 
     if (call) call.close();
     if (stream) stream.getTracks().forEach((track) => track.stop());
@@ -279,6 +294,32 @@ export class OnlineSession {
   handleConnectionData(data) {
     if (!data || typeof data !== "object") return;
 
+    if (this.mode === "host") this.callbacks.onActivity?.();
+
+    if (data.type === "heartbeat") return;
+
+    if (data.type === "leave") {
+      this.reconnectEnabled = false;
+      if (this.mode === "host") {
+        this.acceptedPlayerTokenHash = "";
+        this.callbacks.onRemoteLeave?.();
+        this.connection?.close();
+      } else {
+        this.showError("Другият играч напусна двубоя.");
+      }
+      return;
+    }
+
+    if (data.type === "expired") {
+      this.reconnectEnabled = false;
+      this.stopCurrentSession();
+      this.phase = "expired";
+      this.connected = false;
+      this.error = "Двубоят изтече след 24 часа без активност.";
+      this.emit();
+      return;
+    }
+
     if (data.type === "audio-ready") {
       this.remoteAudioReady = true;
       this.maybeStartAudioCall();
@@ -321,8 +362,11 @@ export class OnlineSession {
     this.remoteAudioReady = false;
     this.closeAudioCall();
 
-    connection.on("open", () => {
+    let activated = false;
+    const activate = () => {
       if (this.connection !== connection) return;
+      if (activated) return;
+      activated = true;
       this.clearReconnectTimer();
       this.connected = true;
       this.phase = "connected";
@@ -330,14 +374,18 @@ export class OnlineSession {
       this.audioError = "";
       this.emit();
       this.broadcastState();
+      if (this.mode === "host") this.callbacks.onActivity?.();
+      else this.startHeartbeat();
       if (this.localStream) this.send({ type: "audio-ready" });
       this.maybeStartAudioCall();
-    });
+    };
+    connection.on("open", activate);
     connection.on("data", (data) => {
       if (this.connection === connection) this.handleConnectionData(data);
     });
     connection.on("close", () => this.handleConnectionEnd(connection));
     connection.on("error", () => this.handleConnectionEnd(connection));
+    if (connection.open) activate();
   }
 
   handleConnectionEnd(connection) {
@@ -346,6 +394,7 @@ export class OnlineSession {
     this.connection = null;
     this.connected = false;
     this.remoteAudioReady = false;
+    this.clearHeartbeatTimer();
     this.closeAudioCall();
 
     if (this.mode === "host") {
@@ -372,16 +421,23 @@ export class OnlineSession {
     });
   }
 
-  handleHostConnection(connection) {
+  async handleHostConnection(connection) {
     const playerToken = connection.metadata?.playerToken;
-    if (
-      !isValidMatchToken(playerToken)
-      || (this.acceptedPlayerToken && playerToken !== this.acceptedPlayerToken)
-    ) {
+    if (!isValidMatchToken(playerToken)) {
       this.rejectConnection(connection);
       return;
     }
-    this.acceptedPlayerToken ||= playerToken;
+
+    const playerTokenHash = await hashPlayerToken(playerToken);
+    if (this.mode !== "host") return connection.close();
+    if (this.acceptedPlayerTokenHash && playerTokenHash !== this.acceptedPlayerTokenHash) {
+      this.rejectConnection(connection);
+      return;
+    }
+    if (!this.acceptedPlayerTokenHash) {
+      this.acceptedPlayerTokenHash = playerTokenHash;
+      this.callbacks.onOpponentAccepted?.(playerTokenHash);
+    }
 
     if (this.connection) {
       const previousConnection = this.connection;
@@ -402,6 +458,7 @@ export class OnlineSession {
 
     this.phase = "waiting";
     this.attachConnection(connection);
+    this.callbacks.onActivity?.();
     this.emit();
   }
 
@@ -417,6 +474,17 @@ export class OnlineSession {
     if (!this.reconnectTimer) return;
     window.clearTimeout(this.reconnectTimer);
     this.reconnectTimer = null;
+  }
+
+  clearHeartbeatTimer() {
+    if (!this.heartbeatTimer) return;
+    window.clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
+  }
+
+  startHeartbeat() {
+    this.clearHeartbeatTimer();
+    this.heartbeatTimer = window.setInterval(() => this.send({ type: "heartbeat" }), 30000);
   }
 
   reconnectSignaling(peer) {

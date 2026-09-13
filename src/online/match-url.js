@@ -71,6 +71,12 @@ export async function playerTokenForRoom(browserSecret, roomId) {
   return `p-${await sign(browserSecret, `player:${roomId}`)}`;
 }
 
+export async function hashPlayerToken(playerToken) {
+  if (!isValidMatchToken(playerToken)) throw new TypeError("Invalid player token");
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(playerToken));
+  return encode(new Uint8Array(digest));
+}
+
 export function createMatchUrl(address, roomId) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
 

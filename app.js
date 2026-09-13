@@ -15,11 +15,11 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 }, l = (n, r, o) => (o = n == null ? {} : e(i(n)), c(r || !n || !n.__esModule || !a.call(n, "default") ? t(o, "default", {
 	value: n,
 	enumerable: !0
-}) : o, n)), u = Array.isArray, d = Array.prototype.indexOf, f = Array.prototype.includes, p = Array.from, m = Object.defineProperty, h = Object.getOwnPropertyDescriptor, g = Object.getOwnPropertyDescriptors, _ = Object.prototype, v = Array.prototype, y = Object.getPrototypeOf, b = Object.isExtensible, x = () => {};
-function S(e) {
+}) : o, n)), u = Array.isArray, d = Array.prototype.indexOf, f = Array.prototype.includes, p = Array.from, m = Object.defineProperty, h = Object.getOwnPropertyDescriptor, g = Object.getOwnPropertyDescriptors, _ = Object.prototype, v = Array.prototype, y = Object.getPrototypeOf, ee = Object.isExtensible, b = () => {};
+function x(e) {
 	for (var t = 0; t < e.length; t++) e[t]();
 }
-function ee() {
+function te() {
 	var e, t;
 	return {
 		promise: new Promise((n, r) => {
@@ -29,47 +29,47 @@ function ee() {
 		reject: t
 	};
 }
-var C = 1024, w = 2048, te = 4096, ne = 8192, re = 16384, ie = 32768, ae = 1 << 25, oe = 65536, se = 1 << 19, ce = 1 << 20, le = 1 << 25, ue = 65536, de = 1 << 21, fe = 1 << 22, pe = 1 << 23, me = Symbol("$state"), he = Symbol("component"), ge = Symbol(""), _e = Symbol("attributes"), ve = Symbol("class"), ye = Symbol("style"), be = Symbol("text"), xe = new class extends Error {
+var S = 1024, C = 2048, ne = 4096, re = 8192, ie = 16384, ae = 32768, oe = 1 << 25, se = 65536, ce = 1 << 19, le = 1 << 20, ue = 1 << 25, de = 65536, fe = 1 << 21, pe = 1 << 22, me = 1 << 23, he = Symbol("$state"), ge = Symbol("component"), _e = Symbol(""), ve = Symbol("attributes"), ye = Symbol("class"), be = Symbol("style"), xe = Symbol("text"), Se = new class extends Error {
 	name = "StaleReactionError";
 	message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
-}(), Se = !!globalThis.document?.contentType && /* @__PURE__ */ globalThis.document.contentType.includes("xml"), Ce = {}, T = Symbol("uninitialized"), we = "http://www.w3.org/1999/xhtml";
-function Te() {
+}(), Ce = !!globalThis.document?.contentType && /* @__PURE__ */ globalThis.document.contentType.includes("xml"), we = {}, w = Symbol("uninitialized"), Te = "http://www.w3.org/1999/xhtml";
+function Ee() {
 	console.warn("https://svelte.dev/e/derived_inert");
 }
-function Ee(e) {
+function De(e) {
 	console.warn("https://svelte.dev/e/hydration_mismatch");
 }
-function De() {
+function Oe() {
 	console.warn("https://svelte.dev/e/svelte_boundary_reset_noop");
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/hydration.js
-var E = !1;
-function Oe(e) {
-	E = e;
-}
-var D;
+var T = !1;
 function ke(e) {
-	if (e === null) throw Ee(), Ce;
-	return D = e;
+	T = e;
+}
+var E;
+function D(e) {
+	if (e === null) throw De(), we;
+	return E = e;
 }
 function Ae() {
-	return ke(/* @__PURE__ */ $t(D));
+	return D(/* @__PURE__ */ $t(E));
 }
 function O(e) {
-	if (E) {
-		if (/* @__PURE__ */ $t(D) !== null) throw Ee(), Ce;
-		D = e;
+	if (T) {
+		if (/* @__PURE__ */ $t(E) !== null) throw De(), we;
+		E = e;
 	}
 }
 function je(e = 1) {
-	if (E) {
-		for (var t = e, n = D; t--;) n = /* @__PURE__ */ $t(n);
-		D = n;
+	if (T) {
+		for (var t = e, n = E; t--;) n = /* @__PURE__ */ $t(n);
+		E = n;
 	}
 }
 function Me(e = !0) {
-	for (var t = 0, n = D;;) {
+	for (var t = 0, n = E;;) {
 		if (n.nodeType === 8) {
 			var r = n.data;
 			if (r === "]") {
@@ -82,7 +82,7 @@ function Me(e = !0) {
 	}
 }
 function Ne(e) {
-	if (!e || e.nodeType !== 8) throw Ee(), Ce;
+	if (!e || e.nodeType !== 8) throw De(), we;
 	return e.data;
 }
 //#endregion
@@ -158,7 +158,7 @@ function Xe(e) {
 	return e !== void 0 && (t.x = e), t.i = !0, k = t.p, Ze(e);
 }
 function Ze(e = {}) {
-	return m(e, he, { value: !0 }), e;
+	return m(e, ge, { value: !0 }), e;
 }
 function Qe() {
 	return !0;
@@ -168,7 +168,7 @@ function Qe() {
 var $e = [];
 function et() {
 	var e = $e;
-	$e = [], S(e);
+	$e = [], x(e);
 }
 function tt(e) {
 	if ($e.length === 0 && !Tt) {
@@ -181,20 +181,20 @@ function tt(e) {
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/reactivity/status.js
-var nt = ~(w | te | C);
+var nt = ~(C | ne | S);
 function A(e, t) {
 	e.f = e.f & nt | t;
 }
 function rt(e) {
-	e.f & 512 || e.deps === null ? A(e, C) : A(e, te);
+	e.f & 512 || e.deps === null ? A(e, S) : A(e, ne);
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/reactivity/utils.js
 function it(e) {
-	if (e !== null) for (let t of e) t.f & 2 && t.f & 65536 && (t.f ^= ue, it(t.deps));
+	if (e !== null) for (let t of e) t.f & 2 && t.f & 65536 && (t.f ^= de, it(t.deps));
 }
 function at(e, t, n) {
-	e.f & 2048 ? t.add(e) : e.f & 4096 && n.add(e), it(e.deps), A(e, C);
+	e.f & 2048 ? t.add(e) : e.f & 4096 && n.add(e), it(e.deps), A(e, S);
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js
@@ -257,8 +257,8 @@ function ut() {
 }
 /*#__NO_SIDE_EFFECTS__*/
 function dt(e) {
-	var t = 2 | w;
-	return H !== null && (H.f |= se), {
+	var t = 2 | C;
+	return H !== null && (H.f |= ce), {
 		ctx: k,
 		deps: null,
 		effects: null,
@@ -267,7 +267,7 @@ function dt(e) {
 		fn: e,
 		reactions: null,
 		rv: 0,
-		v: T,
+		v: w,
 		wv: 0,
 		parent: H,
 		ac: null
@@ -278,13 +278,13 @@ var ft = Symbol("obsolete");
 function pt(e, t, n) {
 	let r = H;
 	r === null && Re();
-	var i = void 0, a = Vt(T), o = !B, s = /* @__PURE__ */ new Set();
+	var i = void 0, a = Vt(w), o = !B, s = /* @__PURE__ */ new Set();
 	return vn(() => {
-		var t = H, n = ee();
+		var t = H, n = te();
 		i = n.promise;
 		try {
 			Promise.resolve(e()).then(n.resolve, (e) => {
-				e !== xe && n.reject(e);
+				e !== Se && n.reject(e);
 			}).finally(lt);
 		} catch (e) {
 			n.reject(e), lt();
@@ -297,7 +297,7 @@ function pt(e, t, n) {
 			s.add(n), c.async_deriveds.set(t, n);
 		}
 		let u = (e, t = void 0) => {
-			l?.(), s.delete(n), t !== ft && (c.activate(), t ? (a.f |= pe, Ut(a, t)) : (a.f & 8388608 && (a.f ^= pe), Ut(a, e)), c.deactivate());
+			l?.(), s.delete(n), t !== ft && (c.activate(), t ? (a.f |= me, Ut(a, t)) : (a.f & 8388608 && (a.f ^= me), Ut(a, e)), c.deactivate());
 		};
 		n.promise.then(u, (e) => u(null, e || "unknown"));
 	}), pn(() => {
@@ -331,10 +331,10 @@ function gt(e) {
 }
 function _t(e) {
 	var t, n = H, r = e.parent;
-	if (!Pn && r !== null && e.v !== T && r.f & 24576) return Te(), e.v;
+	if (!Pn && r !== null && e.v !== w && r.f & 24576) return Ee(), e.v;
 	Ln(r);
 	try {
-		e.f &= ~ue, gt(e), t = Jn(e);
+		e.f &= ~de, gt(e), t = Jn(e);
 	} finally {
 		Ln(n);
 	}
@@ -343,15 +343,15 @@ function _t(e) {
 function vt(e) {
 	var t = _t(e);
 	if (!e.equals(t) && (e.wv = Gn(), (!j?.is_fork || e.deps === null) && (j === null ? e.v = t : (j.capture(e, t, !0), St?.capture(e, t, !0)), e.deps === null))) {
-		A(e, C);
+		A(e, S);
 		return;
 	}
 	Pn || (Ct === null ? rt(e) : (fn() || j?.is_fork) && Ct.set(e, t));
 }
 function yt(e) {
 	if (e.effects !== null) for (let t of e.effects) (t.teardown || t.ac) && (t.teardown?.(), t.ac !== null && ot(() => {
-		t.ac.abort(xe), t.ac = null;
-	}), t.fn !== null && (t.teardown = x), Zn(t, 0), Cn(t));
+		t.ac.abort(Se), t.ac = null;
+	}), t.fn !== null && (t.teardown = b), Zn(t, 0), Cn(t));
 }
 function bt(e) {
 	if (e.effects !== null) for (let t of e.effects) t.teardown && t.fn !== null && Qn(t);
@@ -407,15 +407,15 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 		var n = this.#f.get(e);
 		if (n) {
 			this.#f.delete(e);
-			for (var r of n.d) A(r, w), t(r);
-			for (r of n.m) A(r, te), t(r);
+			for (var r of n.d) A(r, C), t(r);
+			for (r of n.m) A(r, ne), t(r);
 		}
 		this.#p.add(e);
 	}
 	#g() {
 		this.#e = !0, kt++ > 1e3 && (this.#x(), Mt());
-		for (let e of this.#u) this.#d.delete(e), A(e, w), this.schedule(e);
-		for (let e of this.#d) A(e, te), this.schedule(e);
+		for (let e of this.#u) this.#d.delete(e), A(e, C), this.schedule(e);
+		for (let e of this.#d) A(e, ne), this.schedule(e);
 		let t = this.#c;
 		this.#c = [], this.apply();
 		var n = Dt = [], r = [], i = Ot = [];
@@ -452,11 +452,11 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 		s !== null && (zt.clear(), s.#g());
 	}
 	#_(e, t, n) {
-		e.f ^= C;
+		e.f ^= S;
 		for (var r = e.first; r !== null;) {
 			var i = r.f, a = !!(i & 96);
 			if (!(a && i & 1024 || i & 8192 || this.#f.has(r)) && r.fn !== null) {
-				a ? r.f ^= C : i & 4 ? t.push(r) : Kn(r) && (i & 16 && this.#d.add(r), Qn(r));
+				a ? r.f ^= S : i & 4 ? t.push(r) : Kn(r) && (i & 16 && this.#d.add(r), Qn(r));
 				var o = r.first;
 				if (o !== null) {
 					r = o;
@@ -496,7 +496,7 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 				if (r & 2) t(e);
 				else {
 					var i = e;
-					r & 4194320 && !this.async_deriveds.has(i) && (this.#d.delete(i), A(i, w), this.schedule(i));
+					r & 4194320 && !this.async_deriveds.has(i) && (this.#d.delete(i), A(i, C), this.schedule(i));
 				}
 			}
 		};
@@ -507,7 +507,7 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 		for (var t = 0; t < e.length; t += 1) at(e[t], this.#u, this.#d);
 	}
 	capture(e, t, n = !1) {
-		e.v !== T && !this.previous.has(e) && this.previous.set(e, e.v), e.f & 8388608 || (this.current.set(e, [t, n]), Ct?.set(e, t)), this.is_fork || (e.v = t);
+		e.v !== w && !this.previous.has(e) && this.previous.set(e, e.v), e.f & 8388608 || (this.current.set(e, [t, n]), Ct?.set(e, t)), this.is_fork || (e.v = t);
 	}
 	activate() {
 		j = this;
@@ -558,7 +558,7 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 		this.#i.add(e);
 	}
 	settled() {
-		return (this.#s ??= ee()).promise;
+		return (this.#s ??= te()).promise;
 	}
 	static ensure() {
 		if (j === null) {
@@ -583,7 +583,7 @@ var xt = null, j = null, St = null, Ct = null, wt = null, Tt = !1, Et = !1, Dt =
 			if (Dt !== null && t === H && (B === null || !(B.f & 2))) return;
 			if (n & 96) {
 				if (!(n & 1024)) return;
-				t.f ^= C;
+				t.f ^= S;
 			}
 		}
 		this.#c.push(t);
@@ -630,12 +630,12 @@ function Ft(e) {
 }
 function It(e, t) {
 	if (!(e.f & 32 && e.f & 1024)) {
-		e.f & 2048 ? t.d.push(e) : e.f & 4096 && t.m.push(e), A(e, C);
+		e.f & 2048 ? t.d.push(e) : e.f & 4096 && t.m.push(e), A(e, S);
 		for (var n = e.first; n !== null;) It(n, t), n = n.next;
 	}
 }
 function Lt(e) {
-	A(e, C);
+	A(e, S);
 	for (var t = e.first; t !== null;) Lt(t), t = t.next;
 }
 //#endregion
@@ -672,14 +672,14 @@ function Ut(e, t, n = null) {
 			let t = e;
 			e.f & 2048 && _t(t), Ct === null && rt(t);
 		}
-		e.wv = Gn(), Kt(e, w, n), Qe() && H !== null && H.f & 1024 && !(H.f & 96) && (G === null ? Bn([e]) : G.push(e)), !r.is_fork && Rt.size > 0 && !Bt && Wt();
+		e.wv = Gn(), Kt(e, C, n), Qe() && H !== null && H.f & 1024 && !(H.f & 96) && (G === null ? Bn([e]) : G.push(e)), !r.is_fork && Rt.size > 0 && !Bt && Wt();
 	}
 	return t;
 }
 function Wt() {
 	Bt = !1;
 	for (let e of Rt) {
-		e.f & 1024 && A(e, te);
+		e.f & 1024 && A(e, ne);
 		let t;
 		try {
 			t = Kn(e);
@@ -698,11 +698,11 @@ function Kt(e, t, n) {
 	if (r !== null) for (var i = Qe(), a = r.length, o = 0; o < a; o++) {
 		var s = r[o], c = s.f;
 		if (i || s !== H) {
-			var l = (c & w) === 0;
+			var l = (c & C) === 0;
 			if (l && A(s, t), c & 131072) Rt.add(s);
 			else if (c & 2) {
 				var u = s;
-				Ct?.delete(u), c & 65536 || (c & 512 && (H === null || !(H.f & 2097152)) && (s.f |= ue), Kt(u, te, n));
+				Ct?.delete(u), c & 65536 || (c & 512 && (H === null || !(H.f & 2097152)) && (s.f |= de), Kt(u, ne, n));
 			} else if (l) {
 				var d = s;
 				c & 16 && Nt !== null && Nt.add(d), n === null ? Ft(d) : n.push(d);
@@ -711,7 +711,7 @@ function Kt(e, t, n) {
 	}
 }
 function qt(e) {
-	if (typeof e != "object" || !e || me in e || he in e) return e;
+	if (typeof e != "object" || !e || he in e || ge in e) return e;
 	let t = y(e);
 	if (t !== _ && t !== v) return e;
 	var n = /* @__PURE__ */ new Map(), r = u(e), i = /* @__PURE__ */ M(0), a = null, o = Un, s = (e) => {
@@ -734,18 +734,18 @@ function qt(e) {
 			var r = n.get(t);
 			if (r === void 0) {
 				if (t in e) {
-					let e = s(() => /* @__PURE__ */ M(T, a));
+					let e = s(() => /* @__PURE__ */ M(w, a));
 					n.set(t, e), Gt(i);
 				}
-			} else N(r, T), Gt(i);
+			} else N(r, w), Gt(i);
 			return !0;
 		},
 		get(t, r, i) {
-			if (r === me) return e;
+			if (r === he) return e;
 			var o = n.get(r), c = r in t;
-			if (o === void 0 && (!c || h(t, r)?.writable) && (o = s(() => /* @__PURE__ */ M(qt(c ? t[r] : T), a)), n.set(r, o)), o !== void 0) {
+			if (o === void 0 && (!c || h(t, r)?.writable) && (o = s(() => /* @__PURE__ */ M(qt(c ? t[r] : w), a)), n.set(r, o)), o !== void 0) {
 				var l = K(o);
-				return l === T ? void 0 : l;
+				return l === w ? void 0 : l;
 			}
 			return Reflect.get(t, r, i);
 		},
@@ -756,7 +756,7 @@ function qt(e) {
 				i && (r.value = K(i));
 			} else if (r === void 0) {
 				var a = n.get(t), o = a?.v;
-				if (a !== void 0 && o !== T) return {
+				if (a !== void 0 && o !== w) return {
 					enumerable: !0,
 					configurable: !0,
 					value: o,
@@ -766,19 +766,19 @@ function qt(e) {
 			return r;
 		},
 		has(e, t) {
-			if (t === me) return !0;
-			var r = n.get(t), i = r !== void 0 && r.v !== T || Reflect.has(e, t);
-			return (r !== void 0 || H !== null && (!i || h(e, t)?.writable)) && (r === void 0 && (r = s(() => /* @__PURE__ */ M(i ? qt(e[t]) : T, a)), n.set(t, r)), K(r) === T) ? !1 : i;
+			if (t === he) return !0;
+			var r = n.get(t), i = r !== void 0 && r.v !== w || Reflect.has(e, t);
+			return (r !== void 0 || H !== null && (!i || h(e, t)?.writable)) && (r === void 0 && (r = s(() => /* @__PURE__ */ M(i ? qt(e[t]) : w, a)), n.set(t, r)), K(r) === w) ? !1 : i;
 		},
 		set(e, t, o, c) {
 			var l = n.get(t), u = t in e;
 			if (r && t === "length") for (var d = o; d < l.v; d += 1) {
 				var f = n.get(d + "");
-				f === void 0 ? d in e && (f = s(() => /* @__PURE__ */ M(T, a)), n.set(d + "", f)) : N(f, T);
+				f === void 0 ? d in e && (f = s(() => /* @__PURE__ */ M(w, a)), n.set(d + "", f)) : N(f, w);
 			}
 			if (l === void 0) (!u || h(e, t)?.writable) && (l = s(() => /* @__PURE__ */ M(void 0, a)), N(l, qt(o)), n.set(t, l));
 			else {
-				u = l.v !== T;
+				u = l.v !== w;
 				var p = s(() => qt(o));
 				N(l, p);
 			}
@@ -796,9 +796,9 @@ function qt(e) {
 			K(i);
 			var t = Reflect.ownKeys(e).filter((e) => {
 				var t = n.get(e);
-				return t === void 0 || t.v !== T;
+				return t === void 0 || t.v !== w;
 			});
-			for (var [r, a] of n) a.v !== T && !(r in e) && t.push(r);
+			for (var [r, a] of n) a.v !== w && !(r in e) && t.push(r);
 			return t;
 		},
 		setPrototypeOf() {
@@ -811,7 +811,7 @@ function Qt() {
 	if (Jt === void 0) {
 		Jt = window, Yt = /Firefox/.test(navigator.userAgent);
 		var e = Element.prototype, t = Node.prototype, n = Text.prototype;
-		Xt = h(t, "firstChild").get, Zt = h(t, "nextSibling").get, b(e) && (e[ve] = void 0, e[_e] = null, e[ye] = void 0, e.__e = void 0), b(n) && (n[be] = void 0);
+		Xt = h(t, "firstChild").get, Zt = h(t, "nextSibling").get, ee(e) && (e[ye] = void 0, e[ve] = null, e[be] = void 0, e.__e = void 0), ee(n) && (n[xe] = void 0);
 	}
 }
 function P(e = "") {
@@ -826,46 +826,46 @@ function $t(e) {
 	return Zt.call(e);
 }
 function I(e, t) {
-	if (!E) return /* @__PURE__ */ F(e);
-	var n = /* @__PURE__ */ F(D);
-	if (n === null) n = D.appendChild(P());
+	if (!T) return /* @__PURE__ */ F(e);
+	var n = /* @__PURE__ */ F(E);
+	if (n === null) n = E.appendChild(P());
 	else if (t && n.nodeType !== 3) {
 		var r = P();
-		return n?.before(r), ke(r), r;
+		return n?.before(r), D(r), r;
 	}
-	return t && on(n), ke(n), n;
+	return t && on(n), D(n), n;
 }
 function en(e, t = !1) {
-	if (!E) {
+	if (!T) {
 		var n = /* @__PURE__ */ F(e);
 		return n instanceof Comment && n.data === "" ? /* @__PURE__ */ $t(n) : n;
 	}
 	if (t) {
-		if (D?.nodeType !== 3) {
+		if (E?.nodeType !== 3) {
 			var r = P();
-			return D?.before(r), ke(r), r;
+			return E?.before(r), D(r), r;
 		}
-		on(D);
+		on(E);
 	}
-	return D;
+	return E;
 }
 function tn(e, t = !1) {
-	if (!E) return /* @__PURE__ */ F(e);
+	if (!T) return /* @__PURE__ */ F(e);
 	var n = I(e, t);
 	return O(e), n;
 }
 function L(e, t = 1, n = !1) {
-	let r = E ? D : e;
+	let r = T ? E : e;
 	for (var i; t--;) i = r, r = /* @__PURE__ */ $t(r);
-	if (!E) return r;
+	if (!T) return r;
 	if (n) {
 		if (r?.nodeType !== 3) {
 			var a = P();
-			return r === null ? i?.after(a) : r.before(a), ke(a), a;
+			return r === null ? i?.after(a) : r.before(a), D(a), a;
 		}
 		on(r);
 	}
-	return ke(r), r;
+	return D(r), r;
 }
 function nn(e) {
 	e.textContent = "";
@@ -883,7 +883,7 @@ function on(e) {
 }
 function sn(e) {
 	var t = H;
-	if (t === null) return B.f |= pe, e;
+	if (t === null) return B.f |= me, e;
 	if (!(t.f & 32768) && !(t.f & 4)) throw e;
 	cn(e, t);
 }
@@ -915,12 +915,12 @@ function un(e, t) {
 }
 function dn(e, t) {
 	var n = H;
-	n !== null && n.f & 8192 && (e |= ne);
+	n !== null && n.f & 8192 && (e |= re);
 	var r = {
 		ctx: k,
 		deps: null,
 		nodes: null,
-		f: e | w | 512,
+		f: e | C | 512,
 		first: null,
 		fn: t,
 		last: null,
@@ -941,7 +941,7 @@ function dn(e, t) {
 		} catch (e) {
 			throw z(r), e;
 		}
-		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= oe));
+		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= se));
 	}
 	if (i !== null && (i.parent = n, n !== null && un(i, n), B !== null && B.f & 2 && !(e & 64))) {
 		var a = B;
@@ -954,7 +954,7 @@ function fn() {
 }
 function pn(e) {
 	let t = dn(8, null);
-	return A(t, C), t.teardown = e, t;
+	return A(t, S), t.teardown = e, t;
 }
 function mn(e) {
 	ln("$effect");
@@ -965,11 +965,11 @@ function mn(e) {
 	} else return hn(e);
 }
 function hn(e) {
-	return dn(4 | ce, e);
+	return dn(4 | le, e);
 }
 function gn(e) {
 	jt.ensure();
-	let t = dn(64 | se, e);
+	let t = dn(64 | ce, e);
 	return (e = {}) => new Promise((n) => {
 		e.outro ? Dn(t, () => {
 			z(t), n(void 0);
@@ -980,7 +980,7 @@ function _n(e) {
 	return dn(4, e);
 }
 function vn(e) {
-	return dn(fe | se, e);
+	return dn(pe | ce, e);
 }
 function yn(e, t = 0) {
 	return dn(8 | t, e);
@@ -996,7 +996,7 @@ function xn(e, t = 0) {
 	return dn(16 | t, e);
 }
 function R(e) {
-	return dn(32 | se, e);
+	return dn(32 | ce, e);
 }
 function Sn(e) {
 	var t = e.teardown;
@@ -1017,7 +1017,7 @@ function Cn(e, t = !1) {
 	for (e.first = e.last = null; n !== null;) {
 		let e = n.ac;
 		e !== null && ot(() => {
-			e.abort(xe);
+			e.abort(Se);
 		});
 		var r = n.next;
 		n.f & 64 ? n.parent = null : z(n, t), n = r;
@@ -1031,10 +1031,10 @@ function wn(e) {
 }
 function z(e, t = !0) {
 	var n = !1;
-	(t || e.f & 262144) && e.nodes !== null && e.nodes.end !== null && (Tn(e.nodes.start, e.nodes.end), n = !0), e.f |= ae, Cn(e, t && !n), Zn(e, 0);
+	(t || e.f & 262144) && e.nodes !== null && e.nodes.end !== null && (Tn(e.nodes.start, e.nodes.end), n = !0), e.f |= oe, Cn(e, t && !n), Zn(e, 0);
 	var r = e.nodes && e.nodes.t;
 	if (r !== null) for (let e of r) e.stop();
-	Sn(e), e.f ^= ae, e.f |= re;
+	Sn(e), e.f ^= oe, e.f |= ie;
 	var i = e.parent;
 	i !== null && i.first !== null && En(e), e.next = e.prev = e.teardown = e.ctx = e.deps = e.fn = e.nodes = e.ac = e.b = null;
 }
@@ -1061,7 +1061,7 @@ function Dn(e, t, n = !0) {
 }
 function On(e, t, n) {
 	if (!(e.f & 8192)) {
-		e.f ^= ne;
+		e.f ^= re;
 		var r = e.nodes && e.nodes.t;
 		if (r !== null) for (let e of r) (e.is_global || n) && t.push(e);
 		for (var i = e.first; i !== null;) {
@@ -1079,7 +1079,7 @@ function kn(e) {
 }
 function An(e, t) {
 	if (!(e.f & 256) && e.f & 8192) {
-		e.f ^= ne, e.f & 1024 || (A(e, w), jt.ensure().schedule(e));
+		e.f ^= re, e.f & 1024 || (A(e, C), jt.ensure().schedule(e));
 		for (var n = e.first; n !== null;) {
 			var r = n.next, i = !!(n.f & 65536) || !!(n.f & 32);
 			An(n, i ? t : !1), n = r;
@@ -1126,12 +1126,12 @@ function Gn() {
 function Kn(e) {
 	var t = e.f;
 	if (t & 2048) return !0;
-	if (t & 2 && (e.f &= ~ue), t & 4096) {
+	if (t & 2 && (e.f &= ~de), t & 4096) {
 		for (var n = e.deps, r = n.length, i = 0; i < r; i++) {
 			var a = n[i];
 			if (Kn(a) && vt(a), a.wv > e.wv) return !0;
 		}
-		t & 512 && Ct === null && A(e, C);
+		t & 512 && Ct === null && A(e, S);
 	}
 	return !1;
 }
@@ -1139,18 +1139,18 @@ function qn(e, t, n = !0) {
 	var r = e.reactions;
 	if (r !== null && !(Rn !== null && Rn.has(e))) for (var i = 0; i < r.length; i++) {
 		var a = r[i];
-		a.f & 2 ? qn(a, t, !1) : t === a && (n ? A(a, w) : a.f & 1024 && A(a, te), Ft(a));
+		a.f & 2 ? qn(a, t, !1) : t === a && (n ? A(a, C) : a.f & 1024 && A(a, ne), Ft(a));
 	}
 }
 function Jn(e) {
 	var t = U, n = W, r = G, i = B, a = Rn, o = k, s = In, c = Un, l = e.f;
 	U = null, W = 0, G = null, B = l & 96 ? null : e, Rn = null, Je(e.ctx), In = !1, Un = ++Hn, e.ac !== null && (ot(() => {
-		e.ac.abort(xe);
+		e.ac.abort(Se);
 	}), e.ac = null);
 	try {
-		e.f |= de;
+		e.f |= fe;
 		var u = e.fn, d = u();
-		e.f |= ie;
+		e.f |= ae;
 		var f = Yn(e);
 		if (Qe() && G !== null && !In && f !== null && !(e.f & 6146)) for (var p = 0; p < G.length; p++) qn(G[p], e);
 		if (i !== null && i !== e) {
@@ -1158,11 +1158,11 @@ function Jn(e) {
 			if (t !== null) for (let e of t) e.rv = Hn;
 			G !== null && (r === null ? r = G : r.push(...G));
 		}
-		return e.f & 8388608 && (e.f ^= pe), d;
+		return e.f & 8388608 && (e.f ^= me), d;
 	} catch (t) {
 		return Yn(e), sn(t);
 	} finally {
-		e.f ^= de, U = t, W = n, G = r, B = i, Rn = a, Je(o), In = s, Un = c;
+		e.f ^= fe, U = t, W = n, G = r, B = i, Rn = a, Je(o), In = s, Un = c;
 	}
 }
 function Yn(e) {
@@ -1186,8 +1186,8 @@ function Xn(e, t) {
 	}
 	if (n === null && t.f & 2 && (U === null || !f.call(U, t))) {
 		var a = t;
-		a.f & 512 && (a.f ^= 512, a.f &= ~ue), a.v !== T && rt(a), a.ac !== null && ot(() => {
-			a.ac.abort(xe), a.ac = null, A(a, w);
+		a.f & 512 && (a.f ^= 512, a.f &= ~de), a.v !== w && rt(a), a.ac !== null && ot(() => {
+			a.ac.abort(Se), a.ac = null, A(a, C);
 		}), yt(a), Zn(a, 0);
 	}
 }
@@ -1198,7 +1198,7 @@ function Zn(e, t) {
 function Qn(e) {
 	var t = e.f;
 	if (!(t & 16384)) {
-		A(e, C);
+		A(e, S);
 		var n = H, r = Nn;
 		H = e, Nn = !(t & 96);
 		try {
@@ -1228,7 +1228,7 @@ function K(e) {
 			var a = i.v;
 			return (!(i.f & 1024) && i.reactions !== null || er(i)) && (a = _t(i)), zt.set(i, a), a;
 		}
-		var o = !(i.f & 512) && !In && B !== null && (Nn || !!(B.f & 512)), s = (i.f & ie) === 0;
+		var o = !(i.f & 512) && !In && B !== null && (Nn || !!(B.f & 512)), s = (i.f & ae) === 0;
 		Kn(i) && (o && (i.f |= 512), vt(i)), o && !s && (bt(i), $n(i));
 	}
 	if (Ct?.has(e)) return Ct.get(e);
@@ -1239,7 +1239,7 @@ function $n(e) {
 	if (e.f |= 512, e.deps !== null) for (let t of e.deps) (t.reactions ??= []).push(e), t.f & 2 && !(t.f & 512) && (bt(t), $n(t));
 }
 function er(e) {
-	if (e.v === T) return !0;
+	if (e.v === w) return !0;
 	if (e.deps === null) return !1;
 	for (let t of e.deps) if (zt.has(t) || t.f & 2 && er(t)) return !0;
 	return !1;
@@ -1340,7 +1340,7 @@ function hr(e, t) {
 function gr(e, t) {
 	var n = !!(t & 1), r = !!(t & 2), i, a = !e.startsWith("<!>");
 	return () => {
-		if (E) return hr(D, null), D;
+		if (T) return hr(E, null), E;
 		i === void 0 && (i = mr(a ? e : "<!>" + e), n || (i = /* @__PURE__ */ F(i)));
 		var t = r || Yt ? document.importNode(i, !0) : i.cloneNode(!0);
 		if (n) {
@@ -1354,7 +1354,7 @@ function gr(e, t) {
 function _r(e, t, n = "svg") {
 	var r = !e.startsWith("<!>"), i = !!(t & 1), a = `<${n}>${r ? e : "<!>" + e}</${n}>`, o;
 	return () => {
-		if (E) return hr(D, null), D;
+		if (T) return hr(E, null), E;
 		if (!o) {
 			var e = /* @__PURE__ */ F(mr(a));
 			if (i) for (o = document.createDocumentFragment(); /* @__PURE__ */ F(e);) o.appendChild(/* @__PURE__ */ F(e));
@@ -1373,14 +1373,14 @@ function vr(e, t) {
 	return /* @__PURE__ */ _r(e, t, "svg");
 }
 function yr() {
-	if (E) return hr(D, null), D;
+	if (T) return hr(E, null), E;
 	var e = document.createDocumentFragment(), t = document.createComment(""), n = P();
 	return e.append(t, n), hr(t, n), e;
 }
 function q(e, t) {
-	if (E) {
+	if (T) {
 		var n = H;
-		(!(n.f & 32768) || n.nodes.end === null) && (n.nodes.end = D), Ae();
+		(!(n.f & 32768) || n.nodes.end === null) && (n.nodes.end = E), Ae();
 		return;
 	}
 	e !== null && e.before(t);
@@ -1399,7 +1399,7 @@ function br(e) {
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/blocks/boundary.js
-var xr = oe | se;
+var xr = se | ce;
 function Sr(e, t, n, r) {
 	new Cr(e, t, n, r);
 }
@@ -1408,7 +1408,7 @@ var Cr = class {
 	is_pending = !1;
 	transform_error;
 	#e;
-	#t = E ? D : null;
+	#t = T ? E : null;
 	#n;
 	#r;
 	#i;
@@ -1430,7 +1430,7 @@ var Cr = class {
 			var t = H;
 			t.b = this, t.f |= 128, n(e);
 		}, this.parent = H.b, this.transform_error = r ?? this.parent?.transform_error ?? ((e) => e), this.#i = xn(() => {
-			if (E) {
+			if (T) {
 				let e = this.#t;
 				Ae();
 				let t = e.data === "[!";
@@ -1439,7 +1439,7 @@ var Cr = class {
 					this.#_(t);
 				} else t ? this.#y() : this.#g();
 			} else this.#b();
-		}, xr), E && (this.#e = D);
+		}, xr), T && (this.#e = E);
 	}
 	#g() {
 		try {
@@ -1458,7 +1458,7 @@ var Cr = class {
 		var t = !1, n = !1;
 		let r = () => {
 			if (t) {
-				De();
+				Oe();
 				return;
 			}
 			t = !0, n && qe(), this.#s !== null && Dn(this.#s, () => {
@@ -1561,7 +1561,7 @@ var Cr = class {
 		})) : this.#w(e);
 	}
 	#w(e) {
-		this.#a &&= (z(this.#a), null), this.#o &&= (z(this.#o), null), this.#s &&= (z(this.#s), null), E && (ke(this.#t), je(), ke(Me()));
+		this.#a &&= (z(this.#a), null), this.#o &&= (z(this.#o), null), this.#s &&= (z(this.#s), null), T && (D(this.#t), je(), D(Me()));
 		let t = this.#n.failed, n = (e) => {
 			let { reset: n, invoke_onerror: r } = this.#v(e);
 			r(), t && (this.#s = this.#S(() => {
@@ -1589,7 +1589,7 @@ var Cr = class {
 };
 function wr(e, t) {
 	var n = t == null ? "" : typeof t == "object" ? `${t}` : t;
-	n !== (e[be] ??= e.nodeValue) && (e[be] = n, e.nodeValue = `${n}`);
+	n !== (e[xe] ??= e.nodeValue) && (e[xe] = n, e.nodeValue = `${n}`);
 }
 function Tr(e, t) {
 	return Dr(e, t);
@@ -1602,7 +1602,7 @@ function Dr(e, { target: t, anchor: n, props: r = {}, events: i, context: a, int
 		Sr(o, { pending: () => {} }, (t) => {
 			Ye({});
 			var n = k;
-			if (a && (n.c = a), i && (r.$$events = i), E && hr(t, null), c = e(t, r) || Ze(), E && (H.nodes.end = D, D === null || D.nodeType !== 8 || D.data !== "]")) throw Ee(), Ce;
+			if (a && (n.c = a), i && (r.$$events = i), T && hr(t, null), c = e(t, r) || Ze(), T && (H.nodes.end = E, E === null || E.nodeType !== 8 || E.data !== "]")) throw De(), we;
 			Xe();
 		}, s);
 		var l = /* @__PURE__ */ new Set(), u = (e) => {
@@ -1689,21 +1689,21 @@ var Or = /* @__PURE__ */ new WeakMap(), kr = class {
 			for (let [t, r] of this.#t) t === e ? n.unskip_effect(r) : n.skip_effect(r);
 			for (let [t, r] of this.#n) t === e ? n.unskip_effect(r.effect) : n.skip_effect(r.effect);
 			n.oncommit(this.#a), n.ondiscard(this.#o);
-		} else E && (this.anchor = D), this.#a(n);
+		} else T && (this.anchor = E), this.#a(n);
 	}
 };
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/blocks/if.js
 function Ar(e, t, n = !1) {
 	var r;
-	E && (r = D, Ae());
-	var i = new kr(e), a = n ? oe : 0;
+	T && (r = E, Ae());
+	var i = new kr(e), a = n ? se : 0;
 	function o(e, t) {
-		if (E) {
+		if (T) {
 			var n = Ne(r);
 			if (e !== parseInt(n.substring(1))) {
 				var a = Me();
-				ke(a), i.anchor = a, Oe(!1), i.ensure(e, t), Oe(!0);
+				D(a), i.anchor = a, ke(!1), i.ensure(e, t), ke(!0);
 				return;
 			}
 		}
@@ -1753,7 +1753,7 @@ function Nr(e, t, n = !0) {
 	}
 	for (var i = 0; i < t.length; i++) {
 		var a = t[i];
-		r?.has(a) ? (a.f |= le, jn(a, document.createDocumentFragment())) : z(t[i], n);
+		r?.has(a) ? (a.f |= ue, jn(a, document.createDocumentFragment())) : z(t[i], n);
 	}
 }
 var Pr;
@@ -1761,15 +1761,15 @@ function Fr(e, t, n, r, i, a = null) {
 	var o = e, s = /* @__PURE__ */ new Map();
 	if (t & 4) {
 		var c = e;
-		o = E ? ke(/* @__PURE__ */ F(c)) : c.appendChild(P());
+		o = T ? D(/* @__PURE__ */ F(c)) : c.appendChild(P());
 	}
-	E && Ae();
+	T && Ae();
 	var l = null, d = /* @__PURE__ */ ht(() => {
 		var e = n();
 		return u(e) ? e : e == null ? [] : p(e);
 	}), f, m = /* @__PURE__ */ new Map(), h = !0;
 	function g(e) {
-		v.effect.f & 16384 || (v.pending.delete(e), v.fallback = l, Lr(v, f, o, t, r), l !== null && (f.length === 0 ? l.f & 33554432 ? (l.f ^= le, zr(l, null, o)) : kn(l) : Dn(l, () => {
+		v.effect.f & 16384 || (v.pending.delete(e), v.fallback = l, Lr(v, f, o, t, r), l !== null && (f.length === 0 ? l.f & 33554432 ? (l.f ^= ue, zr(l, null, o)) : kn(l) : Dn(l, () => {
 			l = null;
 		})));
 	}
@@ -1781,19 +1781,19 @@ function Fr(e, t, n, r, i, a = null) {
 			f = K(d);
 			var e = f.length;
 			let c = !1;
-			E && Ne(o) === "[!" != (e === 0) && (o = Me(), ke(o), Oe(!1), c = !0);
+			T && Ne(o) === "[!" != (e === 0) && (o = Me(), D(o), ke(!1), c = !0);
 			for (var u = /* @__PURE__ */ new Set(), p = j, v = rn(), y = 0; y < e; y += 1) {
-				E && D.nodeType === 8 && D.data === "]" && (o = D, c = !0, Oe(!1));
-				var b = f[y], x = r(b, y), S = h ? null : s.get(x);
-				S ? (S.v && Ut(S.v, b), S.i && Ut(S.i, y), v && p.unskip_effect(S.e)) : (S = Rr(s, h ? o : Pr ??= P(), b, x, y, i, t, n), h || (S.e.f |= le), s.set(x, S)), u.add(x);
+				T && E.nodeType === 8 && E.data === "]" && (o = E, c = !0, ke(!1));
+				var ee = f[y], b = r(ee, y), x = h ? null : s.get(b);
+				x ? (x.v && Ut(x.v, ee), x.i && Ut(x.i, y), v && p.unskip_effect(x.e)) : (x = Rr(s, h ? o : Pr ??= P(), ee, b, y, i, t, n), h || (x.e.f |= ue), s.set(b, x)), u.add(b);
 			}
-			if (e === 0 && a && !l && (h ? l = R(() => a(o)) : (l = R(() => a(Pr ??= P())), l.f |= le)), e > u.size && ze("", "", ""), E && e > 0 && ke(Me()), !h) {
+			if (e === 0 && a && !l && (h ? l = R(() => a(o)) : (l = R(() => a(Pr ??= P())), l.f |= ue)), e > u.size && ze("", "", ""), T && e > 0 && D(Me()), !h) {
 				if (m.set(p, u), v) {
 					for (let [e, t] of s) u.has(e) || p.skip_effect(t.e);
 					p.oncommit(g), p.ondiscard(_);
 				} else g(p);
 			}
-			c && Oe(!0), K(d);
+			c && ke(!0), K(d);
 		}),
 		flags: t,
 		items: s,
@@ -1801,7 +1801,7 @@ function Fr(e, t, n, r, i, a = null) {
 		outrogroups: null,
 		fallback: l
 	};
-	h = !1, E && (o = D);
+	h = !1, T && (o = E);
 }
 function Ir(e) {
 	for (; e !== null && !(e.f & 32);) e = e.next;
@@ -1813,7 +1813,7 @@ function Lr(e, t, n, r, i) {
 	for (v = 0; v < o; v += 1) {
 		if (h = t[v], g = i(h, v), _ = s.get(g).e, e.outrogroups !== null) for (let t of e.outrogroups) t.pending.delete(_), t.done.delete(_);
 		if (_.f & 8192 && (kn(_), a && (_.nodes?.a?.unfix(), (d ??= /* @__PURE__ */ new Set()).delete(_))), _.f & 33554432) {
-			if (_.f ^= le, _ === c) zr(_, null, n);
+			if (_.f ^= ue, _ === c) zr(_, null, n);
 			else {
 				var y = u ? u.next : c;
 				_ === e.effect.last && (e.effect.last = _.prev), _.prev && (_.prev.next = _.next), _.next && (_.next.prev = _.prev), Br(e, u, _), Br(e, _, y), zr(_, y, n), u = _, f = [], m = [], c = Ir(u.next);
@@ -1823,12 +1823,12 @@ function Lr(e, t, n, r, i) {
 		if (_ !== c) {
 			if (l !== void 0 && l.has(_)) {
 				if (f.length < m.length) {
-					var b = m[0], x;
-					u = b.prev;
-					var S = f[0], ee = f[f.length - 1];
-					for (x = 0; x < f.length; x += 1) zr(f[x], b, n);
-					for (x = 0; x < m.length; x += 1) l.delete(m[x]);
-					Br(e, S.prev, ee.next), Br(e, u, S), Br(e, ee, b), c = b, u = ee, --v, f = [], m = [];
+					var ee = m[0], b;
+					u = ee.prev;
+					var x = f[0], te = f[f.length - 1];
+					for (b = 0; b < f.length; b += 1) zr(f[b], ee, n);
+					for (b = 0; b < m.length; b += 1) l.delete(m[b]);
+					Br(e, x.prev, te.next), Br(e, u, x), Br(e, te, ee), c = ee, u = te, --v, f = [], m = [];
 				} else l.delete(_), zr(_, c, n), Br(e, _.prev, _.next), Br(e, _, u === null ? e.effect.first : u.next), Br(e, u, _), u = _;
 				continue;
 			}
@@ -1842,17 +1842,17 @@ function Lr(e, t, n, r, i) {
 		e.outrogroups.size === 0 && (e.outrogroups = null);
 	}
 	if (c !== null || l !== void 0) {
-		var C = [];
-		if (l !== void 0) for (_ of l) _.f & 8192 || C.push(_);
-		for (; c !== null;) !(c.f & 8192) && c !== e.fallback && C.push(c), c = Ir(c.next);
-		var w = C.length;
-		if (w > 0) {
-			var te = r & 4 && o === 0 ? n : null;
+		var S = [];
+		if (l !== void 0) for (_ of l) _.f & 8192 || S.push(_);
+		for (; c !== null;) !(c.f & 8192) && c !== e.fallback && S.push(c), c = Ir(c.next);
+		var C = S.length;
+		if (C > 0) {
+			var ne = r & 4 && o === 0 ? n : null;
 			if (a) {
-				for (v = 0; v < w; v += 1) C[v].nodes?.a?.measure();
-				for (v = 0; v < w; v += 1) C[v].nodes?.a?.fix();
+				for (v = 0; v < C; v += 1) S[v].nodes?.a?.measure();
+				for (v = 0; v < C; v += 1) S[v].nodes?.a?.fix();
 			}
-			Mr(e, C, te);
+			Mr(e, S, ne);
 		}
 	}
 	a && tt(() => {
@@ -1896,10 +1896,10 @@ function Hr(e, t, n) {
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/elements/class.js
 function Ur(e, t, n, r, i, a) {
-	var o = e[ve];
-	if (E || o !== n || o === void 0) {
+	var o = e[ye];
+	if (T || o !== n || o === void 0) {
 		var s = Hr(n, r, a);
-		(!E || s !== e.getAttribute("class")) && (s == null ? e.removeAttribute("class") : t ? e.className = s : e.setAttribute("class", s)), e[ve] = n;
+		(!T || s !== e.getAttribute("class")) && (s == null ? e.removeAttribute("class") : t ? e.className = s : e.setAttribute("class", s)), e[ye] = n;
 	} else if (a && i !== a) for (var c in a) {
 		var l = !!a[c];
 		(i == null || l !== !!i[c]) && e.classList.toggle(c, l);
@@ -1908,15 +1908,15 @@ function Ur(e, t, n, r, i, a) {
 }
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/elements/attributes.js
-var Wr = Symbol("is custom element"), Gr = Symbol("is html"), Kr = Se ? "link" : "LINK";
+var Wr = Symbol("is custom element"), Gr = Symbol("is html"), Kr = Ce ? "link" : "LINK";
 function qr(e, t, n, r) {
 	var i = Jr(e);
-	E && (i[t] = e.getAttribute(t), t === "src" || t === "srcset" || t === "href" && e.nodeName === Kr) || i[t] !== (i[t] = n) && (t === "loading" && (e[ge] = n), n == null ? e.removeAttribute(t) : typeof n != "string" && Xr(e).has(t) ? e[t] = n : e.setAttribute(t, n));
+	T && (i[t] = e.getAttribute(t), t === "src" || t === "srcset" || t === "href" && e.nodeName === Kr) || i[t] !== (i[t] = n) && (t === "loading" && (e[_e] = n), n == null ? e.removeAttribute(t) : typeof n != "string" && Xr(e).has(t) ? e[t] = n : e.setAttribute(t, n));
 }
 function Jr(e) {
-	return e[_e] ??= {
+	return e[ve] ??= {
 		[Wr]: e.nodeName.includes("-"),
-		[Gr]: e.namespaceURI === we
+		[Gr]: e.namespaceURI === Te
 	};
 }
 var Yr = /* @__PURE__ */ new Map();
@@ -1933,7 +1933,7 @@ function Xr(e) {
 //#endregion
 //#region node_modules/svelte/src/internal/client/dom/elements/bindings/this.js
 function Zr(e, t) {
-	return e === t || e?.[me] === t;
+	return e === t || e?.[he] === t;
 }
 function Qr(e = Ze(), t, n, r) {
 	var i = k.r, a = H;
@@ -2188,7 +2188,7 @@ function _i(e, t) {
 cr(["click"]);
 //#endregion
 //#region src/components/Scoreboard.svelte
-var vi = (e, t = x) => {
+var vi = (e, t = b) => {
 	var n = bi(), r = L(I(n), 2), i = (e) => {
 		q(e, yi());
 	};
@@ -2198,7 +2198,7 @@ var vi = (e, t = x) => {
 }, yi = /* @__PURE__ */ vr("<path class=\"mic-slash\" d=\"m5 4 14 16\"></path>"), bi = /* @__PURE__ */ vr("<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 15.25a3.25 3.25 0 0 0 3.25-3.25V7a3.25 3.25 0 0 0-6.5 0v5A3.25 3.25 0 0 0 12 15.25Z\"></path><path d=\"M6.75 11.5v.5a5.25 5.25 0 0 0 10.5 0v-.5M12 17.25V21M9.5 21h5\"></path><!></svg>"), xi = /* @__PURE__ */ gr("<button type=\"button\"><!></button>"), Si = /* @__PURE__ */ gr("<span role=\"img\"><!></span>"), Ci = /* @__PURE__ */ gr("<header class=\"game-header\"><div><p class=\"eyebrow\">На един или два телефона</p> <h1>Морски шах<span aria-hidden=\"true\">.</span></h1></div> <button class=\"icon-button\" type=\"button\"><span aria-hidden=\"true\">↻</span> Нулирай резултата</button></header> <section class=\"scoreboard\" aria-label=\"Резултат\"><article><span class=\"player-symbol\" aria-hidden=\"true\">×</span> <div><span class=\"player-label\"> </span> <strong> </strong></div> <!></article> <div class=\"draw-score\"><span>Равни</span> <strong> </strong></div> <article><span class=\"player-symbol\" aria-hidden=\"true\">○</span> <div><span class=\"player-label\"> </span> <strong> </strong></div> <!></article></section>", 1);
 function wi(e, t) {
 	Ye(t, !0);
-	let n = (e, n = x) => {
+	let n = (e, n = b) => {
 		let r = /* @__PURE__ */ mt(() => i(n()));
 		var a = yr(), o = en(a), s = (e) => {
 			var i = yr(), a = en(i), o = (e) => {
@@ -2234,9 +2234,9 @@ function wi(e, t) {
 	O(h);
 	var _ = L(h, 2);
 	let v;
-	var y = L(I(_), 2), b = I(y), S = tn(b, !0), ee = tn(L(b, 2), !0);
+	var y = L(I(_), 2), ee = I(y), x = tn(ee, !0), te = tn(L(ee, 2), !0);
 	O(y), n(L(y, 2), () => "O"), O(_), O(c), bn((e, n) => {
-		s.disabled = t.waiting, u = Ur(l, 1, "player-card player-x", null, u, { active: t.game.currentPlayer === "X" && !t.game.gameOver && !t.waiting }), wr(p, e), wr(m, t.game.scores.X), wr(g, t.game.scores.draw), v = Ur(_, 1, "player-card player-o", null, v, { active: t.game.currentPlayer === "O" && !t.game.gameOver && !t.waiting }), wr(S, n), wr(ee, t.game.scores.O);
+		s.disabled = t.waiting, u = Ur(l, 1, "player-card player-x", null, u, { active: t.game.currentPlayer === "X" && !t.game.gameOver && !t.waiting }), wr(p, e), wr(m, t.game.scores.X), wr(g, t.game.scores.draw), v = Ur(_, 1, "player-card player-o", null, v, { active: t.game.currentPlayer === "O" && !t.game.gameOver && !t.waiting }), wr(x, n), wr(te, t.game.scores.O);
 	}, [() => r("X"), () => r("O")]), sr("click", s, function(...e) {
 		t.onReset?.apply(this, e);
 	}), q(e, a), Xe();
@@ -2295,29 +2295,82 @@ async function zi(e, t) {
 	if (!Fi(t)) throw TypeError("Invalid room ID");
 	return `p-${await Ni(e, `player:${t}`)}`;
 }
-function Bi(e, t) {
+async function Bi(e) {
+	if (!Pi(e)) throw TypeError("Invalid player token");
+	let t = await crypto.subtle.digest("SHA-256", Ai.encode(e));
+	return ji(new Uint8Array(t));
+}
+function Vi(e, t) {
 	if (!Fi(t)) throw TypeError("Invalid room ID");
 	let n = new URL(e);
 	return n.search = "", n.hash = "", n.searchParams.set("room", t), n.toString();
 }
-function Vi(e) {
+function Hi(e) {
 	let t = new URLSearchParams(e), n = t.get("room");
 	return n ? {
 		roomId: n,
 		valid: Fi(n) && !Ti.slice(1).some((e) => t.has(e))
 	} : null;
 }
-function Hi(e) {
+function Ui(e) {
 	let t = new URL(e);
 	return `${t.pathname}${t.search}${t.hash}`;
 }
-function Ui(e) {
+function Wi(e) {
 	let t = new URL(e);
-	return Ti.forEach((e) => t.searchParams.delete(e)), Hi(t);
+	return Ti.forEach((e) => t.searchParams.delete(e)), Ui(t);
+}
+var Gi = "tic-tac-toe:match:", Ki = /^[A-Za-z0-9_-]{43}$/;
+function qi(e) {
+	return `${Gi}${e}`;
+}
+function Ji(e) {
+	return e?.version === 1 && (e.playerTokenHash === null || Ki.test(e.playerTokenHash)) && ci(e.game) && Number.isFinite(e.updatedAt) && e.updatedAt >= 0;
+}
+function Yi(e, t, n, r = Date.now()) {
+	if (!Fi(t) || n.playerTokenHash !== null && !Ki.test(n.playerTokenHash || "") || !n.game || typeof n.game != "object" || !Number.isFinite(r) || r < 0) return null;
+	let i = {
+		version: 1,
+		playerTokenHash: n.playerTokenHash,
+		game: n.game,
+		updatedAt: r
+	};
+	try {
+		return e.setItem(qi(t), JSON.stringify(i)), i;
+	} catch {
+		return null;
+	}
+}
+function Xi(e, t, n = Date.now()) {
+	if (!Fi(t)) return null;
+	try {
+		let r = JSON.parse(e.getItem(qi(t)));
+		return !Ji(r) || n - r.updatedAt >= 864e5 ? (e.removeItem(qi(t)), null) : r;
+	} catch {
+		try {
+			e.removeItem(qi(t));
+		} catch {}
+		return null;
+	}
+}
+function Zi(e, t) {
+	if (Fi(t)) try {
+		e.removeItem(qi(t));
+	} catch {}
+}
+function Qi(e, t = Date.now()) {
+	try {
+		let n = [];
+		for (let t = 0; t < e.length; t += 1) {
+			let r = e.key(t);
+			r?.startsWith(Gi) && n.push(r.slice(18));
+		}
+		n.forEach((n) => Xi(e, n, t));
+	} catch {}
 }
 //#endregion
 //#region node_modules/peerjs-js-binarypack/dist/binarypack.mjs
-var Wi = class {
+var $i = class {
 	constructor() {
 		this.encoder = new TextEncoder(), this._pieces = [], this._parts = [];
 	}
@@ -2336,10 +2389,10 @@ var Wi = class {
 	toArrayBuffer() {
 		let e = [];
 		for (let t of this._parts) e.push(t);
-		return Gi(e).buffer;
+		return ea(e).buffer;
 	}
 };
-function Gi(e) {
+function ea(e) {
 	let t = 0;
 	for (let n of e) t += n.byteLength;
 	let n = new Uint8Array(t), r = 0;
@@ -2349,14 +2402,14 @@ function Gi(e) {
 	}
 	return n;
 }
-function Ki(e) {
-	return new Ji(e).unpack();
+function ta(e) {
+	return new ra(e).unpack();
 }
-function qi(e) {
-	let t = new Yi(), n = t.pack(e);
+function na(e) {
+	let t = new ia(), n = t.pack(e);
 	return n instanceof Promise ? n.then(() => t.getBuffer()) : t.getBuffer();
 }
-var Ji = class {
+var ra = class {
 	constructor(e) {
 		this.index = 0, this.dataBuffer = e, this.dataView = new Uint8Array(this.dataBuffer), this.length = this.dataBuffer.byteLength;
 	}
@@ -2466,7 +2519,7 @@ var Ji = class {
 		if (t + e <= this.length) return this.dataView.subarray(t, t + e);
 		throw Error("BinaryPackFailure: read index out of range");
 	}
-}, Yi = class {
+}, ia = class {
 	getBuffer() {
 		return this._bufferBuilder.toArrayBuffer();
 	}
@@ -2593,17 +2646,17 @@ var Ji = class {
 		this._bufferBuilder.append((t & 4278190080) >>> 24), this._bufferBuilder.append((t & 16711680) >>> 16), this._bufferBuilder.append((t & 65280) >>> 8), this._bufferBuilder.append(t & 255), this._bufferBuilder.append((n & 4278190080) >>> 24), this._bufferBuilder.append((n & 16711680) >>> 16), this._bufferBuilder.append((n & 65280) >>> 8), this._bufferBuilder.append(n & 255);
 	}
 	constructor() {
-		this._bufferBuilder = new Wi(), this._textEncoder = new TextEncoder();
+		this._bufferBuilder = new $i(), this._textEncoder = new TextEncoder();
 	}
-}, Xi = !0, Zi = !0;
-function Qi(e, t, n) {
+}, aa = !0, oa = !0;
+function sa(e, t, n) {
 	let r = e.match(t);
 	return r && r.length >= n && parseFloat(r[n], 10);
 }
-function $i(e, t, n) {
+function ca(e, t, n) {
 	if (!e.RTCPeerConnection) return;
 	if (!Object.getOwnPropertyDescriptor(EventTarget.prototype, "addEventListener").writable) {
-		na("Unable to polyfill events");
+		da("Unable to polyfill events");
 		return;
 	}
 	let r = e.RTCPeerConnection.prototype, i = r.addEventListener;
@@ -2631,22 +2684,22 @@ function $i(e, t, n) {
 		configurable: !0
 	});
 }
-function ea(e) {
-	return typeof e == "boolean" ? (Xi = e, e ? "adapter.js logging disabled" : "adapter.js logging enabled") : /* @__PURE__ */ Error("Argument type: " + typeof e + ". Please use a boolean.");
+function la(e) {
+	return typeof e == "boolean" ? (aa = e, e ? "adapter.js logging disabled" : "adapter.js logging enabled") : /* @__PURE__ */ Error("Argument type: " + typeof e + ". Please use a boolean.");
 }
-function ta(e) {
-	return typeof e == "boolean" ? (Zi = !e, "adapter.js deprecation warnings " + (e ? "disabled" : "enabled")) : /* @__PURE__ */ Error("Argument type: " + typeof e + ". Please use a boolean.");
+function ua(e) {
+	return typeof e == "boolean" ? (oa = !e, "adapter.js deprecation warnings " + (e ? "disabled" : "enabled")) : /* @__PURE__ */ Error("Argument type: " + typeof e + ". Please use a boolean.");
 }
-function na() {
+function da() {
 	if (typeof window == "object") {
-		if (Xi) return;
+		if (aa) return;
 		typeof console < "u" && typeof console.log == "function" && console.log.apply(console, arguments);
 	}
 }
-function ra(e, t) {
-	Zi && console.warn(e + " is deprecated, please use " + t + " instead.");
+function fa(e, t) {
+	oa && console.warn(e + " is deprecated, please use " + t + " instead.");
 }
-function ia(e) {
+function pa(e) {
 	let t = {
 		browser: null,
 		version: null
@@ -2663,29 +2716,29 @@ function ia(e) {
 			};
 		}
 	}
-	if (n.mozGetUserMedia) t.browser = "firefox", t.version = parseInt(Qi(n.userAgent, /Firefox\/(\d+)\./, 1));
-	else if (n.webkitGetUserMedia || e.isSecureContext === !1 && e.webkitRTCPeerConnection) t.browser = "chrome", t.version = parseInt(Qi(n.userAgent, /Chrom(e|ium)\/(\d+)\./, 2)) || null;
-	else if (e.RTCPeerConnection && n.userAgent.match(/AppleWebKit\/(\d+)\./)) t.browser = "safari", t.version = parseInt(Qi(n.userAgent, /AppleWebKit\/(\d+)\./, 1)), t.supportsUnifiedPlan = e.RTCRtpTransceiver && "currentDirection" in e.RTCRtpTransceiver.prototype, t._safariVersion = Qi(n.userAgent, /Version\/(\d+(\.?\d+))/, 1);
+	if (n.mozGetUserMedia) t.browser = "firefox", t.version = parseInt(sa(n.userAgent, /Firefox\/(\d+)\./, 1));
+	else if (n.webkitGetUserMedia || e.isSecureContext === !1 && e.webkitRTCPeerConnection) t.browser = "chrome", t.version = parseInt(sa(n.userAgent, /Chrom(e|ium)\/(\d+)\./, 2)) || null;
+	else if (e.RTCPeerConnection && n.userAgent.match(/AppleWebKit\/(\d+)\./)) t.browser = "safari", t.version = parseInt(sa(n.userAgent, /AppleWebKit\/(\d+)\./, 1)), t.supportsUnifiedPlan = e.RTCRtpTransceiver && "currentDirection" in e.RTCRtpTransceiver.prototype, t._safariVersion = sa(n.userAgent, /Version\/(\d+(\.?\d+))/, 1);
 	else return t.browser = "Not a supported browser.", t;
 	return t;
 }
-function aa(e) {
+function ma(e) {
 	return Object.prototype.toString.call(e) === "[object Object]";
 }
-function oa(e) {
-	return aa(e) ? Object.keys(e).reduce(function(t, n) {
-		let r = aa(e[n]), i = r ? oa(e[n]) : e[n], a = r && !Object.keys(i).length;
+function ha(e) {
+	return ma(e) ? Object.keys(e).reduce(function(t, n) {
+		let r = ma(e[n]), i = r ? ha(e[n]) : e[n], a = r && !Object.keys(i).length;
 		return i === void 0 || a ? t : Object.assign(t, { [n]: i });
 	}, {}) : e;
 }
-function sa(e, t, n) {
+function ga(e, t, n) {
 	t && !n.has(t.id) && (n.set(t.id, t), Object.keys(t).forEach((r) => {
-		r.endsWith("Id") ? sa(e, e.get(t[r]), n) : r.endsWith("Ids") && t[r].forEach((t) => {
-			sa(e, e.get(t), n);
+		r.endsWith("Id") ? ga(e, e.get(t[r]), n) : r.endsWith("Ids") && t[r].forEach((t) => {
+			ga(e, e.get(t), n);
 		});
 	}));
 }
-function ca(e, t, n) {
+function _a(e, t, n) {
 	let r = n ? "outbound-rtp" : "inbound-rtp", i = /* @__PURE__ */ new Map();
 	if (t === null) return i;
 	let a = [];
@@ -2693,14 +2746,14 @@ function ca(e, t, n) {
 		e.type === "track" && e.trackIdentifier === t.id && a.push(e);
 	}), a.forEach((t) => {
 		e.forEach((n) => {
-			n.type === r && n.trackId === t.id && sa(e, n, i);
+			n.type === r && n.trackId === t.id && ga(e, n, i);
 		});
 	}), i;
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/chrome/getusermedia.js
-var la = na;
-function ua(e, t) {
+var va = da;
+function ya(e, t) {
 	if (t.version >= 64) return;
 	let n = e && e.navigator;
 	if (!n.mediaDevices) return;
@@ -2741,12 +2794,12 @@ function ua(e, t) {
 				if (a.exact === "environment" || a.ideal === "environment" ? t = ["back", "rear"] : (a.exact === "user" || a.ideal === "user") && (t = ["front"]), t) return n.mediaDevices.enumerateDevices().then((n) => {
 					n = n.filter((e) => e.kind === "videoinput");
 					let o = n.find((e) => t.some((t) => e.label.toLowerCase().includes(t)));
-					return !o && n.length && t.includes("back") && (o = n[n.length - 1]), o && (e.video.deviceId = a.exact ? { exact: o.deviceId } : { ideal: o.deviceId }), e.video = r(e.video), la("chrome: " + JSON.stringify(e)), i(e);
+					return !o && n.length && t.includes("back") && (o = n[n.length - 1]), o && (e.video.deviceId = a.exact ? { exact: o.deviceId } : { ideal: o.deviceId }), e.video = r(e.video), va("chrome: " + JSON.stringify(e)), i(e);
 				});
 			}
 			e.video = r(e.video);
 		}
-		return la("chrome: " + JSON.stringify(e)), i(e);
+		return va("chrome: " + JSON.stringify(e)), i(e);
 	}, a = function(e) {
 		return t.version >= 64 ? e : {
 			name: {
@@ -2789,21 +2842,21 @@ function ua(e, t) {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/chrome/chrome_shim.js
-var da = /* @__PURE__ */ s({
-	fixNegotiationNeeded: () => ya,
-	shimAddTrackRemoveTrack: () => _a,
-	shimAddTrackRemoveTrackWithNative: () => ga,
-	shimGetSendersWithDtmf: () => ma,
-	shimGetUserMedia: () => ua,
-	shimMediaStream: () => fa,
-	shimOnTrack: () => pa,
-	shimPeerConnection: () => va,
-	shimSenderReceiverGetStats: () => ha
+var ba = /* @__PURE__ */ s({
+	fixNegotiationNeeded: () => Oa,
+	shimAddTrackRemoveTrack: () => Ea,
+	shimAddTrackRemoveTrackWithNative: () => Ta,
+	shimGetSendersWithDtmf: () => Ca,
+	shimGetUserMedia: () => ya,
+	shimMediaStream: () => xa,
+	shimOnTrack: () => Sa,
+	shimPeerConnection: () => Da,
+	shimSenderReceiverGetStats: () => wa
 });
-function fa(e) {
+function xa(e) {
 	e.MediaStream = e.MediaStream || e.webkitMediaStream;
 }
-function pa(e, t) {
+function Sa(e, t) {
 	if (!(t.version > 102)) {
 		if (typeof e == "object" && e.RTCPeerConnection && !("ontrack" in e.RTCPeerConnection.prototype)) {
 			Object.defineProperty(e.RTCPeerConnection.prototype, "ontrack", {
@@ -2832,10 +2885,10 @@ function pa(e, t) {
 					});
 				}, this.addEventListener("addstream", this._ontrackpoly)), t.apply(this, arguments);
 			};
-		} else $i(e, "track", (e) => (e.transceiver || Object.defineProperty(e, "transceiver", { value: { receiver: e.receiver } }), e));
+		} else ca(e, "track", (e) => (e.transceiver || Object.defineProperty(e, "transceiver", { value: { receiver: e.receiver } }), e));
 	}
 }
-function ma(e) {
+function Ca(e) {
 	if (typeof e == "object" && e.RTCPeerConnection && !("getSenders" in e.RTCPeerConnection.prototype) && "createDTMFSender" in e.RTCPeerConnection.prototype) {
 		let t = function(e, t) {
 			return {
@@ -2885,7 +2938,7 @@ function ma(e) {
 		} });
 	}
 }
-function ha(e, t) {
+function wa(e, t) {
 	if (t.version >= 67 || !(typeof e == "object" && e.RTCPeerConnection && e.RTCRtpSender && e.RTCRtpReceiver)) return;
 	if (!("getStats" in e.RTCRtpSender.prototype)) {
 		let t = e.RTCPeerConnection.prototype.getSenders;
@@ -2899,7 +2952,7 @@ function ha(e, t) {
 			return e._pc = this, e;
 		}), e.RTCRtpSender.prototype.getStats = function() {
 			let e = this;
-			return this._pc.getStats().then((t) => ca(t, e.track, !0));
+			return this._pc.getStats().then((t) => _a(t, e.track, !0));
 		};
 	}
 	if (!("getStats" in e.RTCRtpReceiver.prototype)) {
@@ -2907,9 +2960,9 @@ function ha(e, t) {
 		t && (e.RTCPeerConnection.prototype.getReceivers = function() {
 			let e = t.apply(this, []);
 			return e.forEach((e) => e._pc = this), e;
-		}), $i(e, "track", (e) => (e.receiver._pc = e.srcElement, e)), e.RTCRtpReceiver.prototype.getStats = function() {
+		}), ca(e, "track", (e) => (e.receiver._pc = e.srcElement, e)), e.RTCRtpReceiver.prototype.getStats = function() {
 			let e = this;
-			return this._pc.getStats().then((t) => ca(t, e.track, !1));
+			return this._pc.getStats().then((t) => _a(t, e.track, !1));
 		};
 	}
 	if (!("getStats" in e.RTCRtpSender.prototype && "getStats" in e.RTCRtpReceiver.prototype)) return;
@@ -2924,7 +2977,7 @@ function ha(e, t) {
 		return n.apply(this, arguments);
 	};
 }
-function ga(e) {
+function Ta(e) {
 	e.RTCPeerConnection.prototype.getLocalStreams = function() {
 		return this._shimmedLocalStreams = this._shimmedLocalStreams || {}, Object.keys(this._shimmedLocalStreams).map((e) => this._shimmedLocalStreams[e][0]);
 	};
@@ -2957,9 +3010,9 @@ function ga(e) {
 		}), i.apply(this, arguments);
 	};
 }
-function _a(e, t) {
+function Ea(e, t) {
 	if (!e.RTCPeerConnection) return;
-	if (e.RTCPeerConnection.prototype.addTrack && t.version >= 65) return ga(e);
+	if (e.RTCPeerConnection.prototype.addTrack && t.version >= 65) return Ta(e);
 	let n = e.RTCPeerConnection.prototype.getLocalStreams;
 	e.RTCPeerConnection.prototype.getLocalStreams = function() {
 		let e = n.apply(this);
@@ -3049,7 +3102,7 @@ function _a(e, t) {
 		}), t && (t.getTracks().length === 1 ? this.removeStream(this._reverseStreams[t.id]) : t.removeTrack(e.track), this.dispatchEvent(new Event("negotiationneeded")));
 	};
 }
-function va(e, t) {
+function Da(e, t) {
 	!e.RTCPeerConnection && e.webkitRTCPeerConnection && (e.RTCPeerConnection = e.webkitRTCPeerConnection), e.RTCPeerConnection && t.version < 53 && [
 		"setLocalDescription",
 		"setRemoteDescription",
@@ -3061,20 +3114,20 @@ function va(e, t) {
 		e.RTCPeerConnection.prototype[t] = r[t];
 	});
 }
-function ya(e, t) {
-	t.version > 102 || $i(e, "negotiationneeded", (e) => {
+function Oa(e, t) {
+	t.version > 102 || ca(e, "negotiationneeded", (e) => {
 		let n = e.target;
 		if (!((t.version < 72 || n.getConfiguration && n.getConfiguration().sdpSemantics === "plan-b") && n.signalingState !== "stable")) return e;
 	});
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/firefox/getusermedia.js
-function ba(e, t) {
+function ka(e, t) {
 	let n = e && e.navigator;
 	if (!n.mediaDevices) return;
 	let r = e && e.MediaStreamTrack;
 	if (n.getUserMedia = function(e, t, r) {
-		ra("navigator.getUserMedia", "navigator.mediaDevices.getUserMedia"), n.mediaDevices.getUserMedia(e).then(t, r);
+		fa("navigator.getUserMedia", "navigator.mediaDevices.getUserMedia"), n.mediaDevices.getUserMedia(e).then(t, r);
 	}, !(t.version > 55 && "autoGainControl" in n.mediaDevices.getSupportedConstraints())) {
 		let e = function(e, t, n) {
 			t in e && !(n in e) && (e[n] = e[t], delete e[t]);
@@ -3098,7 +3151,7 @@ function ba(e, t) {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/firefox/getdisplaymedia.js
-function xa(e, t) {
+function Aa(e, t) {
 	e.navigator.mediaDevices && (e.navigator.mediaDevices && "getDisplayMedia" in e.navigator.mediaDevices || (e.navigator.mediaDevices.getDisplayMedia = function(n) {
 		if (!(n && n.video)) {
 			let e = new DOMException("getDisplayMedia without video constraints is undefined");
@@ -3109,27 +3162,27 @@ function xa(e, t) {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/firefox/firefox_shim.js
-var Sa = /* @__PURE__ */ s({
-	shimAddTransceiver: () => Aa,
-	shimCreateAnswer: () => Na,
-	shimCreateOffer: () => Ma,
-	shimGetDisplayMedia: () => xa,
-	shimGetParameters: () => ja,
-	shimGetStats: () => Ta,
-	shimGetUserMedia: () => ba,
-	shimOnTrack: () => Ca,
-	shimPeerConnection: () => wa,
-	shimRTCDataChannel: () => ka,
-	shimReceiverGetStats: () => Da,
-	shimRemoveStream: () => Oa,
-	shimSenderGetStats: () => Ea
+var ja = /* @__PURE__ */ s({
+	shimAddTransceiver: () => za,
+	shimCreateAnswer: () => Ha,
+	shimCreateOffer: () => Va,
+	shimGetDisplayMedia: () => Aa,
+	shimGetParameters: () => Ba,
+	shimGetStats: () => Pa,
+	shimGetUserMedia: () => ka,
+	shimOnTrack: () => Ma,
+	shimPeerConnection: () => Na,
+	shimRTCDataChannel: () => Ra,
+	shimReceiverGetStats: () => Ia,
+	shimRemoveStream: () => La,
+	shimSenderGetStats: () => Fa
 });
-function Ca(e) {
+function Ma(e) {
 	typeof e == "object" && e.RTCTrackEvent && "receiver" in e.RTCTrackEvent.prototype && !("transceiver" in e.RTCTrackEvent.prototype) && Object.defineProperty(e.RTCTrackEvent.prototype, "transceiver", { get() {
 		return { receiver: this.receiver };
 	} });
 }
-function wa(e, t) {
+function Na(e, t) {
 	typeof e == "object" && (e.RTCPeerConnection || e.mozRTCPeerConnection) && (!e.RTCPeerConnection && e.mozRTCPeerConnection && (e.RTCPeerConnection = e.mozRTCPeerConnection), t.version < 53 && [
 		"setLocalDescription",
 		"setRemoteDescription",
@@ -3141,7 +3194,7 @@ function wa(e, t) {
 		e.RTCPeerConnection.prototype[t] = r[t];
 	}));
 }
-function Ta(e, t) {
+function Pa(e, t) {
 	if (typeof e != "object" || !(e.RTCPeerConnection || e.mozRTCPeerConnection) || t.version >= 151) return;
 	let n = {
 		inboundrtp: "inbound-rtp",
@@ -3167,7 +3220,7 @@ function Ta(e, t) {
 		}).then(i, a);
 	};
 }
-function Ea(e) {
+function Fa(e) {
 	if (!(typeof e == "object" && e.RTCPeerConnection && e.RTCRtpSender) || e.RTCRtpSender && "getStats" in e.RTCRtpSender.prototype) return;
 	let t = e.RTCPeerConnection.prototype.getSenders;
 	t && (e.RTCPeerConnection.prototype.getSenders = function() {
@@ -3182,27 +3235,27 @@ function Ea(e) {
 		return this.track ? this._pc.getStats(this.track) : Promise.resolve(/* @__PURE__ */ new Map());
 	};
 }
-function Da(e) {
+function Ia(e) {
 	if (!(typeof e == "object" && e.RTCPeerConnection && e.RTCRtpSender) || e.RTCRtpSender && "getStats" in e.RTCRtpReceiver.prototype) return;
 	let t = e.RTCPeerConnection.prototype.getReceivers;
 	t && (e.RTCPeerConnection.prototype.getReceivers = function() {
 		let e = t.apply(this, []);
 		return e.forEach((e) => e._pc = this), e;
-	}), $i(e, "track", (e) => (e.receiver._pc = e.srcElement, e)), e.RTCRtpReceiver.prototype.getStats = function() {
+	}), ca(e, "track", (e) => (e.receiver._pc = e.srcElement, e)), e.RTCRtpReceiver.prototype.getStats = function() {
 		return this._pc.getStats(this.track);
 	};
 }
-function Oa(e) {
+function La(e) {
 	!e.RTCPeerConnection || "removeStream" in e.RTCPeerConnection.prototype || (e.RTCPeerConnection.prototype.removeStream = function(e) {
-		ra("removeStream", "removeTrack"), this.getSenders().forEach((t) => {
+		fa("removeStream", "removeTrack"), this.getSenders().forEach((t) => {
 			t.track && e.getTracks().includes(t.track) && this.removeTrack(t);
 		});
 	});
 }
-function ka(e) {
+function Ra(e) {
 	e.DataChannel && !e.RTCDataChannel && (e.RTCDataChannel = e.DataChannel);
 }
-function Aa(e, t) {
+function za(e, t) {
 	if (!(typeof e == "object" && e.RTCPeerConnection) || t.version >= 110) return;
 	let n = e.RTCPeerConnection.prototype.addTransceiver;
 	n && (e.RTCPeerConnection.prototype.addTransceiver = function() {
@@ -3227,7 +3280,7 @@ function Aa(e, t) {
 		return r;
 	});
 }
-function ja(e, t) {
+function Ba(e, t) {
 	if (!(typeof e == "object" && e.RTCRtpSender) || t.version >= 110) return;
 	let n = e.RTCRtpSender.prototype.getParameters;
 	n && (e.RTCRtpSender.prototype.getParameters = function() {
@@ -3235,7 +3288,7 @@ function ja(e, t) {
 		return "encodings" in e || (e.encodings = [].concat(this.sendEncodings || [{}])), e;
 	});
 }
-function Ma(e, t) {
+function Va(e, t) {
 	if (!(typeof e == "object" && e.RTCPeerConnection) || t.version >= 110) return;
 	let n = e.RTCPeerConnection.prototype.createOffer;
 	e.RTCPeerConnection.prototype.createOffer = function() {
@@ -3244,7 +3297,7 @@ function Ma(e, t) {
 		}) : n.apply(this, arguments);
 	};
 }
-function Na(e, t) {
+function Ha(e, t) {
 	if (!(typeof e == "object" && e.RTCPeerConnection) || t.version >= 110) return;
 	let n = e.RTCPeerConnection.prototype.createAnswer;
 	e.RTCPeerConnection.prototype.createAnswer = function() {
@@ -3255,18 +3308,18 @@ function Na(e, t) {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/safari/safari_shim.js
-var Pa = /* @__PURE__ */ s({
-	shimAudioContext: () => Ua,
-	shimCallbacksAPI: () => La,
-	shimConstraints: () => za,
-	shimCreateOfferLegacy: () => Ha,
-	shimGetUserMedia: () => Ra,
-	shimLocalStreamsAPI: () => Fa,
-	shimRTCIceServerUrls: () => Ba,
-	shimRemoteStreamsAPI: () => Ia,
-	shimTrackEventTransceiver: () => Va
+var Ua = /* @__PURE__ */ s({
+	shimAudioContext: () => Qa,
+	shimCallbacksAPI: () => Ka,
+	shimConstraints: () => Ja,
+	shimCreateOfferLegacy: () => Za,
+	shimGetUserMedia: () => qa,
+	shimLocalStreamsAPI: () => Wa,
+	shimRTCIceServerUrls: () => Ya,
+	shimRemoteStreamsAPI: () => Ga,
+	shimTrackEventTransceiver: () => Xa
 });
-function Fa(e) {
+function Wa(e) {
 	if (typeof e == "object" && e.RTCPeerConnection) {
 		if ("getLocalStreams" in e.RTCPeerConnection.prototype || (e.RTCPeerConnection.prototype.getLocalStreams = function() {
 			return this._localStreams ||= [], this._localStreams;
@@ -3292,7 +3345,7 @@ function Fa(e) {
 		});
 	}
 }
-function Ia(e) {
+function Ga(e) {
 	if (typeof e == "object" && e.RTCPeerConnection && ("getRemoteStreams" in e.RTCPeerConnection.prototype || (e.RTCPeerConnection.prototype.getRemoteStreams = function() {
 		return this._remoteStreams ? this._remoteStreams : [];
 	}), !("onaddstream" in e.RTCPeerConnection.prototype))) {
@@ -3325,7 +3378,7 @@ function Ia(e) {
 		};
 	}
 }
-function La(e) {
+function Ka(e) {
 	if (typeof e != "object" || !e.RTCPeerConnection) return;
 	let t = e.RTCPeerConnection.prototype, n = t.createOffer, r = t.createAnswer, i = t.setLocalDescription, a = t.setRemoteDescription, o = t.addIceCandidate;
 	t.createOffer = function(e, t) {
@@ -3347,20 +3400,20 @@ function La(e) {
 		return n ? (r.then(t, n), Promise.resolve()) : r;
 	}, t.addIceCandidate = s;
 }
-function Ra(e) {
+function qa(e) {
 	let t = e && e.navigator;
 	if (t.mediaDevices && t.mediaDevices.getUserMedia) {
 		let e = t.mediaDevices, n = e.getUserMedia.bind(e);
-		t.mediaDevices.getUserMedia = (e) => n(za(e));
+		t.mediaDevices.getUserMedia = (e) => n(Ja(e));
 	}
 	!t.getUserMedia && t.mediaDevices && t.mediaDevices.getUserMedia && (t.getUserMedia = function(e, n, r) {
 		t.mediaDevices.getUserMedia(e).then(n, r);
 	}.bind(t));
 }
-function za(e) {
-	return e && e.video !== void 0 ? Object.assign({}, e, { video: oa(e.video) }) : e;
+function Ja(e) {
+	return e && e.video !== void 0 ? Object.assign({}, e, { video: ha(e.video) }) : e;
 }
-function Ba(e) {
+function Ya(e) {
 	if (!e.RTCPeerConnection) return;
 	let t = e.RTCPeerConnection;
 	e.RTCPeerConnection = function(e, n) {
@@ -3368,7 +3421,7 @@ function Ba(e) {
 			let t = [];
 			for (let n = 0; n < e.iceServers.length; n++) {
 				let r = e.iceServers[n];
-				r.urls === void 0 && r.url ? (ra("RTCIceServer.url", "RTCIceServer.urls"), r = JSON.parse(JSON.stringify(r)), r.urls = r.url, delete r.url, t.push(r)) : t.push(e.iceServers[n]);
+				r.urls === void 0 && r.url ? (fa("RTCIceServer.url", "RTCIceServer.urls"), r = JSON.parse(JSON.stringify(r)), r.urls = r.url, delete r.url, t.push(r)) : t.push(e.iceServers[n]);
 			}
 			e.iceServers = t;
 		}
@@ -3377,12 +3430,12 @@ function Ba(e) {
 		return t.generateCertificate;
 	} });
 }
-function Va(e) {
+function Xa(e) {
 	typeof e == "object" && e.RTCTrackEvent && "receiver" in e.RTCTrackEvent.prototype && !("transceiver" in e.RTCTrackEvent.prototype) && Object.defineProperty(e.RTCTrackEvent.prototype, "transceiver", { get() {
 		return { receiver: this.receiver };
 	} });
 }
-function Ha(e) {
+function Za(e) {
 	let t = e.RTCPeerConnection.prototype.createOffer;
 	e.RTCPeerConnection.prototype.createOffer = function(e) {
 		if (e) {
@@ -3395,12 +3448,12 @@ function Ha(e) {
 		return t.apply(this, arguments);
 	};
 }
-function Ua(e) {
+function Qa(e) {
 	typeof e != "object" || e.AudioContext || (e.AudioContext = e.webkitAudioContext);
 }
 //#endregion
 //#region node_modules/sdp/sdp.js
-var Wa = /* @__PURE__ */ o(((e, t) => {
+var $a = /* @__PURE__ */ o(((e, t) => {
 	var n = {};
 	n.generateIdentifier = function() {
 		return Math.random().toString(36).substring(2, 12);
@@ -3706,22 +3759,22 @@ var Wa = /* @__PURE__ */ o(((e, t) => {
 		for (let e = 0; e < t.length; e++) if (t[e].length < 2 || t[e].charAt(1) !== "=") return !1;
 		return !0;
 	}, typeof t == "object" && (t.exports = n);
-})), Ga = /* @__PURE__ */ s({
-	removeExtmapAllowMixed: () => Qa,
-	shimAddIceCandidateNullOrEmpty: () => $a,
-	shimConnectionState: () => Za,
-	shimMaxMessageSize: () => Ya,
-	shimParameterlessSetLocalDescription: () => eo,
-	shimRTCIceCandidate: () => qa,
-	shimRTCIceCandidateRelayProtocol: () => Ja,
-	shimSendThrowTypeError: () => Xa
-}), Ka = /* @__PURE__ */ l(Wa());
-function qa(e) {
+})), eo = /* @__PURE__ */ s({
+	removeExtmapAllowMixed: () => so,
+	shimAddIceCandidateNullOrEmpty: () => co,
+	shimConnectionState: () => oo,
+	shimMaxMessageSize: () => io,
+	shimParameterlessSetLocalDescription: () => lo,
+	shimRTCIceCandidate: () => no,
+	shimRTCIceCandidateRelayProtocol: () => ro,
+	shimSendThrowTypeError: () => ao
+}), to = /* @__PURE__ */ l($a());
+function no(e) {
 	if (!e.RTCIceCandidate || e.RTCIceCandidate && "foundation" in e.RTCIceCandidate.prototype) return;
 	let t = e.RTCIceCandidate;
 	e.RTCIceCandidate = function(e) {
 		if (typeof e == "object" && e.candidate && e.candidate.indexOf("a=") === 0 && (e = JSON.parse(JSON.stringify(e)), e.candidate = e.candidate.substring(2)), e.candidate && e.candidate.length) {
-			let n = new t(e), r = Ka.default.parseCandidate(e.candidate);
+			let n = new t(e), r = to.default.parseCandidate(e.candidate);
 			for (let e in r) e in n || Object.defineProperty(n, e, { value: r[e] });
 			return n.toJSON = function() {
 				return {
@@ -3733,15 +3786,15 @@ function qa(e) {
 			}, n;
 		}
 		return new t(e);
-	}, e.RTCIceCandidate.prototype = t.prototype, $i(e, "icecandidate", (t) => (t.candidate && Object.defineProperty(t, "candidate", {
+	}, e.RTCIceCandidate.prototype = t.prototype, ca(e, "icecandidate", (t) => (t.candidate && Object.defineProperty(t, "candidate", {
 		value: new e.RTCIceCandidate(t.candidate),
 		writable: "false"
 	}), t));
 }
-function Ja(e) {
-	!e.RTCIceCandidate || e.RTCIceCandidate && "relayProtocol" in e.RTCIceCandidate.prototype || $i(e, "icecandidate", (e) => {
+function ro(e) {
+	!e.RTCIceCandidate || e.RTCIceCandidate && "relayProtocol" in e.RTCIceCandidate.prototype || ca(e, "icecandidate", (e) => {
 		if (e.candidate) {
-			let t = Ka.default.parseCandidate(e.candidate.candidate);
+			let t = to.default.parseCandidate(e.candidate.candidate);
 			t.type === "relay" && (e.candidate.relayProtocol = {
 				0: "tls",
 				1: "tcp",
@@ -3751,16 +3804,16 @@ function Ja(e) {
 		return e;
 	});
 }
-function Ya(e, t) {
+function io(e, t) {
 	if (!e.RTCPeerConnection || t.browser === "chrome" && t.version > 102 || t.browser === "firefox" && t.version >= 113) return;
 	"sctp" in e.RTCPeerConnection.prototype || Object.defineProperty(e.RTCPeerConnection.prototype, "sctp", { get() {
 		return this._sctp === void 0 ? null : this._sctp;
 	} });
 	let n = function(e) {
 		if (!e || !e.sdp) return !1;
-		let t = Ka.default.splitSections(e.sdp);
+		let t = to.default.splitSections(e.sdp);
 		return t.shift(), t.some((e) => {
-			let t = Ka.default.parseMLine(e);
+			let t = to.default.parseMLine(e);
 			return t && t.kind === "application" && t.protocol.indexOf("SCTP") !== -1;
 		});
 	}, r = function(e) {
@@ -3774,7 +3827,7 @@ function Ya(e, t) {
 	}, a = function(e, n) {
 		let r = 65536;
 		t.browser === "firefox" && t.version === 57 && (r = 65535);
-		let i = Ka.default.matchPrefix(e.sdp, "a=max-message-size:");
+		let i = to.default.matchPrefix(e.sdp, "a=max-message-size:");
 		return i.length > 0 ? r = parseInt(i[0].substring(19), 10) : t.browser === "firefox" && n !== -1 && (r = 2147483637), r;
 	}, o = e.RTCPeerConnection.prototype.setRemoteDescription;
 	e.RTCPeerConnection.prototype.setRemoteDescription = function() {
@@ -3799,7 +3852,7 @@ function Ya(e, t) {
 		return o.apply(this, arguments);
 	};
 }
-function Xa(e, t) {
+function ao(e, t) {
 	if (!(e.RTCPeerConnection && "createDataChannel" in e.RTCPeerConnection.prototype) || t.browser === "chrome" && t.version >= 149 || t.browser === "firefox" && t.version > 60) return;
 	function n(e, t) {
 		let n = e.send;
@@ -3813,9 +3866,9 @@ function Xa(e, t) {
 	e.RTCPeerConnection.prototype.createDataChannel = function() {
 		let e = r.apply(this, arguments);
 		return n(e, this), e;
-	}, $i(e, "datachannel", (e) => (n(e.channel, e.target), e));
+	}, ca(e, "datachannel", (e) => (n(e.channel, e.target), e));
 }
-function Za(e) {
+function oo(e) {
 	if (!e.RTCPeerConnection || "connectionState" in e.RTCPeerConnection.prototype) return;
 	let t = e.RTCPeerConnection.prototype;
 	Object.defineProperty(t, "connectionState", {
@@ -3851,7 +3904,7 @@ function Za(e) {
 		};
 	});
 }
-function Qa(e, t) {
+function so(e, t) {
 	if (!e.RTCPeerConnection || t.browser === "chrome" && t.version >= 71 || t.browser === "safari" && t._safariVersion >= 13.1) return;
 	let n = e.RTCPeerConnection.prototype.setRemoteDescription;
 	e.RTCPeerConnection.prototype.setRemoteDescription = function(t) {
@@ -3865,14 +3918,14 @@ function Qa(e, t) {
 		return n.apply(this, arguments);
 	};
 }
-function $a(e, t) {
+function co(e, t) {
 	if (!(e.RTCPeerConnection && e.RTCPeerConnection.prototype)) return;
 	let n = e.RTCPeerConnection.prototype.addIceCandidate;
 	n && n.length !== 0 && (e.RTCPeerConnection.prototype.addIceCandidate = function() {
 		return arguments[0] ? (t.browser === "chrome" && t.version < 78 || t.browser === "firefox" && t.version < 68 || t.browser === "safari") && arguments[0] && arguments[0].candidate === "" ? Promise.resolve() : n.apply(this, arguments) : (arguments[1] && arguments[1].apply(null), Promise.resolve());
 	});
 }
-function eo(e, t) {
+function lo(e, t) {
 	if (!(e.RTCPeerConnection && e.RTCPeerConnection.prototype)) return;
 	let n = e.RTCPeerConnection.prototype.setLocalDescription;
 	n && n.length !== 0 && (e.RTCPeerConnection.prototype.setLocalDescription = function() {
@@ -3894,32 +3947,32 @@ function eo(e, t) {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/adapter_factory.js
-function to({ window: e } = {}, t = {
+function uo({ window: e } = {}, t = {
 	shimChrome: !0,
 	shimFirefox: !0,
 	shimSafari: !0
 }) {
-	let n = na, r = ia(e), i = {
+	let n = da, r = pa(e), i = {
 		browserDetails: r,
-		commonShim: Ga,
-		extractVersion: Qi,
-		disableLog: ea,
-		disableWarnings: ta,
-		sdp: Ka
+		commonShim: eo,
+		extractVersion: sa,
+		disableLog: la,
+		disableWarnings: ua,
+		sdp: to
 	};
 	switch (r.browser) {
 		case "chrome":
-			if (!da || !va || !t.shimChrome) return n("Chrome shim is not included in this adapter release."), i;
+			if (!ba || !Da || !t.shimChrome) return n("Chrome shim is not included in this adapter release."), i;
 			if (r.version === null) return n("Chrome shim can not determine version, not shimming."), i;
-			n("adapter.js shimming chrome."), i.browserShim = da, $a(e, r), eo(e, r), ua(e, r), fa(e, r), va(e, r), pa(e, r), _a(e, r), ma(e, r), ha(e, r), ya(e, r), qa(e, r), Ja(e, r), Za(e, r), Ya(e, r), Xa(e, r), Qa(e, r);
+			n("adapter.js shimming chrome."), i.browserShim = ba, co(e, r), lo(e, r), ya(e, r), xa(e, r), Da(e, r), Sa(e, r), Ea(e, r), Ca(e, r), wa(e, r), Oa(e, r), no(e, r), ro(e, r), oo(e, r), io(e, r), ao(e, r), so(e, r);
 			break;
 		case "firefox":
-			if (!Sa || !wa || !t.shimFirefox) return n("Firefox shim is not included in this adapter release."), i;
-			n("adapter.js shimming firefox."), i.browserShim = Sa, $a(e, r), eo(e, r), ba(e, r), wa(e, r), Ta(e, r), Ca(e, r), Oa(e, r), Ea(e, r), Da(e, r), ka(e, r), Aa(e, r), ja(e, r), Ma(e, r), Na(e, r), qa(e, r), Za(e, r), Ya(e, r), Xa(e, r);
+			if (!ja || !Na || !t.shimFirefox) return n("Firefox shim is not included in this adapter release."), i;
+			n("adapter.js shimming firefox."), i.browserShim = ja, co(e, r), lo(e, r), ka(e, r), Na(e, r), Pa(e, r), Ma(e, r), La(e, r), Fa(e, r), Ia(e, r), Ra(e, r), za(e, r), Ba(e, r), Va(e, r), Ha(e, r), no(e, r), oo(e, r), io(e, r), ao(e, r);
 			break;
 		case "safari":
-			if (!Pa || !t.shimSafari) return n("Safari shim is not included in this adapter release."), i;
-			n("adapter.js shimming safari."), i.browserShim = Pa, $a(e, r), eo(e, r), Ba(e, r), Ha(e, r), La(e, r), Fa(e, r), Ia(e, r), Va(e, r), Ra(e, r), Ua(e, r), qa(e, r), Ja(e, r), Ya(e, r), Xa(e, r), Qa(e, r);
+			if (!Ua || !t.shimSafari) return n("Safari shim is not included in this adapter release."), i;
+			n("adapter.js shimming safari."), i.browserShim = Ua, co(e, r), lo(e, r), Ya(e, r), Za(e, r), Ka(e, r), Wa(e, r), Ga(e, r), Xa(e, r), qa(e, r), Qa(e, r), no(e, r), ro(e, r), io(e, r), ao(e, r), so(e, r);
 			break;
 		default: n("Unsupported browser!");
 	}
@@ -3927,10 +3980,10 @@ function to({ window: e } = {}, t = {
 }
 //#endregion
 //#region node_modules/webrtc-adapter/src/js/adapter_core.js
-var no = to({ window: typeof window > "u" ? void 0 : window });
+var fo = uo({ window: typeof window > "u" ? void 0 : window });
 //#endregion
 //#region node_modules/peerjs/dist/bundler.mjs
-function ro(e, t, n, r) {
+function po(e, t, n, r) {
 	Object.defineProperty(e, t, {
 		get: n,
 		set: r,
@@ -3938,7 +3991,7 @@ function ro(e, t, n, r) {
 		configurable: !0
 	});
 }
-var io = class {
+var mo = class {
 	constructor() {
 		this.chunkedMTU = 16300, this._dataCount = 1, this.chunk = (e) => {
 			let t = [], n = e.byteLength, r = Math.ceil(n / this.chunkedMTU), i = 0, a = 0;
@@ -3955,14 +4008,14 @@ var io = class {
 		};
 	}
 };
-function ao(e) {
+function ho(e) {
 	let t = 0;
 	for (let n of e) t += n.byteLength;
 	let n = new Uint8Array(t), r = 0;
 	for (let t of e) n.set(t, r), r += t.byteLength;
 	return n;
 }
-var oo = no.default || no, so = new class {
+var go = fo.default || fo, _o = new class {
 	isWebRTCSupported() {
 		return typeof RTCPeerConnection < "u";
 	}
@@ -3971,13 +4024,13 @@ var oo = no.default || no, so = new class {
 		return this.supportedBrowsers.includes(e) ? e === "chrome" ? t >= this.minChromeVersion : e === "firefox" ? t >= this.minFirefoxVersion : e === "safari" && !this.isIOS && t >= this.minSafariVersion : !1;
 	}
 	getBrowser() {
-		return oo.browserDetails.browser;
+		return go.browserDetails.browser;
 	}
 	getVersion() {
-		return oo.browserDetails.version || 0;
+		return go.browserDetails.version || 0;
 	}
 	isUnifiedPlanSupported() {
-		let e = this.getBrowser(), t = oo.browserDetails.version || 0;
+		let e = this.getBrowser(), t = go.browserDetails.version || 0;
 		if (e === "chrome" && t < this.minChromeVersion) return !1;
 		if (e === "firefox" && t >= this.minFirefoxVersion) return !0;
 		if (!window.RTCRtpTransceiver || !("currentDirection" in RTCRtpTransceiver.prototype)) return !1;
@@ -4009,14 +4062,14 @@ var oo = no.default || no, so = new class {
 			"safari"
 		], this.minFirefoxVersion = 59, this.minChromeVersion = 72, this.minSafariVersion = 605;
 	}
-}(), co = (e) => !e || /^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(e), lo = () => Math.random().toString(36).slice(2), uo = {
+}(), vo = (e) => !e || /^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(e), yo = () => Math.random().toString(36).slice(2), bo = {
 	iceServers: [{ urls: "stun:stun.l.google.com:19302" }, {
 		urls: ["turn:eu-0.turn.peerjs.com:3478", "turn:us-0.turn.peerjs.com:3478"],
 		username: "peerjs",
 		credential: "peerjsp"
 	}],
 	sdpSemantics: "unified-plan"
-}, J = new class extends io {
+}, J = new class extends mo {
 	noop() {}
 	blobToArrayBuffer(e, t) {
 		let n = new FileReader();
@@ -4036,10 +4089,10 @@ var oo = no.default || no, so = new class {
 		super(...e), this.CLOUD_HOST = "0.peerjs.com", this.CLOUD_PORT = 443, this.chunkedBrowsers = {
 			Chrome: 1,
 			chrome: 1
-		}, this.defaultConfig = uo, this.browser = so.getBrowser(), this.browserVersion = so.getVersion(), this.pack = qi, this.unpack = Ki, this.supports = function() {
+		}, this.defaultConfig = bo, this.browser = _o.getBrowser(), this.browserVersion = _o.getVersion(), this.pack = na, this.unpack = ta, this.supports = function() {
 			let e = {
-				browser: so.isBrowserSupported(),
-				webRTC: so.isWebRTCSupported(),
+				browser: _o.isBrowserSupported(),
+				webRTC: _o.isWebRTCSupported(),
 				audioVideo: !1,
 				data: !1,
 				binaryBlob: !1,
@@ -4048,12 +4101,12 @@ var oo = no.default || no, so = new class {
 			if (!e.webRTC) return e;
 			let t;
 			try {
-				t = new RTCPeerConnection(uo), e.audioVideo = !0;
+				t = new RTCPeerConnection(bo), e.audioVideo = !0;
 				let n;
 				try {
 					n = t.createDataChannel("_PEERJSTEST", { ordered: !0 }), e.data = !0, e.reliable = !!n.ordered;
 					try {
-						n.binaryType = "blob", e.binaryBlob = !so.isIOS;
+						n.binaryType = "blob", e.binaryBlob = !_o.isIOS;
 					} catch {}
 				} catch {} finally {
 					n && n.close();
@@ -4062,9 +4115,9 @@ var oo = no.default || no, so = new class {
 				t && t.close();
 			}
 			return e;
-		}(), this.validateId = co, this.randomToken = lo;
+		}(), this.validateId = vo, this.randomToken = yo;
 	}
-}(), fo = "PeerJS: ", Y = new class {
+}(), xo = "PeerJS: ", Y = new class {
 	get logLevel() {
 		return this._logLevel;
 	}
@@ -4084,34 +4137,34 @@ var oo = no.default || no, so = new class {
 		this._print = e;
 	}
 	_print(e, ...t) {
-		let n = [fo, ...t];
+		let n = [xo, ...t];
 		for (let e in n) n[e] instanceof Error && (n[e] = "(" + n[e].name + ") " + n[e].message);
 		e >= 3 ? console.log(...n) : e >= 2 ? console.warn("WARNING", ...n) : e >= 1 && console.error("ERROR", ...n);
 	}
 	constructor() {
 		this._logLevel = 0;
 	}
-}(), po = {}, mo = Object.prototype.hasOwnProperty, X = "~";
-function ho() {}
-Object.create && (ho.prototype = Object.create(null), new ho().__proto__ || (X = !1));
-function go(e, t, n) {
+}(), So = {}, Co = Object.prototype.hasOwnProperty, X = "~";
+function wo() {}
+Object.create && (wo.prototype = Object.create(null), new wo().__proto__ || (X = !1));
+function To(e, t, n) {
 	this.fn = e, this.context = t, this.once = n || !1;
 }
-function _o(e, t, n, r, i) {
+function Eo(e, t, n, r, i) {
 	if (typeof n != "function") throw TypeError("The listener must be a function");
-	var a = new go(n, r || e, i), o = X ? X + t : t;
+	var a = new To(n, r || e, i), o = X ? X + t : t;
 	return e._events[o] ? e._events[o].fn ? e._events[o] = [e._events[o], a] : e._events[o].push(a) : (e._events[o] = a, e._eventsCount++), e;
 }
-function vo(e, t) {
-	--e._eventsCount === 0 ? e._events = new ho() : delete e._events[t];
+function Do(e, t) {
+	--e._eventsCount === 0 ? e._events = new wo() : delete e._events[t];
 }
 function Z() {
-	this._events = new ho(), this._eventsCount = 0;
+	this._events = new wo(), this._eventsCount = 0;
 }
 Z.prototype.eventNames = function() {
 	var e = [], t, n;
 	if (this._eventsCount === 0) return e;
-	for (n in t = this._events) mo.call(t, n) && e.push(X ? n.slice(1) : n);
+	for (n in t = this._events) Co.call(t, n) && e.push(X ? n.slice(1) : n);
 	return Object.getOwnPropertySymbols ? e.concat(Object.getOwnPropertySymbols(t)) : e;
 }, Z.prototype.listeners = function(e) {
 	var t = X ? X + e : e, n = this._events[t];
@@ -4159,41 +4212,41 @@ Z.prototype.eventNames = function() {
 	}
 	return !0;
 }, Z.prototype.on = function(e, t, n) {
-	return _o(this, e, t, n, !1);
+	return Eo(this, e, t, n, !1);
 }, Z.prototype.once = function(e, t, n) {
-	return _o(this, e, t, n, !0);
+	return Eo(this, e, t, n, !0);
 }, Z.prototype.removeListener = function(e, t, n, r) {
 	var i = X ? X + e : e;
 	if (!this._events[i]) return this;
-	if (!t) return vo(this, i), this;
+	if (!t) return Do(this, i), this;
 	var a = this._events[i];
-	if (a.fn) a.fn === t && (!r || a.once) && (!n || a.context === n) && vo(this, i);
+	if (a.fn) a.fn === t && (!r || a.once) && (!n || a.context === n) && Do(this, i);
 	else {
 		for (var o = 0, s = [], c = a.length; o < c; o++) (a[o].fn !== t || r && !a[o].once || n && a[o].context !== n) && s.push(a[o]);
-		s.length ? this._events[i] = s.length === 1 ? s[0] : s : vo(this, i);
+		s.length ? this._events[i] = s.length === 1 ? s[0] : s : Do(this, i);
 	}
 	return this;
 }, Z.prototype.removeAllListeners = function(e) {
 	var t;
-	return e ? (t = X ? X + e : e, this._events[t] && vo(this, t)) : (this._events = new ho(), this._eventsCount = 0), this;
-}, Z.prototype.off = Z.prototype.removeListener, Z.prototype.addListener = Z.prototype.on, Z.prefixed = X, Z.EventEmitter = Z, po = Z;
-var yo = {};
-ro(yo, "ConnectionType", () => bo), ro(yo, "PeerErrorType", () => Q), ro(yo, "BaseConnectionErrorType", () => xo), ro(yo, "DataConnectionErrorType", () => So), ro(yo, "SerializationType", () => Co), ro(yo, "SocketEventType", () => wo), ro(yo, "ServerMessageType", () => $);
-var bo = /*#__PURE__*/ function(e) {
+	return e ? (t = X ? X + e : e, this._events[t] && Do(this, t)) : (this._events = new wo(), this._eventsCount = 0), this;
+}, Z.prototype.off = Z.prototype.removeListener, Z.prototype.addListener = Z.prototype.on, Z.prefixed = X, Z.EventEmitter = Z, So = Z;
+var Oo = {};
+po(Oo, "ConnectionType", () => ko), po(Oo, "PeerErrorType", () => Q), po(Oo, "BaseConnectionErrorType", () => Ao), po(Oo, "DataConnectionErrorType", () => jo), po(Oo, "SerializationType", () => Mo), po(Oo, "SocketEventType", () => No), po(Oo, "ServerMessageType", () => $);
+var ko = /*#__PURE__*/ function(e) {
 	return e.Data = "data", e.Media = "media", e;
 }({}), Q = /*#__PURE__*/ function(e) {
 	return e.BrowserIncompatible = "browser-incompatible", e.Disconnected = "disconnected", e.InvalidID = "invalid-id", e.InvalidKey = "invalid-key", e.Network = "network", e.PeerUnavailable = "peer-unavailable", e.SslUnavailable = "ssl-unavailable", e.ServerError = "server-error", e.SocketError = "socket-error", e.SocketClosed = "socket-closed", e.UnavailableID = "unavailable-id", e.WebRTC = "webrtc", e;
-}({}), xo = /*#__PURE__*/ function(e) {
+}({}), Ao = /*#__PURE__*/ function(e) {
 	return e.NegotiationFailed = "negotiation-failed", e.ConnectionClosed = "connection-closed", e;
-}({}), So = /*#__PURE__*/ function(e) {
+}({}), jo = /*#__PURE__*/ function(e) {
 	return e.NotOpenYet = "not-open-yet", e.MessageToBig = "message-too-big", e;
-}({}), Co = /*#__PURE__*/ function(e) {
+}({}), Mo = /*#__PURE__*/ function(e) {
 	return e.Binary = "binary", e.BinaryUTF8 = "binary-utf8", e.JSON = "json", e.None = "raw", e;
-}({}), wo = /*#__PURE__*/ function(e) {
+}({}), No = /*#__PURE__*/ function(e) {
 	return e.Message = "message", e.Disconnected = "disconnected", e.Error = "error", e.Close = "close", e;
 }({}), $ = /*#__PURE__*/ function(e) {
 	return e.Heartbeat = "HEARTBEAT", e.Candidate = "CANDIDATE", e.Offer = "OFFER", e.Answer = "ANSWER", e.Open = "OPEN", e.Error = "ERROR", e.IdTaken = "ID-TAKEN", e.InvalidKey = "INVALID-KEY", e.Leave = "LEAVE", e.Expire = "EXPIRE", e;
-}({}), To = "1.5.5", Eo = class extends po.EventEmitter {
+}({}), Po = "1.5.5", Fo = class extends So.EventEmitter {
 	constructor(e, t, n, r, i, a = 5e3) {
 		super(), this.pingInterval = a, this._disconnected = !0, this._messagesQueue = [];
 		let o = e ? "wss://" : "ws://";
@@ -4210,9 +4263,9 @@ var bo = /*#__PURE__*/ function(e) {
 				Y.log("Invalid server message", e.data);
 				return;
 			}
-			this.emit(wo.Message, t);
+			this.emit(No.Message, t);
 		}, this._socket.onclose = (e) => {
-			this._disconnected || (Y.log("Socket closed.", e), this._cleanup(), this._disconnected = !0, this.emit(wo.Disconnected));
+			this._disconnected || (Y.log("Socket closed.", e), this._cleanup(), this._disconnected = !0, this.emit(No.Disconnected));
 		}, this._socket.onopen = () => {
 			this._disconnected || (this._sendQueuedMessages(), Y.log("Socket open"), this._scheduleHeartbeat());
 		});
@@ -4245,7 +4298,7 @@ var bo = /*#__PURE__*/ function(e) {
 			return;
 		}
 		if (!e.type) {
-			this.emit(wo.Error, "Invalid message");
+			this.emit(No.Error, "Invalid message");
 			return;
 		}
 		if (!this._wsOpen()) return;
@@ -4258,13 +4311,13 @@ var bo = /*#__PURE__*/ function(e) {
 	_cleanup() {
 		this._socket &&= (this._socket.onopen = this._socket.onmessage = this._socket.onclose = null, this._socket.close(), void 0), clearTimeout(this._wsPingTimer);
 	}
-}, Do = class {
+}, Io = class {
 	constructor(e) {
 		this.connection = e;
 	}
 	startConnection(e) {
 		let t = this._startPeerConnection();
-		if (this.connection.peerConnection = t, this.connection.type === bo.Media && e._stream && this._addTracksToConnection(e._stream, t), e.originator) {
+		if (this.connection.peerConnection = t, this.connection.type === ko.Media && e._stream && this._addTracksToConnection(e._stream, t), e.originator) {
 			let n = this.connection, r = { ordered: !!e.reliable }, i = t.createDataChannel(n.label, r);
 			n._initializeDataChannel(i), this._makeOffer();
 		} else this.handleSDP("OFFER", e.sdp);
@@ -4289,10 +4342,10 @@ var bo = /*#__PURE__*/ function(e) {
 		}, e.oniceconnectionstatechange = () => {
 			switch (e.iceConnectionState) {
 				case "failed":
-					Y.log("iceConnectionState is failed, closing connections to " + t), this.connection.emitError(xo.NegotiationFailed, "Negotiation of connection to " + t + " failed."), this.connection.close();
+					Y.log("iceConnectionState is failed, closing connections to " + t), this.connection.emitError(Ao.NegotiationFailed, "Negotiation of connection to " + t + " failed."), this.connection.close();
 					break;
 				case "closed":
-					Y.log("iceConnectionState is closed, closing connections to " + t), this.connection.emitError(xo.ConnectionClosed, "Connection to " + t + " closed."), this.connection.close();
+					Y.log("iceConnectionState is closed, closing connections to " + t), this.connection.emitError(Ao.ConnectionClosed, "Connection to " + t + " closed."), this.connection.close();
 					break;
 				case "disconnected":
 					Y.log("iceConnectionState changed to disconnected on the connection with " + t);
@@ -4307,7 +4360,7 @@ var bo = /*#__PURE__*/ function(e) {
 		}, Y.log("Listening for remote stream"), e.ontrack = (e) => {
 			Y.log("Received remote stream");
 			let r = e.streams[0], a = i.getConnection(t, n);
-			if (a.type === bo.Media) {
+			if (a.type === ko.Media) {
 				let e = a;
 				this._addStreamToMediaConnection(r, e);
 			}
@@ -4334,7 +4387,7 @@ var bo = /*#__PURE__*/ function(e) {
 					connectionId: this.connection.connectionId,
 					metadata: this.connection.metadata
 				};
-				if (this.connection.type === bo.Data) {
+				if (this.connection.type === ko.Data) {
 					let e = this.connection;
 					r = {
 						...r,
@@ -4405,25 +4458,25 @@ var bo = /*#__PURE__*/ function(e) {
 	_addStreamToMediaConnection(e, t) {
 		Y.log(`add stream ${e.id} to media connection ${t.connectionId}`), t.addStream(e);
 	}
-}, Oo = class extends po.EventEmitter {
+}, Lo = class extends So.EventEmitter {
 	emitError(e, t) {
-		Y.error("Error:", t), this.emit("error", new ko(`${e}`, t));
+		Y.error("Error:", t), this.emit("error", new Ro(`${e}`, t));
 	}
-}, ko = class extends Error {
+}, Ro = class extends Error {
 	constructor(e, t) {
 		typeof t == "string" ? super(t) : (super(), Object.assign(this, t)), this.type = e;
 	}
-}, Ao = class extends Oo {
+}, zo = class extends Lo {
 	get open() {
 		return this._open;
 	}
 	constructor(e, t, n) {
 		super(), this.peer = e, this.provider = t, this.options = n, this._open = !1, this.metadata = n.metadata;
 	}
-}, jo = class e extends Ao {
+}, Bo = class e extends zo {
 	static #e = this.ID_PREFIX = "mc_";
 	get type() {
-		return bo.Media;
+		return ko.Media;
 	}
 	get localStream() {
 		return this._localStream;
@@ -4432,7 +4485,7 @@ var bo = /*#__PURE__*/ function(e) {
 		return this._remoteStream;
 	}
 	constructor(t, n, r) {
-		super(t, n, r), this._localStream = this.options._stream, this.connectionId = this.options.connectionId || e.ID_PREFIX + J.randomToken(), this._negotiator = new Do(this), this._localStream && this._negotiator.startConnection({
+		super(t, n, r), this._localStream = this.options._stream, this.connectionId = this.options.connectionId || e.ID_PREFIX + J.randomToken(), this._negotiator = new Io(this), this._localStream && this._negotiator.startConnection({
 			_stream: this._localStream,
 			originator: !0
 		});
@@ -4475,13 +4528,13 @@ var bo = /*#__PURE__*/ function(e) {
 	close() {
 		this._negotiator &&= (this._negotiator.cleanup(), null), this._localStream = null, this._remoteStream = null, this.provider &&= (this.provider._removeConnection(this), null), this.options && this.options._stream && (this.options._stream = null), this.open && (this._open = !1, super.emit("close"));
 	}
-}, Mo = class {
+}, Vo = class {
 	constructor(e) {
 		this._options = e;
 	}
 	_buildRequest(e) {
 		let t = this._options.secure ? "https" : "http", { host: n, port: r, path: i, key: a } = this._options, o = new URL(`${t}://${n}:${r}${i}${a}/${e}`);
-		return o.searchParams.set("ts", `${Date.now()}${Math.random()}`), o.searchParams.set("version", To), fetch(o.href, { referrerPolicy: this._options.referrerPolicy });
+		return o.searchParams.set("ts", `${Date.now()}${Math.random()}`), o.searchParams.set("version", Po), fetch(o.href, { referrerPolicy: this._options.referrerPolicy });
 	}
 	async retrieveId() {
 		try {
@@ -4509,14 +4562,14 @@ var bo = /*#__PURE__*/ function(e) {
 			throw Y.error("Error retrieving list peers", e), Error("Could not get list peers from the server." + e);
 		}
 	}
-}, No = class e extends Ao {
+}, Ho = class e extends zo {
 	static #e = this.ID_PREFIX = "dc_";
 	static #t = this.MAX_BUFFERED_AMOUNT = 8388608;
 	get type() {
-		return bo.Data;
+		return ko.Data;
 	}
 	constructor(t, n, r) {
-		super(t, n, r), this.connectionId = this.options.connectionId || e.ID_PREFIX + lo(), this.label = this.options.label || this.connectionId, this.reliable = !!this.options.reliable, this._negotiator = new Do(this), this._negotiator.startConnection(this.options._payload || {
+		super(t, n, r), this.connectionId = this.options.connectionId || e.ID_PREFIX + yo(), this.label = this.options.label || this.connectionId, this.reliable = !!this.options.reliable, this._negotiator = new Io(this), this._negotiator.startConnection(this.options._payload || {
 			originator: !0,
 			reliable: this.reliable
 		});
@@ -4539,7 +4592,7 @@ var bo = /*#__PURE__*/ function(e) {
 	}
 	send(e, t = !1) {
 		if (!this.open) {
-			this.emitError(So.NotOpenYet, "Connection is not open. You should listen for the `open` event before sending messages.");
+			this.emitError(jo.NotOpenYet, "Connection is not open. You should listen for the `open` event before sending messages.");
 			return;
 		}
 		return this._send(e, t);
@@ -4556,7 +4609,7 @@ var bo = /*#__PURE__*/ function(e) {
 			default: Y.warn("Unrecognized message type:", e.type, "from peer:", this.peer);
 		}
 	}
-}, Po = class extends No {
+}, Uo = class extends Ho {
 	get bufferSize() {
 		return this._bufferSize;
 	}
@@ -4568,7 +4621,7 @@ var bo = /*#__PURE__*/ function(e) {
 	}
 	_trySend(e) {
 		if (!this.open) return !1;
-		if (this.dataChannel.bufferedAmount > No.MAX_BUFFERED_AMOUNT) return this._buffering = !0, setTimeout(() => {
+		if (this.dataChannel.bufferedAmount > Ho.MAX_BUFFERED_AMOUNT) return this._buffering = !0, setTimeout(() => {
 			this._buffering = !1, this._tryBuffer();
 		}, 50), !1;
 		try {
@@ -4593,15 +4646,15 @@ var bo = /*#__PURE__*/ function(e) {
 	constructor(...e) {
 		super(...e), this._buffer = [], this._bufferSize = 0, this._buffering = !1;
 	}
-}, Fo = class extends Po {
+}, Wo = class extends Uo {
 	close(e) {
 		super.close(e), this._chunkedData = {};
 	}
 	constructor(e, t, n) {
-		super(e, t, n), this.chunker = new io(), this.serialization = Co.Binary, this._chunkedData = {};
+		super(e, t, n), this.chunker = new mo(), this.serialization = Mo.Binary, this._chunkedData = {};
 	}
 	_handleDataMessage({ data: e }) {
-		let t = Ki(e), n = t.__peerData;
+		let t = ta(e), n = t.__peerData;
 		if (n) {
 			if (n.type === "close") {
 				this.close();
@@ -4620,12 +4673,12 @@ var bo = /*#__PURE__*/ function(e) {
 		};
 		if (n.data[e.n] = new Uint8Array(e.data), n.count++, this._chunkedData[t] = n, n.total === n.count) {
 			delete this._chunkedData[t];
-			let e = ao(n.data);
+			let e = ho(n.data);
 			this._handleDataMessage({ data: e });
 		}
 	}
 	_send(e, t) {
-		let n = qi(e);
+		let n = na(e);
 		if (n instanceof Promise) return this._send_blob(n);
 		if (!t && n.byteLength > this.chunker.chunkedMTU) {
 			this._sendChunks(n);
@@ -4646,7 +4699,7 @@ var bo = /*#__PURE__*/ function(e) {
 		Y.log(`DC#${this.connectionId} Try to send ${t.length} chunks...`);
 		for (let e of t) this.send(e, !0);
 	}
-}, Io = class extends Po {
+}, Go = class extends Uo {
 	_handleDataMessage({ data: e }) {
 		super.emit("data", e);
 	}
@@ -4654,9 +4707,9 @@ var bo = /*#__PURE__*/ function(e) {
 		this._bufferedSend(e);
 	}
 	constructor(...e) {
-		super(...e), this.serialization = Co.None;
+		super(...e), this.serialization = Mo.None;
 	}
-}, Lo = class extends Po {
+}, Ko = class extends Uo {
 	_handleDataMessage({ data: e }) {
 		let t = this.parse(this.decoder.decode(e)), n = t.__peerData;
 		if (n && n.type === "close") {
@@ -4668,15 +4721,15 @@ var bo = /*#__PURE__*/ function(e) {
 	_send(e, t) {
 		let n = this.encoder.encode(this.stringify(e));
 		if (n.byteLength >= J.chunkedMTU) {
-			this.emitError(So.MessageToBig, "Message too big for JSON channel");
+			this.emitError(jo.MessageToBig, "Message too big for JSON channel");
 			return;
 		}
 		this._bufferedSend(n);
 	}
 	constructor(...e) {
-		super(...e), this.serialization = Co.JSON, this.encoder = new TextEncoder(), this.decoder = new TextDecoder(), this.stringify = JSON.stringify, this.parse = JSON.parse;
+		super(...e), this.serialization = Mo.JSON, this.encoder = new TextEncoder(), this.decoder = new TextDecoder(), this.stringify = JSON.stringify, this.parse = JSON.parse;
 	}
-}, Ro = class e extends Oo {
+}, qo = class e extends Lo {
 	static #e = this.DEFAULT_KEY = "peerjs";
 	get id() {
 		return this._id;
@@ -4703,11 +4756,11 @@ var bo = /*#__PURE__*/ function(e) {
 	}
 	constructor(t, n) {
 		super(), this._serializers = {
-			raw: Io,
-			json: Lo,
-			binary: Fo,
-			"binary-utf8": Fo,
-			default: Fo
+			raw: Go,
+			json: Ko,
+			binary: Wo,
+			"binary-utf8": Wo,
+			default: Wo
 		}, this._id = null, this._lastServerId = null, this._destroyed = !1, this._disconnected = !1, this._open = !1, this._connections = /* @__PURE__ */ new Map(), this._lostMessages = /* @__PURE__ */ new Map();
 		let r;
 		if (t && t.constructor == Object ? n = t : t && (r = t.toString()), n = {
@@ -4724,7 +4777,7 @@ var bo = /*#__PURE__*/ function(e) {
 		}, this._options = n, this._serializers = {
 			...this._serializers,
 			...this.options.serializers
-		}, this._options.host === "/" && (this._options.host = window.location.hostname), this._options.path && (this._options.path[0] !== "/" && (this._options.path = "/" + this._options.path), this._options.path[this._options.path.length - 1] !== "/" && (this._options.path += "/")), this._options.secure === void 0 && this._options.host !== J.CLOUD_HOST ? this._options.secure = J.isSecure() : this._options.host == J.CLOUD_HOST && (this._options.secure = !0), this._options.logFunction && Y.setLogFunction(this._options.logFunction), Y.logLevel = this._options.debug || 0, this._api = new Mo(n), this._socket = this._createServerConnection(), !J.supports.audioVideo && !J.supports.data) {
+		}, this._options.host === "/" && (this._options.host = window.location.hostname), this._options.path && (this._options.path[0] !== "/" && (this._options.path = "/" + this._options.path), this._options.path[this._options.path.length - 1] !== "/" && (this._options.path += "/")), this._options.secure === void 0 && this._options.host !== J.CLOUD_HOST ? this._options.secure = J.isSecure() : this._options.host == J.CLOUD_HOST && (this._options.secure = !0), this._options.logFunction && Y.setLogFunction(this._options.logFunction), Y.logLevel = this._options.debug || 0, this._api = new Vo(n), this._socket = this._createServerConnection(), !J.supports.audioVideo && !J.supports.data) {
 			this._delayedAbort(Q.BrowserIncompatible, "The current browser does not support WebRTC");
 			return;
 		}
@@ -4735,14 +4788,14 @@ var bo = /*#__PURE__*/ function(e) {
 		r ? this._initialize(r) : this._api.retrieveId().then((e) => this._initialize(e)).catch((e) => this._abort(Q.ServerError, e));
 	}
 	_createServerConnection() {
-		let e = new Eo(this._options.secure, this._options.host, this._options.port, this._options.path, this._options.key, this._options.pingInterval);
-		return e.on(wo.Message, (e) => {
+		let e = new Fo(this._options.secure, this._options.host, this._options.port, this._options.path, this._options.key, this._options.pingInterval);
+		return e.on(No.Message, (e) => {
 			this._handleMessage(e);
-		}), e.on(wo.Error, (e) => {
+		}), e.on(No.Error, (e) => {
 			this._abort(Q.SocketError, e);
-		}), e.on(wo.Disconnected, () => {
+		}), e.on(No.Disconnected, () => {
 			this.disconnected || (this.emitError(Q.Network, "Lost connection to server."), this.disconnect());
-		}), e.on(wo.Close, () => {
+		}), e.on(No.Close, () => {
 			this.disconnected || this._abort(Q.SocketClosed, "Underlying socket is already closed.");
 		}), e;
 	}
@@ -4772,14 +4825,14 @@ var bo = /*#__PURE__*/ function(e) {
 				break;
 			case $.Offer: {
 				let e = n.connectionId, t = this.getConnection(r, e);
-				if (t && (t.close(), Y.warn(`Offer received for existing Connection ID:${e}`)), n.type === bo.Media) {
-					let i = new jo(r, this, {
+				if (t && (t.close(), Y.warn(`Offer received for existing Connection ID:${e}`)), n.type === ko.Media) {
+					let i = new Bo(r, this, {
 						connectionId: e,
 						_payload: n,
 						metadata: n.metadata
 					});
 					t = i, this._addConnection(r, t), this.emit("call", i);
-				} else if (n.type === bo.Data) {
+				} else if (n.type === ko.Data) {
 					let i = new this._serializers[n.serialization](r, this, {
 						connectionId: e,
 						_payload: n,
@@ -4835,7 +4888,7 @@ var bo = /*#__PURE__*/ function(e) {
 			Y.error("To call a peer, you must provide a stream from your browser's `getUserMedia`.");
 			return;
 		}
-		let r = new jo(e, this, {
+		let r = new Bo(e, this, {
 			...n,
 			_stream: t
 		});
@@ -4891,12 +4944,12 @@ var bo = /*#__PURE__*/ function(e) {
 	listAllPeers(e = (e) => {}) {
 		this._api.listAllPeers().then((t) => e(t)).catch((e) => this._abort(Q.ServerError, e));
 	}
-}, zo = (e) => e === "X" ? "O" : "X";
-function Bo(e, t) {
+}, Jo = (e) => e === "X" ? "O" : "X";
+function Yo(e, t) {
 	let n = [...e].reduce((e, t) => e * 31 + t.charCodeAt(0) >>> 0, 0) % 2 == 0 ? "X" : "O";
-	return t === "host" ? n : zo(n);
+	return t === "host" ? n : Jo(n);
 }
-function Vo() {
+function Xo() {
 	return {
 		mode: "local",
 		localPlayer: null,
@@ -4912,9 +4965,9 @@ function Vo() {
 		networkOnline: typeof navigator > "u" || navigator.onLine
 	};
 }
-var Ho = class {
+var Zo = class {
 	constructor(e) {
-		this.callbacks = e, this.mode = "local", this.localPlayer = null, this.phase = "idle", this.connected = !1, this.inviteUrl = "", this.error = "", this.roomId = "", this.playerToken = "", this.acceptedPlayerToken = "", this.peer = null, this.connection = null, this.reconnectTimer = null, this.reconnectEnabled = !0, this.localStream = null, this.remoteAudioReady = !1, this.call = null, this.audioConnected = !1, this.audioBusy = !1, this.audioError = "";
+		this.callbacks = e, this.mode = "local", this.localPlayer = null, this.phase = "idle", this.connected = !1, this.inviteUrl = "", this.error = "", this.roomId = "", this.playerToken = "", this.acceptedPlayerTokenHash = "", this.peer = null, this.connection = null, this.reconnectTimer = null, this.heartbeatTimer = null, this.reconnectEnabled = !0, this.localStream = null, this.remoteAudioReady = !1, this.call = null, this.audioConnected = !1, this.audioBusy = !1, this.audioError = "";
 	}
 	snapshot() {
 		return {
@@ -4935,27 +4988,30 @@ var Ho = class {
 	emit() {
 		this.callbacks.onChange(this.snapshot());
 	}
-	host(e, t) {
-		this.configure("host", Bo(e, "host"), e, null, t), this.validateMatch() && this.startHostPeer();
+	host(e, t, n = "") {
+		this.configure("host", Yo(e, "host"), e, null, t), this.acceptedPlayerTokenHash = n, this.validateMatch() && this.startHostPeer();
 	}
 	join(e, t) {
-		this.configure("guest", Bo(e, "guest"), e, t, ""), this.validateMatch() && this.startGuestPeer();
+		this.configure("guest", Yo(e, "guest"), e, t, ""), this.validateMatch() && this.startGuestPeer();
 	}
 	configure(e, t, n, r, i) {
-		this.stopCurrentSession(), this.mode = e, this.localPlayer = t, this.phase = e === "host" ? "creating" : "connecting", this.connected = !1, this.inviteUrl = i, this.error = "", this.roomId = n, this.playerToken = r, this.acceptedPlayerToken = "", this.reconnectEnabled = !0, this.audioError = "", this.emit();
+		this.stopCurrentSession(), this.mode = e, this.localPlayer = t, this.phase = e === "host" ? "creating" : "connecting", this.connected = !1, this.inviteUrl = i, this.error = "", this.roomId = n, this.playerToken = r, this.acceptedPlayerTokenHash = "", this.reconnectEnabled = !0, this.audioError = "", this.emit();
 	}
 	validateMatch() {
-		return Pi(this.roomId) && (this.mode === "host" || Pi(this.playerToken)) ? !0 : (this.reconnectEnabled = !1, this.showError("Линкът за двубоя е невалиден."), !1);
+		return Fi(this.roomId) && (this.mode === "host" || Pi(this.playerToken)) ? !0 : (this.reconnectEnabled = !1, this.showError("Линкът за двубоя е невалиден."), !1);
 	}
 	leave() {
-		this.stopCurrentSession(), this.mode = "local", this.localPlayer = null, this.phase = "idle", this.connected = !1, this.inviteUrl = "", this.error = "", this.roomId = "", this.playerToken = "", this.acceptedPlayerToken = "", this.reconnectEnabled = !0, this.audioError = "", this.emit();
+		this.send({ type: "leave" }), this.stopCurrentSession(), this.mode = "local", this.localPlayer = null, this.phase = "idle", this.connected = !1, this.inviteUrl = "", this.error = "", this.roomId = "", this.playerToken = "", this.acceptedPlayerTokenHash = "", this.reconnectEnabled = !0, this.audioError = "", this.emit();
+	}
+	expire() {
+		this.send({ type: "expired" }), this.stopCurrentSession(), this.phase = "expired", this.connected = !1, this.inviteUrl = "", this.error = "Двубоят изтече след 24 часа без активност.", this.reconnectEnabled = !1, this.emit();
 	}
 	destroy() {
 		this.stopCurrentSession();
 	}
 	stopCurrentSession() {
 		let e = this.peer, t = this.call, n = this.localStream;
-		this.peer = null, this.connection = null, this.call = null, this.localStream = null, this.remoteAudioReady = !1, this.audioConnected = !1, this.audioBusy = !1, this.clearReconnectTimer(), t && t.close(), n && n.getTracks().forEach((e) => e.stop()), e && !e.destroyed && e.destroy();
+		this.peer = null, this.connection = null, this.call = null, this.localStream = null, this.remoteAudioReady = !1, this.audioConnected = !1, this.audioBusy = !1, this.clearReconnectTimer(), this.clearHeartbeatTimer(), t && t.close(), n && n.getTracks().forEach((e) => e.stop()), e && !e.destroyed && e.destroy();
 		let r = this.callbacks.getRemoteAudio();
 		r && (r.srcObject = null);
 	}
@@ -5032,7 +5088,15 @@ var Ho = class {
 		}
 	}
 	handleConnectionData(e) {
-		if (e && typeof e == "object") {
+		if (e && typeof e == "object" && (this.mode === "host" && this.callbacks.onActivity?.(), e.type !== "heartbeat")) {
+			if (e.type === "leave") {
+				this.reconnectEnabled = !1, this.mode === "host" ? (this.acceptedPlayerTokenHash = "", this.callbacks.onRemoteLeave?.(), this.connection?.close()) : this.showError("Другият играч напусна двубоя.");
+				return;
+			}
+			if (e.type === "expired") {
+				this.reconnectEnabled = !1, this.stopCurrentSession(), this.phase = "expired", this.connected = !1, this.error = "Двубоят изтече след 24 часа без активност.", this.emit();
+				return;
+			}
 			if (e.type === "audio-ready") {
 				this.remoteAudioReady = !0, this.maybeStartAudioCall(), this.emit();
 				return;
@@ -5042,7 +5106,7 @@ var Ho = class {
 				return;
 			}
 			if (this.mode === "host") {
-				if (e.type === "move") this.callbacks.onMove(e.index, zo(this.localPlayer));
+				if (e.type === "move") this.callbacks.onMove(e.index, Jo(this.localPlayer));
 				else if (e.type === "new-round") this.callbacks.onNewRound();
 				else if (e.type === "reset-score") this.callbacks.onResetScore();
 				else return;
@@ -5051,15 +5115,17 @@ var Ho = class {
 		}
 	}
 	attachConnection(e) {
-		this.connection = e, this.connected = !1, this.remoteAudioReady = !1, this.closeAudioCall(), e.on("open", () => {
-			this.connection === e && (this.clearReconnectTimer(), this.connected = !0, this.phase = "connected", this.error = "", this.audioError = "", this.emit(), this.broadcastState(), this.localStream && this.send({ type: "audio-ready" }), this.maybeStartAudioCall());
-		}), e.on("data", (t) => {
+		this.connection = e, this.connected = !1, this.remoteAudioReady = !1, this.closeAudioCall();
+		let t = !1, n = () => {
+			this.connection === e && (t || (t = !0, this.clearReconnectTimer(), this.connected = !0, this.phase = "connected", this.error = "", this.audioError = "", this.emit(), this.broadcastState(), this.mode === "host" ? this.callbacks.onActivity?.() : this.startHeartbeat(), this.localStream && this.send({ type: "audio-ready" }), this.maybeStartAudioCall()));
+		};
+		e.on("open", n), e.on("data", (t) => {
 			this.connection === e && this.handleConnectionData(t);
-		}), e.on("close", () => this.handleConnectionEnd(e)), e.on("error", () => this.handleConnectionEnd(e));
+		}), e.on("close", () => this.handleConnectionEnd(e)), e.on("error", () => this.handleConnectionEnd(e)), e.open && n();
 	}
 	handleConnectionEnd(e) {
 		if (this.connection === e) {
-			if (this.connection = null, this.connected = !1, this.remoteAudioReady = !1, this.closeAudioCall(), this.mode === "host") this.phase = navigator.onLine ? "waiting" : "reconnecting", this.error = "", !this.peer || this.peer.destroyed ? this.scheduleHostReconnect(0) : this.peer.disconnected && this.reconnectSignaling(this.peer);
+			if (this.connection = null, this.connected = !1, this.remoteAudioReady = !1, this.clearHeartbeatTimer(), this.closeAudioCall(), this.mode === "host") this.phase = navigator.onLine ? "waiting" : "reconnecting", this.error = "", !this.peer || this.peer.destroyed ? this.scheduleHostReconnect(0) : this.peer.disconnected && this.reconnectSignaling(this.peer);
 			else if (this.mode === "guest") {
 				if (this.reconnectEnabled) {
 					this.scheduleGuestReconnect();
@@ -5075,13 +5141,19 @@ var Ho = class {
 			e.send({ type: "full" }), window.setTimeout(() => e.close(), 150);
 		});
 	}
-	handleHostConnection(e) {
+	async handleHostConnection(e) {
 		let t = e.metadata?.playerToken;
-		if (!Pi(t) || this.acceptedPlayerToken && t !== this.acceptedPlayerToken) {
+		if (!Pi(t)) {
 			this.rejectConnection(e);
 			return;
 		}
-		if (this.acceptedPlayerToken ||= t, this.connection) {
+		let n = await Bi(t);
+		if (this.mode !== "host") return e.close();
+		if (this.acceptedPlayerTokenHash && n !== this.acceptedPlayerTokenHash) {
+			this.rejectConnection(e);
+			return;
+		}
+		if (this.acceptedPlayerTokenHash || (this.acceptedPlayerTokenHash = n, this.callbacks.onOpponentAccepted?.(n)), this.connection) {
 			let e = this.connection;
 			if (e.open) {
 				try {
@@ -5091,13 +5163,19 @@ var Ho = class {
 			} else e.close();
 			this.connection = null, this.connected = !1, this.remoteAudioReady = !1, this.closeAudioCall();
 		}
-		this.phase = "waiting", this.attachConnection(e), this.emit();
+		this.phase = "waiting", this.attachConnection(e), this.callbacks.onActivity?.(), this.emit();
 	}
 	showError(e) {
 		this.clearReconnectTimer(), this.connected = !1, this.phase = "error", this.error = e, this.emit();
 	}
 	clearReconnectTimer() {
 		this.reconnectTimer &&= (window.clearTimeout(this.reconnectTimer), null);
+	}
+	clearHeartbeatTimer() {
+		this.heartbeatTimer &&= (window.clearInterval(this.heartbeatTimer), null);
+	}
+	startHeartbeat() {
+		this.clearHeartbeatTimer(), this.heartbeatTimer = window.setInterval(() => this.send({ type: "heartbeat" }), 3e4);
 	}
 	reconnectSignaling(e) {
 		window.setTimeout(() => {
@@ -5129,7 +5207,7 @@ var Ho = class {
 			this.scheduleHostReconnect();
 			return;
 		}
-		let e = new Ro(this.roomId);
+		let e = new qo(this.roomId);
 		this.replaceCurrentPeer(e), e.on("open", () => {
 			this.peer === e && (this.clearReconnectTimer(), this.phase = this.connected ? "connected" : "waiting", this.emit());
 		}), e.on("connection", (t) => {
@@ -5147,7 +5225,7 @@ var Ho = class {
 			this.scheduleGuestReconnect();
 			return;
 		}
-		let e = new Ro();
+		let e = new qo();
 		this.replaceCurrentPeer(e), e.on("open", () => {
 			this.peer !== e || this.connected || this.attachConnection(e.connect(this.roomId, {
 				reliable: !0,
@@ -5166,55 +5244,63 @@ var Ho = class {
 		if (this.mode === "local") return this.emit();
 		this.connection ? this.connection.close() : (this.connected = !1, this.phase = "reconnecting", this.closeAudioCall(), this.emit());
 	}
-}, Uo = /* @__PURE__ */ gr("<main class=\"game-shell\"><!> <!> <!></main> <div class=\"background-shape shape-one\" aria-hidden=\"true\"></div> <div class=\"background-shape shape-two\" aria-hidden=\"true\"></div> <audio id=\"remote-audio\" autoplay=\"\" playsinline=\"\"></audio>", 1);
-function Wo(e, t) {
+}, Qo = /* @__PURE__ */ gr("<main class=\"game-shell\"><!> <!> <!></main> <div class=\"background-shape shape-one\" aria-hidden=\"true\"></div> <div class=\"background-shape shape-two\" aria-hidden=\"true\"></div> <audio id=\"remote-audio\" autoplay=\"\" playsinline=\"\"></audio>", 1);
+function $o(e, t) {
 	Ye(t, !0);
-	let n = /* @__PURE__ */ M(qt(ni())), r = /* @__PURE__ */ M(qt(Vo())), i = /* @__PURE__ */ M(!1), a = /* @__PURE__ */ M(void 0), o, s, c = /* @__PURE__ */ mt(() => K(r).mode !== "local" && !K(r).connected), l = /* @__PURE__ */ mt(() => !K(n).gameOver && (K(r).mode === "local" || K(r).connected && K(n).currentPlayer === K(r).localPlayer && !K(i)));
-	function u(e, t = !0) {
-		N(n, e(K(n)), !0), N(i, !1), t && o?.broadcastState();
+	let n = /* @__PURE__ */ M(qt(ni())), r = /* @__PURE__ */ M(qt(Xo())), i = /* @__PURE__ */ M(!1), a = /* @__PURE__ */ M(void 0), o, s, c = "", l = null, u = 0, d = /* @__PURE__ */ mt(() => K(r).mode !== "local" && !K(r).connected), f = /* @__PURE__ */ mt(() => !K(n).gameOver && (K(r).mode === "local" || K(r).connected && K(n).currentPlayer === K(r).localPlayer && !K(i)));
+	function p(e, t = !0) {
+		N(n, e(K(n)), !0), N(i, !1), o?.mode === "host" && m(), t && o?.broadcastState();
 	}
-	function d(e) {
+	function m() {
+		if (!c) return;
+		let e = Yi(localStorage, c, {
+			playerTokenHash: l,
+			game: si(K(n))
+		});
+		e && (u = e.updatedAt);
+	}
+	function h(e) {
 		if (K(r).mode === "local") N(n, ii(K(n), e, K(n).currentPlayer), !0);
-		else if (K(l)) K(r).mode === "host" ? u((t) => ii(t, e, K(r).localPlayer)) : o.send({
+		else if (K(f)) K(r).mode === "host" ? p((t) => ii(t, e, K(r).localPlayer)) : o.send({
 			type: "move",
 			index: e
 		}) && N(i, !0);
 		else return;
 	}
-	function f() {
-		K(r).mode === "guest" ? o.send({ type: "new-round" }) : u(ai, K(r).mode === "host");
-	}
-	function p() {
-		K(r).mode === "guest" ? o.send({ type: "reset-score" }) : u(oi, K(r).mode === "host");
-	}
-	function m(e) {
-		N(n, ni(), !0), N(i, !1);
-		let t = Bi(window.location.href, e);
-		window.history.replaceState({}, "", Hi(t)), o.host(e, t);
-	}
-	async function h() {
-		m(await Li(s));
-	}
-	async function g(e) {
-		N(n, ni(), !0), N(i, !1);
-		let t = Bi(window.location.href, e);
-		window.history.replaceState({}, "", Hi(t)), o.join(e, await zi(s, e));
+	function g() {
+		K(r).mode === "guest" ? o.send({ type: "new-round" }) : p(ai, K(r).mode === "host");
 	}
 	function _() {
-		o.leave(), N(n, ni(), !0), N(i, !1), window.history.replaceState({}, "", Ui(window.location.href));
+		K(r).mode === "guest" ? o.send({ type: "reset-score" }) : p(oi, K(r).mode === "host");
 	}
-	async function v() {
+	function v(e, t = null) {
+		N(n, ci(t?.game) || ni(), !0), N(i, !1), c = e, l = t?.playerTokenHash || null, u = t?.updatedAt || 0;
+		let r = Vi(window.location.href, e);
+		window.history.replaceState({}, "", Ui(r)), o.host(e, r, l || ""), m();
+	}
+	async function y() {
+		v(await Li(s));
+	}
+	async function ee(e) {
+		N(n, ni(), !0), N(i, !1), c = "", l = null, u = 0;
+		let t = Vi(window.location.href, e);
+		window.history.replaceState({}, "", Ui(t)), o.join(e, await zi(s, e));
+	}
+	function b() {
+		o.mode === "host" && Zi(localStorage, o.roomId), o.leave(), N(n, ni(), !0), N(i, !1), c = "", l = null, u = 0, window.history.replaceState({}, "", Wi(window.location.href));
+	}
+	async function x() {
 		try {
 			return navigator.share ? (await navigator.share({
 				title: "Морски шах",
 				text: "Играй морски шах с мен!",
 				url: K(r).inviteUrl
-			}), "Линкът е споделен ✓") : (await y(), "Линкът е копиран ✓");
+			}), "Линкът е споделен ✓") : (await te(), "Линкът е копиран ✓");
 		} catch (e) {
 			return e.name === "AbortError" ? "Сподели линка" : "Неуспешно — опитай пак";
 		}
 	}
-	async function y() {
+	async function te() {
 		if (navigator.clipboard?.writeText) {
 			await navigator.clipboard.writeText(K(r).inviteUrl);
 			return;
@@ -5225,7 +5311,7 @@ function Wo(e, t) {
 		if (e.remove(), !t) throw Error("Copy failed");
 	}
 	$r(() => {
-		o = new Ho({
+		o = new Zo({
 			getRemoteAudio: () => K(a),
 			getGameState: () => si(K(n)),
 			onChange: (e) => {
@@ -5235,20 +5321,29 @@ function Wo(e, t) {
 				let t = ci(e);
 				t && (N(n, t, !0), N(i, !1));
 			},
-			onMove: (e, t) => u((n) => ii(n, e, t), !1),
-			onNewRound: () => u(ai, !1),
-			onResetScore: () => u(oi, !1)
-		}), s = Ii(localStorage), (async () => {
-			let e = Vi(window.location.search);
-			e?.valid && await Ri(e.roomId, s) ? m(e.roomId) : e?.valid ? await g(e.roomId) : e && o.join("", null);
+			onMove: (e, t) => p((n) => ii(n, e, t), !1),
+			onNewRound: () => p(ai, !1),
+			onResetScore: () => p(oi, !1),
+			onOpponentAccepted: (e) => {
+				l = e, m();
+			},
+			onActivity: m,
+			onRemoteLeave: () => {
+				Zi(localStorage, c), N(n, ni(), !0), N(i, !1), l = null, u = 0;
+			}
+		}), s = Ii(localStorage), Qi(localStorage), (async () => {
+			let e = Hi(window.location.search);
+			e?.valid && await Ri(e.roomId, s) ? v(e.roomId, Xi(localStorage, e.roomId)) : e?.valid ? await ee(e.roomId) : e && o.join("", null);
 		})();
-		let e = () => o.handleOnline(), t = () => o.handleOffline();
-		return window.addEventListener("online", e), window.addEventListener("offline", t), () => {
-			window.removeEventListener("online", e), window.removeEventListener("offline", t), o.destroy();
+		let e = window.setInterval(() => {
+			o.mode === "host" && u && Date.now() - u >= 864e5 && (Zi(localStorage, c), c = "", l = null, u = 0, N(n, ni(), !0), o.expire());
+		}, 6e4), t = () => o.handleOnline(), d = () => o.handleOffline();
+		return window.addEventListener("online", t), window.addEventListener("offline", d), () => {
+			window.removeEventListener("online", t), window.removeEventListener("offline", d), window.clearInterval(e), o.destroy();
 		};
 	});
-	var b = Uo(), x = en(b), S = I(x);
-	wi(S, {
+	var S = Qo(), C = en(S), ne = I(C);
+	wi(ne, {
 		get game() {
 			return K(n);
 		},
@@ -5256,20 +5351,20 @@ function Wo(e, t) {
 			return K(r);
 		},
 		get waiting() {
-			return K(c);
+			return K(d);
 		},
-		onReset: p,
+		onReset: _,
 		onAudio: () => o.toggleAudio()
 	});
-	var ee = L(S, 2);
-	_i(ee, {
+	var re = L(ne, 2);
+	_i(re, {
 		get online() {
 			return K(r);
 		},
-		onCreate: h,
-		onShare: v,
-		onLeave: _
-	}), fi(L(ee, 2), {
+		onCreate: y,
+		onShare: x,
+		onLeave: b
+	}), fi(L(re, 2), {
 		get game() {
 			return K(n);
 		},
@@ -5277,16 +5372,16 @@ function Wo(e, t) {
 			return K(r);
 		},
 		get canMove() {
-			return K(l);
+			return K(f);
 		},
 		get waiting() {
-			return K(c);
+			return K(d);
 		},
-		onPlay: d,
-		onNewRound: f
-	}), O(x), Qr(L(x, 6), (e) => N(a, e), () => K(a)), q(e, b), Xe();
+		onPlay: h,
+		onNewRound: g
+	}), O(C), Qr(L(C, 6), (e) => N(a, e), () => K(a)), q(e, S), Xe();
 }
 //#endregion
 //#region src/main.js
-Tr(Wo, { target: document.querySelector("#app") });
+Tr($o, { target: document.querySelector("#app") });
 //#endregion

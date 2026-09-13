@@ -22,6 +22,13 @@
     parseMatchRoute,
     playerTokenForRoom,
   } from "./online/match-url.js";
+  import {
+    loadHostedMatch,
+    MATCH_INACTIVITY_TIMEOUT,
+    pruneHostedMatches,
+    removeHostedMatch,
+    saveHostedMatch,
+  } from "./online/match-store.js";
   import { createOnlineState, OnlineSession } from "./online/online-session.js";
 
   let game = $state(createGameState());
@@ -30,6 +37,9 @@
   let remoteAudio = $state();
   let session;
   let browserSecret;
+  let hostedRoomId = "";
+  let hostedPlayerTokenHash = null;
+  let hostedMatchUpdatedAt = 0;
 
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
@@ -41,7 +51,17 @@
   function updateGame(change, broadcast = true) {
     game = change(game);
     movePending = false;
+    if (session?.mode === "host") persistHostedMatch();
     if (broadcast) session?.broadcastState();
+  }
+
+  function persistHostedMatch() {
+    if (!hostedRoomId) return;
+    const record = saveHostedMatch(localStorage, hostedRoomId, {
+      playerTokenHash: hostedPlayerTokenHash,
+      game: serializeGame(game),
+    });
+    if (record) hostedMatchUpdatedAt = record.updatedAt;
   }
 
   function playCell(index) {
@@ -66,13 +86,17 @@
     else updateGame(resetScore, online.mode === "host");
   }
 
-  function hostGame(roomId) {
-    game = createGameState();
+  function hostGame(roomId, storedMatch = null) {
+    game = restoreGame(storedMatch?.game) || createGameState();
     movePending = false;
+    hostedRoomId = roomId;
+    hostedPlayerTokenHash = storedMatch?.playerTokenHash || null;
+    hostedMatchUpdatedAt = storedMatch?.updatedAt || 0;
 
     const matchUrl = createMatchUrl(window.location.href, roomId);
     window.history.replaceState({}, "", matchPath(matchUrl));
-    session.host(roomId, matchUrl);
+    session.host(roomId, matchUrl, hostedPlayerTokenHash || "");
+    persistHostedMatch();
   }
 
   async function createOnlineGame() {
@@ -82,6 +106,9 @@
   async function joinGame(roomId) {
     game = createGameState();
     movePending = false;
+    hostedRoomId = "";
+    hostedPlayerTokenHash = null;
+    hostedMatchUpdatedAt = 0;
 
     const matchUrl = createMatchUrl(window.location.href, roomId);
     window.history.replaceState({}, "", matchPath(matchUrl));
@@ -89,9 +116,13 @@
   }
 
   function leaveGame() {
+    if (session.mode === "host") removeHostedMatch(localStorage, session.roomId);
     session.leave();
     game = createGameState();
     movePending = false;
+    hostedRoomId = "";
+    hostedPlayerTokenHash = null;
+    hostedMatchUpdatedAt = 0;
     window.history.replaceState({}, "", clearMatchPath(window.location.href));
   }
 
@@ -147,16 +178,47 @@
       onMove: (index, player) => updateGame((current) => makeMove(current, index, player), false),
       onNewRound: () => updateGame(startRound, false),
       onResetScore: () => updateGame(resetScore, false),
+      onOpponentAccepted: (playerTokenHash) => {
+        hostedPlayerTokenHash = playerTokenHash;
+        persistHostedMatch();
+      },
+      onActivity: persistHostedMatch,
+      onRemoteLeave: () => {
+        removeHostedMatch(localStorage, hostedRoomId);
+        game = createGameState();
+        movePending = false;
+        hostedPlayerTokenHash = null;
+        hostedMatchUpdatedAt = 0;
+      },
     });
 
     browserSecret = getOrCreateBrowserSecret(localStorage);
+    pruneHostedMatches(localStorage);
     const openMatchRoute = async () => {
       const route = parseMatchRoute(window.location.search);
-      if (route?.valid && await isRoomHost(route.roomId, browserSecret)) hostGame(route.roomId);
+      if (route?.valid && await isRoomHost(route.roomId, browserSecret)) {
+        hostGame(route.roomId, loadHostedMatch(localStorage, route.roomId));
+      }
       else if (route?.valid) await joinGame(route.roomId);
       else if (route) session.join("", null);
     };
     openMatchRoute();
+
+    const expireInactiveMatch = () => {
+      if (
+        session.mode === "host"
+        && hostedMatchUpdatedAt
+        && Date.now() - hostedMatchUpdatedAt >= MATCH_INACTIVITY_TIMEOUT
+      ) {
+        removeHostedMatch(localStorage, hostedRoomId);
+        hostedRoomId = "";
+        hostedPlayerTokenHash = null;
+        hostedMatchUpdatedAt = 0;
+        game = createGameState();
+        session.expire();
+      }
+    };
+    const expiryTimer = window.setInterval(expireInactiveMatch, 60000);
 
     const handleOnline = () => session.handleOnline();
     const handleOffline = () => session.handleOffline();
@@ -166,6 +228,7 @@
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.clearInterval(expiryTimer);
       session.destroy();
     };
   });
