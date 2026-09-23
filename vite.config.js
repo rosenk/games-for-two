@@ -4,6 +4,9 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 export default defineConfig({
   base: "/tic-tac-toe/",
   plugins: [svelte()],
+  experimental: {
+    bundledDev: true,
+  },
   server: {
     allowedHosts: [".onamp.dev"],
   },
