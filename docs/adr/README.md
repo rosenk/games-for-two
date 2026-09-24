@@ -7,7 +7,7 @@
 | [0001](0001-record-architecture-decisions.md) | Водене на ADR | Прието |
 | [0002](0002-static-client.md) | Първа статична игра | Заменено от 0004 |
 | [0003](0003-peerjs-host-authority.md) | P2P и авторитетен домакин | Прието |
-| [0004](0004-svelte-vite-modules.md) | Svelte/Vite и граници между модулите | Прието |
+| [0004](0004-svelte-vite-modules.md) | Svelte/Vite и граници между модулите | Заменено от 0013 |
 | [0005](0005-portable-role-urls.md) | Преносими адреси с роля | Заменено от 0007 |
 | [0006](0006-github-pages-build.md) | Vite сборка за Pages | Прието |
 | [0007](0007-short-room-invitations.md) | Кратък room адрес и лични token-и | Заменено от 0008 |
@@ -16,3 +16,4 @@
 | [0010](0010-cloudflare-matchmaking.md) | Cloudflare matchmaking | Прието |
 | [0011](0011-tab-scoped-identity.md) | Идентичност на таба | Прието |
 | [0012](0012-bundled-dev.md) | Bundled dev preview | Прието |
+| [0013](0013-two-games-typescript.md) | Две игри с отделни TypeScript правила | Прието |

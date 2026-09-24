@@ -1,4 +1,4 @@
-import { restoreGame } from "../game/game-state.js";
+import { restoreGame } from "../game/game-state.ts";
 import { isValidRoomId } from "./match-url.js";
 
 export const MATCH_INACTIVITY_TIMEOUT = 24 * 60 * 60 * 1000;

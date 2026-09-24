@@ -1,4 +1,7 @@
-const matchParameters = ["room", "player", "host", "role"];
+import { gameKinds } from "../game/game-state.ts";
+import { DEFAULT_HEX_SIZE, isHexSize } from "../game/hex.ts";
+
+const matchParameters = ["room", "game", "size", "player", "host", "role"];
 const tokenPattern = /^[A-Za-z0-9_-]{1,100}$/;
 const tabSecretPattern = /^[A-Za-z0-9_-]{43}$/;
 const roomPattern = /^ttt-([a-f0-9]{32})([a-f0-9]{32})$/;
@@ -85,13 +88,17 @@ export async function hashPlayerToken(playerToken) {
   return encode(new Uint8Array(digest));
 }
 
-export function createMatchUrl(address, roomId) {
+export function createMatchUrl(address, roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
+  if (!gameKinds.includes(game)) throw new TypeError("Invalid game");
+  if (game === "hex" ? !isHexSize(boardSize) : boardSize !== 3) throw new TypeError("Invalid board size");
 
   const matchUrl = new URL(address);
   matchUrl.search = "";
   matchUrl.hash = "";
   matchUrl.searchParams.set("room", roomId);
+  if (game !== "tic-tac-toe") matchUrl.searchParams.set("game", game);
+  if (game === "hex" && boardSize !== DEFAULT_HEX_SIZE) matchUrl.searchParams.set("size", String(boardSize));
   return matchUrl.toString();
 }
 
@@ -99,11 +106,21 @@ export function parseMatchRoute(search) {
   const parameters = new URLSearchParams(search);
   const roomId = parameters.get("room");
   if (!roomId) return null;
+  const game = parameters.get("game") || "tic-tac-toe";
+  const sizeParameter = parameters.get("size");
+  const boardSize = sizeParameter === null
+    ? game === "hex" ? DEFAULT_HEX_SIZE : 3
+    : Number(sizeParameter);
 
   return {
     roomId,
+    game,
+    boardSize,
     valid: isValidRoomId(roomId)
-      && !matchParameters.slice(1).some((parameter) => parameters.has(parameter)),
+      && gameKinds.includes(game)
+      && (game === "hex" ? isHexSize(boardSize) : boardSize === 3 && sizeParameter === null)
+      && (sizeParameter === null || sizeParameter === String(boardSize))
+      && !matchParameters.slice(3).some((parameter) => parameters.has(parameter)),
   };
 }
 

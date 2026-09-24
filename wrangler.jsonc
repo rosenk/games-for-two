@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "tic-tac-toe-matchmaker",
-  "main": "matchmaker/worker.js",
+  "main": "matchmaker/worker.ts",
   "compatibility_date": "2026-09-13",
   "vars": {
     "ALLOWED_ORIGINS": "https://rosenk.github.io"

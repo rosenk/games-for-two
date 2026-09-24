@@ -11,15 +11,17 @@
     "test": "node --test",
     "check:matchmaker": "wrangler deploy --dry-run --config wrangler.jsonc",
     "deploy:matchmaker": "wrangler deploy --config wrangler.jsonc",
-    "check": "svelte-check && npm test && npm run build && npm run check:matchmaker"
+    "check": "tsc --noEmit && svelte-check && npm test && npm run build && npm run check:matchmaker"
   },
   "dependencies": {
     "peerjs": "1.5.5",
     "svelte": "5.57.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260924.1",
     "@sveltejs/vite-plugin-svelte": "7.3.0",
     "svelte-check": "4.7.6",
+    "typescript": "^6.0.3",
     "vite": "8.3.0",
     "wrangler": "4.131.1"
   }

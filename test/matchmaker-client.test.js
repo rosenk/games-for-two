@@ -41,6 +41,10 @@ test("builds a secure matchmaking WebSocket URL", async () => {
     matchmakerSocketUrl("https://match.example/", roomId),
     `wss://match.example/match?room=${roomId}`,
   );
+  assert.equal(matchmakerSocketUrl("https://match.example/", roomId, "hex"),
+    `wss://match.example/match?room=${roomId}&game=hex`);
+  assert.equal(matchmakerSocketUrl("https://match.example/", roomId, "hex", 11),
+    `wss://match.example/match?room=${roomId}&game=hex&size=11`);
 });
 
 test("starts the assigned existing game role after a valid match", async () => {

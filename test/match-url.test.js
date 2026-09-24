@@ -68,7 +68,27 @@ test("creates and parses one identity-free match URL", async () => {
   const address = createMatchUrl("https://game.example/play?old=value#section", roomId);
 
   assert.equal(address, `https://game.example/play?room=${roomId}`);
-  assert.deepEqual(parseMatchRoute(`?room=${roomId}`), { roomId, valid: true });
+  assert.deepEqual(parseMatchRoute(`?room=${roomId}`), { roomId, game: "tic-tac-toe", boardSize: 3, valid: true });
+});
+
+test("Hex invitation preserves the game while old links remain tic-tac-toe", async () => {
+  const roomId = await createRoomId(tabOne, nonce);
+  const address = createMatchUrl("https://game.example/play", roomId, "hex");
+  assert.equal(address, `https://game.example/play?room=${roomId}&game=hex`);
+  assert.deepEqual(parseMatchRoute(new URL(address).search), { roomId, game: "hex", boardSize: 5, valid: true });
+  assert.equal(parseMatchRoute(`?room=${roomId}&game=unknown`).valid, false);
+  assert.equal(clearMatchPath(address), "/play");
+});
+
+test("Hex invitation includes a non-default size and rejects invalid or mismatched sizes", async () => {
+  const roomId = await createRoomId(tabOne, nonce);
+  const address = createMatchUrl("https://game.example/play", roomId, "hex", 9);
+  assert.equal(address, `https://game.example/play?room=${roomId}&game=hex&size=9`);
+  assert.deepEqual(parseMatchRoute(new URL(address).search), { roomId, game: "hex", boardSize: 9, valid: true });
+  assert.equal(parseMatchRoute(`?room=${roomId}&game=hex&size=6`).valid, false);
+  assert.equal(parseMatchRoute(`?room=${roomId}&game=hex&size=09`).valid, false);
+  assert.equal(parseMatchRoute(`?room=${roomId}&size=9`).valid, false);
+  assert.equal(clearMatchPath(address), "/play");
 });
 
 test("rejects legacy identity URLs and malformed values", async () => {

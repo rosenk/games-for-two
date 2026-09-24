@@ -53,8 +53,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">На един или два телефона</p>
-    <h1>Морски шах<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
+    <h1>{game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>
@@ -62,7 +62,7 @@
   </button>
 </header>
 
-<section class="scoreboard" aria-label="Резултат">
+<section class="scoreboard" class:no-draw={game.kind === "hex"} aria-label="Резултат">
   <article
     class="player-card player-x"
     class:active={game.currentPlayer === "X" && !game.gameOver && !waiting}
@@ -75,10 +75,12 @@
     {@render playerAudio("X")}
   </article>
 
-  <div class="draw-score">
-    <span>Равни</span>
-    <strong>{game.scores.draw}</strong>
-  </div>
+  {#if game.kind !== "hex"}
+    <div class="draw-score">
+      <span>Равни</span>
+      <strong>{game.scores.draw}</strong>
+    </div>
+  {/if}
 
   <article
     class="player-card player-o"

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createGameState, makeMove, serializeGame } from "../src/game/game-state.js";
+import { createGameState, makeMove, serializeGame } from "../src/game/game-state.ts";
 import { createRoomId } from "../src/online/match-url.js";
 import {
   loadHostedMatch,
@@ -48,6 +48,16 @@ test("restores each hosted room with its opponent and game state", async () => {
     updatedAt: 1000,
   });
   assert.equal(loadHostedMatch(storage, secondRoom, 3000).playerTokenHash, null);
+});
+
+test("restores a hosted Hex board without converting it to tic-tac-toe", async () => {
+  const storage = memoryStorage();
+  const roomId = await createRoomId(browserSecret, "1".repeat(32));
+  const hex = serializeGame(makeMove(createGameState("hex", 9), 80, "X"));
+  saveHostedMatch(storage, roomId, { playerTokenHash: null, game: hex }, 1000);
+  assert.deepEqual(loadHostedMatch(storage, roomId, 1001).game, hex);
+  assert.equal(loadHostedMatch(storage, roomId, 1001).game.board.length, 81);
+  assert.equal(loadHostedMatch(storage, roomId, 1001).game.boardSize, 9);
 });
 
 test("expires inactive rooms without touching active rooms", async () => {

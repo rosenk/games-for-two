@@ -11,7 +11,8 @@
     restoreGame,
     serializeGame,
     startRound,
-  } from "./game/game-state.js";
+  } from "./game/game-state.ts";
+  import { DEFAULT_HEX_SIZE, HEX_SIZES } from "./game/hex.ts";
   import {
     clearMatchPath,
     createMatchUrl,
@@ -33,6 +34,10 @@
   import { createOnlineState, OnlineSession } from "./online/online-session.js";
 
   let game = $state(createGameState());
+  let screen = $state("setup");
+  let selectedGame = $state("tic-tac-toe");
+  let selectedHexSize = $state(DEFAULT_HEX_SIZE);
+  let selectedOpponent = $state("local");
   let online = $state(createOnlineState());
   let matchmakingAvailable = $state(false);
   let movePending = $state(false);
@@ -45,6 +50,7 @@
   let hostedPlayerTokenHash = null;
   let hostedMatchUpdatedAt = 0;
   let shareableMatch = $state(true);
+  let launchVersion = 0;
 
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
@@ -52,6 +58,8 @@
       && (online.mode === "local"
         || (online.connected && game.currentPlayer === online.localPlayer && !movePending)),
   );
+
+  const chosenSize = () => selectedGame === "hex" ? selectedHexSize : 3;
 
   $effect(() => {
     if (!game.gameOver || waiting) {
@@ -113,14 +121,17 @@
   }
 
   function hostGame(roomId, storedMatch = null, shareable = true) {
-    game = restoreGame(storedMatch?.game) || createGameState();
+    const restored = restoreGame(storedMatch?.game);
+    game = restored?.kind === selectedGame && restored.boardSize === chosenSize()
+      ? restored : createGameState(selectedGame, chosenSize());
+    screen = "play";
     movePending = false;
     hostedRoomId = roomId;
     hostedPlayerTokenHash = storedMatch?.playerTokenHash || null;
     hostedMatchUpdatedAt = storedMatch?.updatedAt || 0;
     shareableMatch = shareable;
 
-    const matchUrl = createMatchUrl(window.location.href, roomId);
+    const matchUrl = createMatchUrl(window.location.href, roomId, selectedGame, chosenSize());
     window.history.replaceState({}, "", matchPath(matchUrl));
     session.host(roomId, matchUrl, hostedPlayerTokenHash || "");
     persistHostedMatch();
@@ -128,37 +139,45 @@
 
   async function createOnlineGame() {
     matchmaker.cancel();
-    hostGame(await createRoomId(tabSecret));
+    const version = launchVersion;
+    const roomId = await createRoomId(tabSecret);
+    if (version !== launchVersion) return;
+    hostGame(roomId);
     await shareGame();
   }
 
   async function findOpponent() {
-    game = createGameState();
+    const version = launchVersion;
+    game = createGameState(selectedGame, chosenSize());
     movePending = false;
     hostedRoomId = "";
     hostedPlayerTokenHash = null;
     hostedMatchUpdatedAt = 0;
     shareableMatch = false;
-    matchmaker.search(await createRoomId(tabSecret));
+    const roomId = await createRoomId(tabSecret);
+    if (version !== launchVersion) return;
+    matchmaker.search(roomId, selectedGame, chosenSize());
   }
 
   async function joinGame(roomId) {
-    game = createGameState();
+    game = createGameState(selectedGame, chosenSize());
+    screen = "play";
     movePending = false;
     hostedRoomId = "";
     hostedPlayerTokenHash = null;
     hostedMatchUpdatedAt = 0;
 
-    const matchUrl = createMatchUrl(window.location.href, roomId);
+    const matchUrl = createMatchUrl(window.location.href, roomId, selectedGame, chosenSize());
     window.history.replaceState({}, "", matchPath(matchUrl));
     session.join(roomId, await playerTokenForRoom(tabSecret, roomId));
   }
 
   function leaveGame() {
+    launchVersion += 1;
     matchmaker.cancel();
     if (session.mode === "host") removeHostedMatch(localStorage, session.roomId);
     session.leave();
-    game = createGameState();
+    game = createGameState(selectedGame, chosenSize());
     movePending = false;
     hostedRoomId = "";
     hostedPlayerTokenHash = null;
@@ -167,12 +186,24 @@
     window.history.replaceState({}, "", clearMatchPath(window.location.href));
   }
 
+  function backToSetup() {
+    leaveGame();
+    screen = "setup";
+  }
+
+  function startGame() {
+    game = createGameState(selectedGame, chosenSize());
+    screen = "play";
+    if (selectedOpponent === "invite") createOnlineGame();
+    else if (selectedOpponent === "matching") findOpponent();
+  }
+
   async function shareGame() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Морски шах",
-          text: "Играй морски шах с мен!",
+          title: selectedGame === "hex" ? "Hex" : "Морски шах",
+          text: `Играй ${selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -212,6 +243,7 @@
       },
       onError: (error) => {
         online = { ...createOnlineState(), phase: "error", error };
+        screen = "setup";
       },
     });
     matchmakingAvailable = matchmaker.configured;
@@ -225,7 +257,7 @@
       },
       onState: (state) => {
         const restored = restoreGame(state);
-        if (restored) {
+        if (restored?.kind === selectedGame && restored.boardSize === chosenSize()) {
           game = restored;
           movePending = false;
         }
@@ -249,11 +281,18 @@
     pruneHostedMatches(localStorage);
     const openMatchRoute = async () => {
       const route = parseMatchRoute(window.location.search);
+      if (route?.valid) {
+        selectedGame = route.game;
+        if (route.game === "hex") selectedHexSize = route.boardSize;
+      }
       if (route?.valid && await isRoomHost(route.roomId, tabSecret)) {
         hostGame(route.roomId, loadHostedMatch(localStorage, route.roomId));
       }
       else if (route?.valid) await joinGame(route.roomId);
-      else if (route) session.join("", null);
+      else if (route) {
+        screen = "play";
+        session.join("", null);
+      }
     };
     openMatchRoute();
 
@@ -267,7 +306,7 @@
         hostedRoomId = "";
         hostedPlayerTokenHash = null;
         hostedMatchUpdatedAt = 0;
-        game = createGameState();
+        game = createGameState(selectedGame, chosenSize());
         session.expire();
       }
     };
@@ -293,31 +332,57 @@
 </script>
 
 <main class="game-shell">
-  <Scoreboard
-    {game}
-    {online}
-    {waiting}
-    onReset={requestScoreReset}
-    onAudio={() => session.toggleAudio()}
-  />
-  <OnlinePanel
-    {online}
-    {matchmakingAvailable}
-    {shareableMatch}
-    onCreate={createOnlineGame}
-    onFind={findOpponent}
-    onShare={shareGame}
-    onLeave={leaveGame}
-  />
-  <GameBoard
-    {game}
-    {online}
-    {canMove}
-    {waiting}
-    {roundCountdown}
-    onPlay={playCell}
-    onNewRound={requestNewRound}
-  />
+  {#if screen === "setup"}
+    <div class="setup-header">
+      <p class="eyebrow">Две игри · двама играчи</p>
+      <h1>Хайде да играем<span>.</span></h1>
+      <p>Избери игра, после с кого искаш да играеш.</p>
+      {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
+    </div>
+    <section class="setup-section" aria-labelledby="choose-game">
+      <div class="section-heading"><span>01</span><h2 id="choose-game">Избери игра</h2></div>
+      <div class="game-options">
+        <button class:selected={selectedGame === "tic-tac-toe"} aria-pressed={selectedGame === "tic-tac-toe"} type="button" onclick={() => selectedGame = "tic-tac-toe"}>
+          <span class="option-art tic-art" aria-hidden="true">× ○<br />○ ×</span>
+          <strong>Морски шах</strong><small>Подреди три знака в редица на поле 3 × 3.</small>
+        </button>
+        <button class:selected={selectedGame === "hex"} aria-pressed={selectedGame === "hex"} type="button" onclick={() => selectedGame = "hex"}>
+          <span class="option-art hex-art" aria-hidden="true">⬡ ⬡<br /> ⬡ ⬡</span>
+          <strong>Hex</strong><small>Свържи срещуположните страни.</small>
+        </button>
+      </div>
+      {#if selectedGame === "hex"}
+        <div class="size-picker" role="group" aria-label="Размер на дъската за Hex">
+          <span>Размер на дъската</span>
+          <div class="size-options">
+            {#each HEX_SIZES as size}
+              <button type="button" class:selected={selectedHexSize === size} aria-pressed={selectedHexSize === size} onclick={() => selectedHexSize = size}>{size} × {size}</button>
+            {/each}
+          </div>
+          <small>По-големите дъски се плъзгат хоризонтално на тесен екран.</small>
+        </div>
+      {/if}
+    </section>
+    <section class="setup-section" aria-labelledby="choose-opponent">
+      <div class="section-heading"><span>02</span><h2 id="choose-opponent">С кого ще играеш?</h2></div>
+      <div class="opponent-options">
+        <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>Редувайте се на това устройство</small></button>
+        <button class:selected={selectedOpponent === "invite"} aria-pressed={selectedOpponent === "invite"} type="button" onclick={() => selectedOpponent = "invite"}><strong>Покани приятел</strong><small>Сподели линк за онлайн игра</small></button>
+        {#if matchmakingAvailable}<button class:selected={selectedOpponent === "matching"} aria-pressed={selectedOpponent === "matching"} type="button" onclick={() => selectedOpponent = "matching"}><strong>Намери играч</strong><small>Срещни непознат онлайн</small></button>{/if}
+      </div>
+    </section>
+    <button class="start-button" type="button" onclick={startGame}>Започни игра <span aria-hidden="true">→</span></button>
+  {:else}
+    <div class="play-topbar">
+      <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
+      <span>{game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+    </div>
+    <Scoreboard {game} {online} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
+    {#if online.mode !== "local"}
+      <OnlinePanel {online} {matchmakingAvailable} {shareableMatch} onCreate={createOnlineGame} onFind={findOpponent} onShare={shareGame} onLeave={backToSetup} />
+    {/if}
+    <GameBoard {game} {online} {canMove} {waiting} {roundCountdown} onPlay={playCell} onNewRound={requestNewRound} />
+  {/if}
 </main>
 
 <div class="background-shape shape-one" aria-hidden="true"></div>

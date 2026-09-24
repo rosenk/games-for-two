@@ -1,5 +1,6 @@
 <script>
-  import { cellLabels } from "../game/game-state.js";
+  import HexBoard from "./HexBoard.svelte";
+  import TicTacToeBoard from "./TicTacToeBoard.svelte";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
 
@@ -70,22 +71,11 @@
     </p>
   </div>
 
-  <div class="board" role="grid" aria-label="Дъска за морски шах">
-    {#each game.board as value, index}
-      <button
-        class="cell"
-        class:x={value === "X"}
-        class:o={value === "O"}
-        class:marked={Boolean(value)}
-        class:winner={Boolean(game.winningLine?.includes(index))}
-        type="button"
-        role="gridcell"
-        aria-label={value ? `${cellLabels[index]}: ${displayName(value)} ${mark(value)}` : cellLabels[index]}
-        disabled={Boolean(value) || !canMove}
-        onclick={() => onPlay(index)}
-      >{value ? mark(value) : ""}</button>
-    {/each}
-  </div>
+  {#if game.kind === "hex"}
+    <HexBoard {game} {canMove} {displayName} {onPlay} />
+  {:else}
+    <TicTacToeBoard {game} {canMove} {displayName} {onPlay} />
+  {/if}
 
   <button
     class="new-round"

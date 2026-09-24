@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { MatchmakingQueue } from "../matchmaker/worker.js";
+import { MatchmakingQueue } from "../matchmaker/worker.ts";
 import { createRoomId } from "../src/online/match-url.js";
 
 const browserSecret = "a".repeat(43);
@@ -85,4 +85,51 @@ test("does not match a new player with an expired queue entry", async () => {
   assert.equal(expired.readyState, 3);
   assert.deepEqual(current.messages, [{ type: "waiting" }]);
   assert.equal(current.readyState, 1);
+});
+
+test("keeps Hex and tic-tac-toe in separate matchmaking queues", async () => {
+  const queue = new MatchmakingQueue(fakeContext());
+  const rooms = await Promise.all(["1", "2", "3"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
+  const tic = new FakeSocket();
+  const hex = new FakeSocket();
+  const secondHex = new FakeSocket();
+  queue.connect(tic, rooms[0]);
+  queue.enqueue(tic, rooms[0], 100);
+  queue.connect(hex, rooms[1], "hex");
+  queue.enqueue(hex, rooms[1], 101, "hex");
+  assert.deepEqual(hex.messages, [{ type: "waiting" }]);
+  queue.connect(secondHex, rooms[2], "hex");
+  queue.enqueue(secondHex, rooms[2], 102, "hex");
+  assert.deepEqual(tic.messages, [{ type: "waiting" }]);
+  assert.deepEqual(hex.messages.at(-1), { type: "matched", role: "host", roomId: rooms[1] });
+  assert.deepEqual(secondHex.messages, [{ type: "matched", role: "guest", roomId: rooms[1] }]);
+});
+
+test("pairs Hex players only with the same board size", async () => {
+  const queue = new MatchmakingQueue(fakeContext());
+  const rooms = await Promise.all(["4", "5", "6"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
+  const seven = new FakeSocket();
+  const nine = new FakeSocket();
+  const anotherSeven = new FakeSocket();
+  queue.connect(seven, rooms[0], "hex", 7);
+  queue.enqueue(seven, rooms[0], 100, "hex", 7);
+  queue.connect(nine, rooms[1], "hex", 9);
+  queue.enqueue(nine, rooms[1], 101, "hex", 9);
+  assert.deepEqual(nine.messages, [{ type: "waiting" }]);
+  queue.connect(anotherSeven, rooms[2], "hex", 7);
+  queue.enqueue(anotherSeven, rooms[2], 102, "hex", 7);
+  assert.deepEqual(seven.messages.at(-1), { type: "matched", role: "host", roomId: rooms[0] });
+  assert.deepEqual(anotherSeven.messages, [{ type: "matched", role: "guest", roomId: rooms[0] }]);
+  assert.deepEqual(nine.messages, [{ type: "waiting" }]);
+});
+
+test("Worker rejects invalid Hex sizes before opening a WebSocket", async () => {
+  const queue = new MatchmakingQueue(fakeContext());
+  const roomId = await createRoomId(browserSecret, "7".repeat(32));
+  for (const query of [`game=hex&size=6`, `game=hex&size=09`, `size=9`]) {
+    const request = new Request(`https://match.example/match?room=${roomId}&${query}`, {
+      headers: { Upgrade: "websocket" },
+    });
+    assert.equal(queue.fetch(request).status, 400);
+  }
 });

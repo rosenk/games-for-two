@@ -1,11 +1,15 @@
 import { isValidRoomId } from "./match-url.js";
+import { gameKinds } from "../game/game-state.ts";
+import { DEFAULT_HEX_SIZE, isHexSize } from "../game/hex.ts";
 
 const SEARCH_TIMEOUT = 60_000;
 const PRODUCTION_ENDPOINT = "https://tic-tac-toe-matchmaker.rosen4obg.workers.dev";
 const defaultEndpoint = import.meta.env?.VITE_MATCHMAKER_URL || PRODUCTION_ENDPOINT;
 
-export function matchmakerSocketUrl(endpoint, roomId) {
+export function matchmakerSocketUrl(endpoint, roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
+  if (!gameKinds.includes(game)) throw new TypeError("Invalid game");
+  if (game === "hex" ? !isHexSize(boardSize) : boardSize !== 3) throw new TypeError("Invalid board size");
   const url = new URL(endpoint);
   if (url.protocol === "https:") url.protocol = "wss:";
   else if (url.protocol === "http:") url.protocol = "ws:";
@@ -14,6 +18,8 @@ export function matchmakerSocketUrl(endpoint, roomId) {
   }
   if (url.pathname === "/") url.pathname = "/match";
   url.searchParams.set("room", roomId);
+  if (game !== "tic-tac-toe") url.searchParams.set("game", game);
+  if (game === "hex" && boardSize !== DEFAULT_HEX_SIZE) url.searchParams.set("size", String(boardSize));
   return url.toString();
 }
 
@@ -46,13 +52,13 @@ export class Matchmaker {
     return Boolean(this.endpoint && this.WebSocketClass);
   }
 
-  search(roomId) {
+  search(roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
     this.cancel();
 
     let socketUrl;
     try {
       if (!this.endpoint) throw new Error("Matchmaker is not configured");
-      socketUrl = matchmakerSocketUrl(this.endpoint, roomId);
+      socketUrl = matchmakerSocketUrl(this.endpoint, roomId, game, boardSize);
       if (!this.WebSocketClass) throw new Error("WebSocket is unavailable");
     } catch {
       this.onError?.("Търсенето на противник още не е конфигурирано.");
