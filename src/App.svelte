@@ -235,6 +235,18 @@
   }
 
   onMount(() => {
+    // iOS Safari needs a speech call within a gesture before delayed reminders.
+    const unlockSpeech = () => {
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+      const silence = new SpeechSynthesisUtterance(" ");
+      silence.volume = 0;
+      window.speechSynthesis.speak(silence);
+      window.removeEventListener("click", unlockSpeech);
+      window.removeEventListener("keydown", unlockSpeech);
+    };
+    window.addEventListener("click", unlockSpeech);
+    window.addEventListener("keydown", unlockSpeech);
+
     matchmaker = new Matchmaker({
       onWaiting: () => {
         online = { ...createOnlineState(), mode: "matching", phase: "matching" };
@@ -325,6 +337,8 @@
     window.addEventListener("offline", handleOffline);
 
     return () => {
+      window.removeEventListener("click", unlockSpeech);
+      window.removeEventListener("keydown", unlockSpeech);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       window.clearInterval(expiryTimer);

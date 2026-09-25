@@ -18,3 +18,4 @@
 | [0012](0012-bundled-dev.md) | Bundled dev preview | Прието |
 | [0013](0013-two-games-typescript.md) | Две игри с отделни TypeScript правила | Прието |
 | [0014](0014-dots-and-boxes-state.md) | Състояние на Точки и квадратчета | Прието |
+| [0015](0015-svg-dots-board.md) | SVG дъска за Точки и квадратчета | Прието |
