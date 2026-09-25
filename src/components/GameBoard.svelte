@@ -2,6 +2,7 @@
   import HexBoard from "./HexBoard.svelte";
   import TicTacToeBoard from "./TicTacToeBoard.svelte";
   import DotsAndBoxesBoard from "./DotsAndBoxesBoard.svelte";
+  import CommonSymbolBoard from "./CommonSymbolBoard.svelte";
   import { boxesWinner } from "../game/dots-and-boxes.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
@@ -14,7 +15,7 @@
     return player === online.localPlayer ? "Вие" : "Противникът";
   };
   let reminderTurn = $derived(
-    online.mode !== "local" && canMove
+    game.kind !== "common-symbol" && online.mode !== "local" && canMove
       ? `${online.localPlayer}:${game.currentPlayer}:${game.board.map((cell) => cell || "-").join("")}`
       : "",
   );
@@ -29,7 +30,7 @@
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }
-    const winner = game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
+    const winner = game.kind === "common-symbol" ? boxesWinner(game.board) : game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
     if (game.gameOver && winner) {
       const message = online.mode === "local"
         ? `${name(winner)} печели!`
@@ -37,6 +38,7 @@
       return [message, mark(winner)];
     }
     if (game.gameOver) return ["Равенство — чудесна игра!", ""];
+    if (game.kind === "common-symbol") return ["Кой ще открие символа пръв?", ""];
     if (online.mode === "local") return [`${name(game.currentPlayer)} е на ход`, mark(game.currentPlayer)];
     if (game.currentPlayer === online.localPlayer) return [localTurnMessage, mark(game.currentPlayer)];
     return ["Ход на противника", mark(game.currentPlayer)];
@@ -77,6 +79,8 @@
     <HexBoard {game} {canMove} {displayName} {onPlay} />
   {:else if game.kind === "dots-and-boxes"}
     <DotsAndBoxesBoard {game} {canMove} {displayName} {onPlay} />
+  {:else if game.kind === "common-symbol"}
+    <CommonSymbolBoard {game} {online} {canMove} {displayName} {onPlay} />
   {:else}
     <TicTacToeBoard {game} {canMove} {displayName} {onPlay} />
   {/if}

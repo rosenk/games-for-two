@@ -87,7 +87,7 @@ test("does not match a new player with an expired queue entry", async () => {
   assert.equal(current.readyState, 1);
 });
 
-for (const game of ["hex", "dots-and-boxes"]) test(`keeps ${game} and tic-tac-toe in separate matchmaking queues`, async () => {
+for (const game of ["hex", "dots-and-boxes", "common-symbol"]) test(`keeps ${game} and tic-tac-toe in separate matchmaking queues`, async () => {
   const queue = new MatchmakingQueue(fakeContext());
   const rooms = await Promise.all(["1", "2", "3"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
   const tic = new FakeSocket();

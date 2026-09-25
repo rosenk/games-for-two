@@ -1,8 +1,9 @@
 import { DEFAULT_HEX_SIZE, findHexPath, isHexSize, type HexSize } from "./hex.ts";
 import { findWinningLine } from "./tic-tac-toe.ts";
 import { boxEdges, boxesWinner, claimBoxes, DOTS_SIZES } from "./dots-and-boxes.ts";
+import { dealSymbolCards, makeSymbolMove, SYMBOL_CARDS, SYMBOL_TARGET } from "./common-symbol.ts";
 
-export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes"] as const;
+export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes", "common-symbol"] as const;
 export type GameKind = typeof gameKinds[number];
 export type Player = "X" | "O";
 export type Cell = Player | null;
@@ -11,6 +12,8 @@ export type GameState = {
   boardSize: number;
   board: Cell[];
   boxes?: Cell[];
+  deck?: number[];
+  started?: boolean;
   currentPlayer: Player;
   nextStarter: Player;
   gameOver: boolean;
@@ -37,8 +40,9 @@ export function createGameState(kind: GameKind = "tic-tac-toe", boardSize = kind
   return {
     kind,
     boardSize,
-    board: Array<Cell>(kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2).fill(null),
+    board: Array<Cell>(kind === "common-symbol" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2).fill(null),
     ...(kind === "dots-and-boxes" ? { boxes: Array<Cell>(boardSize ** 2).fill(null) } : {}),
+    ...(kind === "common-symbol" ? { deck: dealSymbolCards(), started: false } : {}),
     currentPlayer: "X",
     nextStarter: "O",
     gameOver: false,
@@ -48,6 +52,7 @@ export function createGameState(kind: GameKind = "tic-tac-toe", boardSize = kind
 }
 
 export function makeMove(game: GameState, index: number, player: Player): GameState {
+  if (game.kind === "common-symbol") return makeSymbolMove(game, index, player);
   if (!Number.isInteger(index) || index < 0 || index >= game.board.length) return game;
   if (game.gameOver || game.board[index] || player !== game.currentPlayer) return game;
 
@@ -80,8 +85,9 @@ export function makeMove(game: GameState, index: number, player: Player): GameSt
 export function startRound(game: GameState): GameState {
   return {
     ...game,
-    board: Array<Cell>(game.board.length).fill(null),
+    board: Array<Cell>(game.kind === "common-symbol" ? 0 : game.board.length).fill(null),
     ...(game.boxes ? { boxes: game.boxes.map(() => null) } : {}),
+    ...(game.kind === "common-symbol" ? { deck: dealSymbolCards(), started: false } : {}),
     currentPlayer: game.nextStarter,
     nextStarter: game.nextStarter === "X" ? "O" : "X",
     gameOver: false,
@@ -97,6 +103,8 @@ export function serializeGame(game: GameState): Omit<GameState, "winningLine"> {
   return {
     kind: game.kind, boardSize: game.boardSize, board: [...game.board], currentPlayer: game.currentPlayer,
     ...(game.boxes ? { boxes: [...game.boxes] } : {}),
+    ...(game.deck ? { deck: [...game.deck] } : {}),
+    ...(game.kind === "common-symbol" ? { started: game.started } : {}),
     nextStarter: game.nextStarter, gameOver: game.gameOver, scores: { ...game.scores },
   };
 }
@@ -111,7 +119,7 @@ export function restoreGame(state: unknown): GameState | null {
   if (!isGameKind(kind)
     || !isBoardSize(kind, boardSize)
     || !Array.isArray(candidate.board)
-    || candidate.board.length !== (kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2)
+    || (kind !== "common-symbol" && candidate.board.length !== (kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2))
     || !candidate.board.every(validCell)
     || (candidate.currentPlayer !== "X" && candidate.currentPlayer !== "O")
     || (candidate.nextStarter !== "X" && candidate.nextStarter !== "O")
@@ -122,6 +130,16 @@ export function restoreGame(state: unknown): GameState | null {
     || !validScore(candidate.scores.draw)) return null;
 
   const board: Cell[] = [...candidate.board];
+  if (kind === "common-symbol" && (
+    !Array.isArray(candidate.deck) || candidate.deck.length !== 2
+    || new Set(candidate.deck).size !== 2
+    || !candidate.deck.every((card) => Number.isInteger(card) && card >= 0 && card < SYMBOL_CARDS.length)
+    || board.includes(null)
+    || typeof candidate.started !== "boolean"
+    || (!candidate.started && board.length > 0)
+    || ["X", "O"].some((player) => board.slice(0, -1).filter((owner) => owner === player).length >= SYMBOL_TARGET)
+    || candidate.gameOver !== ["X", "O"].some((player) => board.filter((owner) => owner === player).length === SYMBOL_TARGET)
+  )) return null;
   if (kind === "dots-and-boxes" && (
     !Array.isArray(candidate.boxes) || candidate.boxes.length !== boardSize ** 2
     || !candidate.boxes.every(validCell)
@@ -131,10 +149,11 @@ export function restoreGame(state: unknown): GameState | null {
   return {
     kind, boardSize, board, currentPlayer: candidate.currentPlayer, nextStarter: candidate.nextStarter,
     ...(kind === "dots-and-boxes" ? { boxes: [...candidate.boxes!] } : {}),
+    ...(kind === "common-symbol" ? { deck: [...candidate.deck!], started: candidate.started } : {}),
     gameOver: candidate.gameOver,
     scores: { X: candidate.scores.X, O: candidate.scores.O, draw: candidate.scores.draw },
     winningLine: kind === "hex"
       ? findHexPath(board, "X", boardSize as HexSize) || findHexPath(board, "O", boardSize as HexSize)
-      : kind === "dots-and-boxes" ? null : findWinningLine(board),
+      : kind === "dots-and-boxes" || kind === "common-symbol" ? null : findWinningLine(board),
   };
 }

@@ -998,7 +998,7 @@ button:focus-visible {
 .section-heading span { color: var(--o); font-size: 0.85rem; font-weight: 800; }
 .section-heading h2 { margin: 0; font-size: 1.2rem; letter-spacing: -0.025em; }
 .game-options, .opponent-options { display: grid; gap: 12px; }
-.game-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .opponent-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .game-options button, .opponent-options button {
   display: flex;
@@ -1082,7 +1082,6 @@ button:focus-visible {
   .setup-section { margin-bottom: 18px; }
   .section-heading { margin-bottom: 10px; }
   .game-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .game-options button:last-child { grid-column: 1 / -1; }
   .game-options button { padding: 12px; }
   .option-art { height: 48px; font-size: 1.35rem; }
   .game-options small { font-size: .7rem; }

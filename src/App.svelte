@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
 
   import GameBoard from "./components/GameBoard.svelte";
   import OnlinePanel from "./components/OnlinePanel.svelte";
@@ -14,6 +14,7 @@
   } from "./game/game-state.ts";
   import { DEFAULT_HEX_SIZE, HEX_SIZES } from "./game/hex.ts";
   import { DOTS_SIZES } from "./game/dots-and-boxes.ts";
+  import { SYMBOL_TARGET } from "./game/common-symbol.ts";
   import {
     clearMatchPath,
     createMatchUrl,
@@ -58,10 +59,18 @@
   let canMove = $derived(
     !game.gameOver
       && (online.mode === "local"
-        || (online.connected && game.currentPlayer === online.localPlayer && !movePending)),
+        || (online.connected && (game.kind === "common-symbol" || game.currentPlayer === online.localPlayer) && !movePending)),
   );
 
   const chosenSize = () => selectedGame === "hex" ? selectedHexSize : selectedGame === "dots-and-boxes" ? selectedDotsSize : 3;
+
+  // Reveal the cards only when both players are present; no game clock is needed.
+  $effect(() => {
+    if (screen === "play" && game.kind === "common-symbol" && !game.started
+      && online.mode !== "guest" && !waiting) {
+      untrack(() => updateGame((current) => ({ ...current, started: true })));
+    }
+  });
 
   $effect(() => {
     if (!game.gameOver || waiting) {
@@ -99,9 +108,9 @@
     if (record) hostedMatchUpdatedAt = record.updatedAt;
   }
 
-  function playCell(index) {
+  function playCell(index, player = game.currentPlayer) {
     if (online.mode === "local") {
-      game = makeMove(game, index, game.currentPlayer);
+      game = makeMove(game, index, player);
     } else if (!canMove) {
       return;
     } else if (online.mode === "host") {
@@ -204,8 +213,8 @@
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
-          text: `Играй ${selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
+          title: selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
+          text: `Играй ${selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -277,7 +286,7 @@
         }
       },
       onMove: (index, player) => updateGame((current) => makeMove(current, index, player), false),
-      onNewRound: () => updateGame(startRound, false),
+      onNewRound: () => { if (game.gameOver) updateGame(startRound, false); },
       onResetScore: () => updateGame(resetScore, false),
       onOpponentAccepted: (playerTokenHash) => {
         hostedPlayerTokenHash = playerTokenHash;
@@ -351,7 +360,7 @@
 <main class="game-shell">
   {#if screen === "setup"}
     <div class="setup-header">
-      <p class="eyebrow">Три игри · двама играчи</p>
+      <p class="eyebrow">Четири игри · двама играчи</p>
       <h1>Хайде да играем<span>.</span></h1>
       <p>Избери игра, после с кого искаш да играеш.</p>
       {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
@@ -371,6 +380,10 @@
           <span class="option-art" aria-hidden="true">•—•<br />•—•</span>
           <strong>Точки и квадратчета</strong><small>Затвори квадратче и играй пак.</small>
         </button>
+        <button class:selected={selectedGame === "common-symbol"} aria-pressed={selectedGame === "common-symbol"} type="button" onclick={() => selectedGame = "common-symbol"}>
+          <span class="option-art" aria-hidden="true">☀️ 🌸</span>
+          <strong>Общ символ</strong><small>8 символа. Първи до {SYMBOL_TARGET} точки!</small>
+        </button>
       </div>
       {#if selectedGame === "hex" || selectedGame === "dots-and-boxes"}
         <div class="size-picker" role="group" aria-label={selectedGame === "hex" ? "Размер на дъската за Hex" : "Размер на дъската за Точки и квадратчета"}>
@@ -389,7 +402,7 @@
     <section class="setup-section" aria-labelledby="choose-opponent">
       <div class="section-heading"><span>02</span><h2 id="choose-opponent">С кого ще играеш?</h2></div>
       <div class="opponent-options">
-        <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>Редувайте се на това устройство</small></button>
+        <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>{selectedGame === "common-symbol" ? "Играйте едновременно, всеки в своята зона" : "Редувайте се на това устройство"}</small></button>
         <button class:selected={selectedOpponent === "invite"} aria-pressed={selectedOpponent === "invite"} type="button" onclick={() => selectedOpponent = "invite"}><strong>Покани приятел</strong><small>Сподели линк за онлайн игра</small></button>
         {#if matchmakingAvailable}<button class:selected={selectedOpponent === "matching"} aria-pressed={selectedOpponent === "matching"} type="button" onclick={() => selectedOpponent = "matching"}><strong>Намери играч</strong><small>Срещни непознат онлайн</small></button>{/if}
       </div>
@@ -398,7 +411,7 @@
   {:else}
     <div class="play-topbar">
       <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
-      <span>{game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+      <span>{game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
     </div>
     <Scoreboard {game} {online} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
     {#if online.mode !== "local"}

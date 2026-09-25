@@ -53,8 +53,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">{game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
-    <h1>{game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
+    <h1>{game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>
@@ -62,10 +62,10 @@
   </button>
 </header>
 
-<section class="scoreboard" class:no-draw={game.kind === "hex"} aria-label="Резултат">
+<section class="scoreboard" class:no-draw={game.kind === "hex" || game.kind === "common-symbol"} aria-label="Резултат">
   <article
     class="player-card player-x"
-    class:active={game.currentPlayer === "X" && !game.gameOver && !waiting}
+    class:active={(game.kind === "common-symbol" || game.currentPlayer === "X") && !game.gameOver && !waiting}
   >
     <span class="player-symbol" aria-hidden="true">×</span>
     <div>
@@ -75,7 +75,7 @@
     {@render playerAudio("X")}
   </article>
 
-  {#if game.kind !== "hex"}
+  {#if game.kind !== "hex" && game.kind !== "common-symbol"}
     <div class="draw-score">
       <span>Равни</span>
       <strong>{game.scores.draw}</strong>
@@ -84,7 +84,7 @@
 
   <article
     class="player-card player-o"
-    class:active={game.currentPlayer === "O" && !game.gameOver && !waiting}
+    class:active={(game.kind === "common-symbol" || game.currentPlayer === "O") && !game.gameOver && !waiting}
   >
     <span class="player-symbol" aria-hidden="true">○</span>
     <div>
