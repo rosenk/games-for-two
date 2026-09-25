@@ -13,6 +13,7 @@
     startRound,
   } from "./game/game-state.ts";
   import { DEFAULT_HEX_SIZE, HEX_SIZES } from "./game/hex.ts";
+  import { DOTS_SIZES } from "./game/dots-and-boxes.ts";
   import {
     clearMatchPath,
     createMatchUrl,
@@ -37,6 +38,7 @@
   let screen = $state("setup");
   let selectedGame = $state("tic-tac-toe");
   let selectedHexSize = $state(DEFAULT_HEX_SIZE);
+  let selectedDotsSize = $state(3);
   let selectedOpponent = $state("local");
   let online = $state(createOnlineState());
   let matchmakingAvailable = $state(false);
@@ -59,7 +61,7 @@
         || (online.connected && game.currentPlayer === online.localPlayer && !movePending)),
   );
 
-  const chosenSize = () => selectedGame === "hex" ? selectedHexSize : 3;
+  const chosenSize = () => selectedGame === "hex" ? selectedHexSize : selectedGame === "dots-and-boxes" ? selectedDotsSize : 3;
 
   $effect(() => {
     if (!game.gameOver || waiting) {
@@ -202,8 +204,8 @@
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedGame === "hex" ? "Hex" : "Морски шах",
-          text: `Играй ${selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
+          title: selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
+          text: `Играй ${selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -284,6 +286,7 @@
       if (route?.valid) {
         selectedGame = route.game;
         if (route.game === "hex") selectedHexSize = route.boardSize;
+        if (route.game === "dots-and-boxes") selectedDotsSize = route.boardSize;
       }
       if (route?.valid && await isRoomHost(route.roomId, tabSecret)) {
         hostGame(route.roomId, loadHostedMatch(localStorage, route.roomId));
@@ -334,7 +337,7 @@
 <main class="game-shell">
   {#if screen === "setup"}
     <div class="setup-header">
-      <p class="eyebrow">Две игри · двама играчи</p>
+      <p class="eyebrow">Три игри · двама играчи</p>
       <h1>Хайде да играем<span>.</span></h1>
       <p>Избери игра, после с кого искаш да играеш.</p>
       {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
@@ -350,15 +353,21 @@
           <span class="option-art hex-art" aria-hidden="true">⬡ ⬡<br /> ⬡ ⬡</span>
           <strong>Hex</strong><small>Свържи срещуположните страни.</small>
         </button>
+        <button class:selected={selectedGame === "dots-and-boxes"} aria-pressed={selectedGame === "dots-and-boxes"} type="button" onclick={() => selectedGame = "dots-and-boxes"}>
+          <span class="option-art" aria-hidden="true">•—•<br />•—•</span>
+          <strong>Точки и квадратчета</strong><small>Затвори квадратче и играй пак.</small>
+        </button>
       </div>
-      {#if selectedGame === "hex"}
-        <div class="size-picker" role="group" aria-label="Размер на дъската за Hex">
-          <span>Размер на дъската</span>
+      {#if selectedGame === "hex" || selectedGame === "dots-and-boxes"}
+        <div class="size-picker" role="group" aria-label={selectedGame === "hex" ? "Размер на дъската за Hex" : "Размер на дъската за Точки и квадратчета"}>
+          <span>{selectedGame === "hex" ? "Размер на дъската" : "Брой точки на страна"}</span>
           <div class="size-options">
-            {#each HEX_SIZES as size}
-              <button type="button" class:selected={selectedHexSize === size} aria-pressed={selectedHexSize === size} onclick={() => selectedHexSize = size}>{size} × {size}</button>
+            {#each selectedGame === "hex" ? HEX_SIZES : DOTS_SIZES as size}
+              {@const points = selectedGame === "hex" ? size : size + 1}
+              <button type="button" class:selected={chosenSize() === size} aria-pressed={chosenSize() === size} onclick={() => selectedGame === "hex" ? selectedHexSize = size : selectedDotsSize = size}>{points} × {points}</button>
             {/each}
           </div>
+          {#if selectedGame === "dots-and-boxes"}<small>{selectedDotsSize ** 2} квадратчета за завладяване.</small>{/if}
           <small>По-големите дъски се плъзгат хоризонтално на тесен екран.</small>
         </div>
       {/if}
@@ -375,7 +384,7 @@
   {:else}
     <div class="play-topbar">
       <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
-      <span>{game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+      <span>{game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
     </div>
     <Scoreboard {game} {online} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
     {#if online.mode !== "local"}

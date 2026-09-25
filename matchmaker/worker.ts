@@ -1,7 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { isGameKind, type GameKind } from "../src/game/game-state.ts";
-import { DEFAULT_HEX_SIZE, isHexSize } from "../src/game/hex.ts";
+import { isBoardSize, isGameKind, type GameKind } from "../src/game/game-state.ts";
+import { DEFAULT_HEX_SIZE } from "../src/game/hex.ts";
 import { isValidRoomId } from "../src/online/match-url.js";
 
 const QUEUE_TAG = "queue";
@@ -126,7 +126,7 @@ export class MatchmakingQueue {
       : Number(sizeParameter);
     if (!roomId || !isValidRoomId(roomId)) return new Response("Invalid room", { status: 400 });
     if (!isGameKind(game)) return new Response("Invalid game", { status: 400 });
-    if ((game === "hex" ? !isHexSize(boardSize) : boardSize !== 3 || sizeParameter !== null)
+    if (!isBoardSize(game, boardSize) || (game === "tic-tac-toe" && sizeParameter !== null)
       || (sizeParameter !== null && sizeParameter !== String(boardSize))) {
       return new Response("Invalid board size", { status: 400 });
     }

@@ -1,6 +1,8 @@
 <script>
   import HexBoard from "./HexBoard.svelte";
   import TicTacToeBoard from "./TicTacToeBoard.svelte";
+  import DotsAndBoxesBoard from "./DotsAndBoxesBoard.svelte";
+  import { boxesWinner } from "../game/dots-and-boxes.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
 
@@ -27,8 +29,8 @@
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }
-    if (game.gameOver && game.winningLine) {
-      const winner = game.board[game.winningLine[0]];
+    const winner = game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
+    if (game.gameOver && winner) {
       const message = online.mode === "local"
         ? `${name(winner)} печели!`
         : winner === online.localPlayer ? "Вие печелите!" : "Противникът печели!";
@@ -73,6 +75,8 @@
 
   {#if game.kind === "hex"}
     <HexBoard {game} {canMove} {displayName} {onPlay} />
+  {:else if game.kind === "dots-and-boxes"}
+    <DotsAndBoxesBoard {game} {canMove} {displayName} {onPlay} />
   {:else}
     <TicTacToeBoard {game} {canMove} {displayName} {onPlay} />
   {/if}

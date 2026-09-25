@@ -91,6 +91,19 @@ test("Hex invitation includes a non-default size and rejects invalid or mismatch
   assert.equal(clearMatchPath(address), "/play");
 });
 
+test("Dots and Boxes invitation preserves its game and rejects unsupported sizes", async () => {
+  const roomId = await createRoomId(tabOne, nonce);
+  const address = createMatchUrl("https://game.example/play", roomId, "dots-and-boxes");
+  assert.deepEqual(parseMatchRoute(new URL(address).search), { roomId, game: "dots-and-boxes", boardSize: 3, valid: true });
+  for (const size of [3, 4, 5, 6]) {
+    const sized = createMatchUrl("https://game.example/play", roomId, "dots-and-boxes", size);
+    assert.deepEqual(parseMatchRoute(new URL(sized).search), { roomId, game: "dots-and-boxes", boardSize: size, valid: true });
+  }
+  for (const size of ["2", "7", "04", "4.5"]) {
+    assert.equal(parseMatchRoute(`?room=${roomId}&game=dots-and-boxes&size=${size}`).valid, false);
+  }
+});
+
 test("rejects legacy identity URLs and malformed values", async () => {
   const roomId = await createRoomId(tabOne, nonce);
 

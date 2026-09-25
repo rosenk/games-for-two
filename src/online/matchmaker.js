@@ -1,6 +1,6 @@
 import { isValidRoomId } from "./match-url.js";
-import { gameKinds } from "../game/game-state.ts";
-import { DEFAULT_HEX_SIZE, isHexSize } from "../game/hex.ts";
+import { gameKinds, isBoardSize } from "../game/game-state.ts";
+import { DEFAULT_HEX_SIZE } from "../game/hex.ts";
 
 const SEARCH_TIMEOUT = 60_000;
 const PRODUCTION_ENDPOINT = "https://tic-tac-toe-matchmaker.rosen4obg.workers.dev";
@@ -9,7 +9,7 @@ const defaultEndpoint = import.meta.env?.VITE_MATCHMAKER_URL || PRODUCTION_ENDPO
 export function matchmakerSocketUrl(endpoint, roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
   if (!gameKinds.includes(game)) throw new TypeError("Invalid game");
-  if (game === "hex" ? !isHexSize(boardSize) : boardSize !== 3) throw new TypeError("Invalid board size");
+  if (!isBoardSize(game, boardSize)) throw new TypeError("Invalid board size");
   const url = new URL(endpoint);
   if (url.protocol === "https:") url.protocol = "wss:";
   else if (url.protocol === "http:") url.protocol = "ws:";
@@ -19,7 +19,7 @@ export function matchmakerSocketUrl(endpoint, roomId, game = "tic-tac-toe", boar
   if (url.pathname === "/") url.pathname = "/match";
   url.searchParams.set("room", roomId);
   if (game !== "tic-tac-toe") url.searchParams.set("game", game);
-  if (game === "hex" && boardSize !== DEFAULT_HEX_SIZE) url.searchParams.set("size", String(boardSize));
+  if (boardSize !== (game === "hex" ? DEFAULT_HEX_SIZE : 3)) url.searchParams.set("size", String(boardSize));
   return url.toString();
 }
 

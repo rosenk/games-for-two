@@ -53,8 +53,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">{game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
-    <h1>{game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
+    <h1>{game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>

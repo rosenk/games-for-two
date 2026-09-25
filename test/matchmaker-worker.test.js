@@ -87,7 +87,7 @@ test("does not match a new player with an expired queue entry", async () => {
   assert.equal(current.readyState, 1);
 });
 
-test("keeps Hex and tic-tac-toe in separate matchmaking queues", async () => {
+for (const game of ["hex", "dots-and-boxes"]) test(`keeps ${game} and tic-tac-toe in separate matchmaking queues`, async () => {
   const queue = new MatchmakingQueue(fakeContext());
   const rooms = await Promise.all(["1", "2", "3"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
   const tic = new FakeSocket();
@@ -95,11 +95,11 @@ test("keeps Hex and tic-tac-toe in separate matchmaking queues", async () => {
   const secondHex = new FakeSocket();
   queue.connect(tic, rooms[0]);
   queue.enqueue(tic, rooms[0], 100);
-  queue.connect(hex, rooms[1], "hex");
-  queue.enqueue(hex, rooms[1], 101, "hex");
+  queue.connect(hex, rooms[1], game);
+  queue.enqueue(hex, rooms[1], 101, game);
   assert.deepEqual(hex.messages, [{ type: "waiting" }]);
-  queue.connect(secondHex, rooms[2], "hex");
-  queue.enqueue(secondHex, rooms[2], 102, "hex");
+  queue.connect(secondHex, rooms[2], game);
+  queue.enqueue(secondHex, rooms[2], 102, game);
   assert.deepEqual(tic.messages, [{ type: "waiting" }]);
   assert.deepEqual(hex.messages.at(-1), { type: "matched", role: "host", roomId: rooms[1] });
   assert.deepEqual(secondHex.messages, [{ type: "matched", role: "guest", roomId: rooms[1] }]);
@@ -123,10 +123,23 @@ test("pairs Hex players only with the same board size", async () => {
   assert.deepEqual(nine.messages, [{ type: "waiting" }]);
 });
 
-test("Worker rejects invalid Hex sizes before opening a WebSocket", async () => {
+test("pairs Dots and Boxes players only with the same size", async () => {
+  const queue = new MatchmakingQueue(fakeContext());
+  const rooms = await Promise.all(["8", "9", "a"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
+  const sockets = rooms.map(() => new FakeSocket());
+  for (const [index, size] of [3, 6, 6].entries()) {
+    queue.connect(sockets[index], rooms[index], "dots-and-boxes", size);
+    queue.enqueue(sockets[index], rooms[index], 100 + index, "dots-and-boxes", size);
+  }
+  assert.deepEqual(sockets[0].messages, [{ type: "waiting" }]);
+  assert.deepEqual(sockets[1].messages.at(-1), { type: "matched", role: "host", roomId: rooms[1] });
+  assert.deepEqual(sockets[2].messages, [{ type: "matched", role: "guest", roomId: rooms[1] }]);
+});
+
+test("Worker rejects invalid sizes before opening a WebSocket", async () => {
   const queue = new MatchmakingQueue(fakeContext());
   const roomId = await createRoomId(browserSecret, "7".repeat(32));
-  for (const query of [`game=hex&size=6`, `game=hex&size=09`, `size=9`]) {
+  for (const query of [`game=hex&size=6`, `game=hex&size=09`, `size=9`, `game=dots-and-boxes&size=7`, `game=dots-and-boxes&size=04`]) {
     const request = new Request(`https://match.example/match?room=${roomId}&${query}`, {
       headers: { Upgrade: "websocket" },
     });
