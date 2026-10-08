@@ -3,9 +3,10 @@
 
   const label = (player) => {
     if (online.mode === "local" || online.mode === "matching") {
-      return player === "X" ? "Играч 1" : "Играч 2";
+      return game.kind === "circle-the-dot" ? player === game.dotGame.blocker ? "Ограждащият" : "Точката" : player === "X" ? "Играч 1" : "Играч 2";
     }
-    return online.localPlayer === player ? "Вие" : "Противник";
+    return (online.localPlayer === player ? "Вие" : online.mode === "computer" ? "Компютър" : "Противник")
+      + (game.kind === "circle-the-dot" ? player === game.dotGame.blocker ? " · Ограда" : " · Точка" : "");
   };
 
   const audioEnabled = (player) => (
@@ -23,7 +24,7 @@
 
 {#snippet playerAudio(player)}
   {@const enabled = audioEnabled(player)}
-  {#if online.mode !== "local" && online.connected}
+  {#if online.mode !== "local" && online.mode !== "computer" && online.connected}
     {#if online.localPlayer === player}
       <button
         class="player-audio"
@@ -53,8 +54,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">{game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
-    <h1>{game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{game.kind === "circle-the-dot" ? "Ограда срещу точка · спечелени рундове" : game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
+    <h1>{game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>
@@ -62,7 +63,7 @@
   </button>
 </header>
 
-<section class="scoreboard" class:no-draw={game.kind === "hex" || game.kind === "common-symbol"} aria-label="Резултат">
+<section class="scoreboard" class:no-draw={game.kind === "hex" || game.kind === "common-symbol" || game.kind === "circle-the-dot"} aria-label="Резултат">
   <article
     class="player-card player-x"
     class:active={(game.kind === "common-symbol" || game.currentPlayer === "X") && !game.gameOver && !waiting}
@@ -75,7 +76,7 @@
     {@render playerAudio("X")}
   </article>
 
-  {#if game.kind !== "hex" && game.kind !== "common-symbol"}
+  {#if game.kind !== "hex" && game.kind !== "common-symbol" && game.kind !== "circle-the-dot"}
     <div class="draw-score">
       <span>Равни</span>
       <strong>{game.scores.draw}</strong>

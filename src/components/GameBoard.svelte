@@ -3,12 +3,15 @@
   import TicTacToeBoard from "./TicTacToeBoard.svelte";
   import DotsAndBoxesBoard from "./DotsAndBoxesBoard.svelte";
   import CommonSymbolBoard from "./CommonSymbolBoard.svelte";
+  import CircleTheDot from "./CircleTheDot.svelte";
   import { boxesWinner } from "../game/dots-and-boxes.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
 
   const mark = (player) => player === "X" ? "×" : "○";
-  const name = (player) => player === "X" ? "Играч 1" : "Играч 2";
+  const name = (player) => game.kind === "circle-the-dot"
+    ? player === game.dotGame.blocker ? "Ограждащият" : "Точката"
+    : player === "X" ? "Играч 1" : "Играч 2";
   const localTurnMessage = "Ваш ред";
   const displayName = (player) => {
     if (online.mode === "local" || online.mode === "matching") return name(player);
@@ -16,7 +19,7 @@
   };
   let reminderTurn = $derived(
     game.kind !== "common-symbol" && online.mode !== "local" && canMove
-      ? `${online.localPlayer}:${game.currentPlayer}:${game.board.map((cell) => cell || "-").join("")}`
+      ? `${online.localPlayer}:${game.currentPlayer}:${game.dotGame ? JSON.stringify(game.dotGame) : game.board.map((cell) => cell || "-").join("")}`
       : "",
   );
 
@@ -30,18 +33,20 @@
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }
-    const winner = game.kind === "common-symbol" ? boxesWinner(game.board) : game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
+    const winner = game.kind === "circle-the-dot" && game.gameOver
+      ? game.dotGame.result === "trapped" ? game.dotGame.blocker : game.dotGame.blocker === "X" ? "O" : "X"
+      : game.kind === "common-symbol" ? boxesWinner(game.board) : game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
     if (game.gameOver && winner) {
       const message = online.mode === "local"
         ? `${name(winner)} печели!`
-        : winner === online.localPlayer ? "Вие печелите!" : "Противникът печели!";
+        : winner === online.localPlayer ? "Вие печелите!" : online.mode === "computer" ? "Компютърът печели!" : "Противникът печели!";
       return [message, mark(winner)];
     }
     if (game.gameOver) return ["Равенство — чудесна игра!", ""];
     if (game.kind === "common-symbol") return ["Кой ще открие символа пръв?", ""];
     if (online.mode === "local") return [`${name(game.currentPlayer)} е на ход`, mark(game.currentPlayer)];
     if (game.currentPlayer === online.localPlayer) return [localTurnMessage, mark(game.currentPlayer)];
-    return ["Ход на противника", mark(game.currentPlayer)];
+    return [online.mode === "computer" ? "Компютърът мисли…" : "Ход на противника", mark(game.currentPlayer)];
   });
 
   $effect(() => {
@@ -75,7 +80,9 @@
     </p>
   </div>
 
-  {#if game.kind === "hex"}
+  {#if game.kind === "circle-the-dot"}
+    <CircleTheDot {game} {canMove} {onPlay} />
+  {:else if game.kind === "hex"}
     <HexBoard {game} {canMove} {displayName} {onPlay} />
   {:else if game.kind === "dots-and-boxes"}
     <DotsAndBoxesBoard {game} {canMove} {displayName} {onPlay} />
