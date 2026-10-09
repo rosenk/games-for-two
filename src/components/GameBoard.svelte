@@ -15,7 +15,7 @@
   const localTurnMessage = "Ваш ред";
   const displayName = (player) => {
     if (online.mode === "local" || online.mode === "matching") return name(player);
-    return player === online.localPlayer ? "Вие" : "Противникът";
+    return player === online.localPlayer ? "Вие" : online.mode === "computer" ? "Компютърът" : "Противникът";
   };
   let reminderTurn = $derived(
     game.kind !== "common-symbol" && online.mode !== "local" && canMove

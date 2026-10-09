@@ -53,6 +53,19 @@ test("dot follows the available detour rather than a blocked direct route", () =
   assert.equal(next.moves, 1);
 });
 
+test("computer dot prefers a resilient route over an equally short narrow corridor", () => {
+  const game = empty();
+  game.blocked.fill(true);
+  // Upper corridor has one vulnerable exit; the right-hand area has alternatives.
+  for (const index of [60, 49, 38, 27, 16, 5, 61, 62, 63, 64, 65,
+    72, 73, 74, 75, 76, 83, 84, 85, 86, 87]) game.blocked[index] = false;
+  assert.equal(escapeDistances(game.blocked)[49], 4);
+  assert.equal(escapeDistances(game.blocked)[61], 4);
+  const before = structuredClone(game);
+  assert.equal(dotComputerMove(game, false), 61);
+  assert.deepEqual(game, before);
+});
+
 test("reaching the boundary loses, and invalid clicks do not consume a turn", () => {
   const game = empty(64);
   game.blocked.fill(true);

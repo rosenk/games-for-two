@@ -21,7 +21,8 @@
 <div class="symbol-game">
   <p class="rules">Намерете общия символ едновременно! Верен избор: точка за теб; грешен: точка за противника.
     След всеки избор — нови карти. Първият с {SYMBOL_TARGET} точки печели.
-    {online.mode === "local" ? "Всеки натиска само своята карта." : "Натисни на която и да е карта."}</p>
+    {online.mode === "local" ? "Всеки натиска само своята карта." : "Натисни на която и да е карта."}
+    {#if online.mode === "computer"}Ботът отговаря след пауза, не мигновено. Ако води, ти дава повече време.{/if}</p>
   <div class="round-score">
     <span aria-label="Точки на играч 1">× {boxScore(game.board, "X")}</span>
     <strong class="target">Първи до {SYMBOL_TARGET}</strong>

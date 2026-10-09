@@ -4,7 +4,7 @@
   import GameBoard from "./components/GameBoard.svelte";
   import OnlinePanel from "./components/OnlinePanel.svelte";
   import Scoreboard from "./components/Scoreboard.svelte";
-  import { dotComputerMove } from "./game/circle-the-dot.ts";
+  import { computerDelay } from "./game/computer.ts";
   import {
     createGameState,
     makeMove,
@@ -61,7 +61,7 @@
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
     !game.gameOver
-      && (computerGame ? game.currentPlayer === selectedDotSide : online.mode === "local"
+      && (computerGame ? game.kind === "common-symbol" || game.currentPlayer === selectedDotSide : online.mode === "local"
         || (online.connected && (game.kind === "common-symbol" || game.currentPlayer === online.localPlayer) && !movePending)),
   );
   let boardOnline = $derived(computerGame
@@ -70,16 +70,22 @@
   const chosenSize = () => selectedGame === "hex" ? selectedHexSize : selectedGame === "dots-and-boxes" ? selectedDotsSize : 3;
 
   $effect(() => {
-    if (selectedGame !== "circle-the-dot" && selectedOpponent === "computer") selectedOpponent = "local";
-  });
-
-  $effect(() => {
-    if (screen !== "play" || !computerGame || game.gameOver || game.currentPlayer === selectedDotSide) return;
-    const current = game;
-    const timer = window.setTimeout(() => {
-      game = makeMove(current, dotComputerMove(current.dotGame, current.currentPlayer === current.dotGame.blocker), current.currentPlayer);
-    }, 350);
-    return () => window.clearTimeout(timer);
+    if (screen !== "play" || !computerGame || game.gameOver) return;
+    const simultaneous = game.kind === "common-symbol";
+    if (simultaneous ? !game.started : game.currentPlayer === selectedDotSide) return;
+    const current = serializeGame(game);
+    const player = selectedDotSide === "X" ? "O" : "X";
+    const worker = new Worker(new URL("./game/computer.worker.ts", import.meta.url), { type: "module" });
+    let ready = false;
+    let move = null;
+    const applyMove = () => {
+      if (ready && move !== null) game = makeMove(game, move, player);
+    };
+    const timer = window.setTimeout(() => { ready = true; applyMove(); }, computerDelay(game, player));
+    worker.onmessage = (event) => { move = event.data; applyMove(); };
+    worker.postMessage(current);
+    // A human answer, reset, new round or leaving cancels both thinking and delay.
+    return () => { window.clearTimeout(timer); worker.terminate(); };
   });
 
   // Reveal the cards only when both players are present; no game clock is needed.
@@ -129,7 +135,7 @@
   function playCell(index, player = game.currentPlayer) {
     if (!canMove) return;
     if (online.mode === "local") {
-      game = makeMove(game, index, player);
+      game = makeMove(game, index, computerGame ? selectedDotSide : player);
     } else if (online.mode === "host") {
       updateGame((current) => makeMove(current, index, online.localPlayer));
     } else if (session.send({ type: "move", index })) {
@@ -225,7 +231,8 @@
   }
 
   function startGame() {
-    computerGame = selectedGame === "circle-the-dot" && selectedOpponent === "computer";
+    computerGame = selectedOpponent === "computer";
+    if (computerGame && selectedGame === "common-symbol") selectedDotSide = "X";
     game = createGameState(selectedGame, chosenSize());
     screen = "play";
     if (selectedOpponent === "invite") createOnlineGame();
@@ -429,22 +436,20 @@
     <section class="setup-section" aria-labelledby="choose-opponent">
       <div class="section-heading"><span>02</span><h2 id="choose-opponent">С кого ще играеш?</h2></div>
       <div class="opponent-options">
-        {#if selectedGame === "circle-the-dot"}
-          <button class:selected={selectedOpponent === "computer"} aria-pressed={selectedOpponent === "computer"} type="button" onclick={() => selectedOpponent = "computer"}><strong>Срещу компютъра</strong><small>Избери оградата или точката</small></button>
-        {/if}
+        <button class:selected={selectedOpponent === "computer"} aria-pressed={selectedOpponent === "computer"} type="button" onclick={() => selectedOpponent = "computer"}><strong>Срещу компютъра</strong><small>{selectedGame === "common-symbol" ? "Умен бот с човешко темпо" : selectedGame === "circle-the-dot" ? "Избери оградата или точката" : "Силен бот, който мисли напред"}</small></button>
         <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>{selectedGame === "common-symbol" ? "Играйте едновременно, всеки в своята зона" : "Редувайте се на това устройство"}</small></button>
         <button class:selected={selectedOpponent === "invite"} aria-pressed={selectedOpponent === "invite"} type="button" onclick={() => selectedOpponent = "invite"}><strong>Покани приятел</strong><small>Сподели линк за онлайн игра</small></button>
         {#if matchmakingAvailable}<button class:selected={selectedOpponent === "matching"} aria-pressed={selectedOpponent === "matching"} type="button" onclick={() => selectedOpponent = "matching"}><strong>Намери играч</strong><small>Срещни непознат онлайн</small></button>{/if}
       </div>
     </section>
-    {#if selectedGame === "circle-the-dot" && (selectedOpponent === "computer" || selectedOpponent === "invite")}
+    {#if (selectedOpponent === "computer" && selectedGame !== "common-symbol") || (selectedGame === "circle-the-dot" && selectedOpponent === "invite")}
       <div class="size-picker" role="group" aria-label="Твоята страна">
         <span>Твоята страна</span>
         <div class="size-options" style="grid-template-columns: repeat(2, 1fr)">
-          <button type="button" class:selected={selectedDotSide === "X"} aria-pressed={selectedDotSide === "X"} onclick={() => selectedDotSide = "X"}>🟠 Ограждай</button>
-          <button type="button" class:selected={selectedDotSide === "O"} aria-pressed={selectedDotSide === "O"} onclick={() => selectedDotSide = "O"}>🔵 Бягай</button>
+          <button type="button" class:selected={selectedDotSide === "X"} aria-pressed={selectedDotSide === "X"} onclick={() => selectedDotSide = "X"}>{selectedGame === "circle-the-dot" ? "🟠 Ограждай" : "× Играй с X"}</button>
+          <button type="button" class:selected={selectedDotSide === "O"} aria-pressed={selectedDotSide === "O"} onclick={() => selectedDotSide = "O"}>{selectedGame === "circle-the-dot" ? "🔵 Бягай" : "○ Играй с O"}</button>
         </div>
-        <small>Ограждащият винаги започва. Точката се мести с една стъпка.</small>
+        <small>{selectedGame === "circle-the-dot" ? "Ограждащият винаги започва. Точката се мести с една стъпка." : "X започва първия рунд. После се редувате кой започва."}</small>
       </div>
     {/if}
     <button class="start-button" type="button" onclick={startGame}>Започни игра <span aria-hidden="true">→</span></button>
