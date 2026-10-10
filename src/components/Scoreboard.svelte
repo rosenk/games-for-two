@@ -54,8 +54,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">{game.kind === "morris" ? "Девет пула · тройки · спечелени рундове" : game.kind === "circle-the-dot" ? "Ограда срещу точка · спечелени рундове" : game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
-    <h1>{game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{game.kind === "connect-four" ? "Пусни пул · свържи четири · спечелени рундове" : game.kind === "morris" ? "Девет пула · тройки · спечелени рундове" : game.kind === "circle-the-dot" ? "Ограда срещу точка · спечелени рундове" : game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
+    <h1>{game.kind === "connect-four" ? "Четири в редица" : game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>

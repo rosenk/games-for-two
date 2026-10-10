@@ -4,6 +4,7 @@ import { boxEdges, boxScore } from "./dots-and-boxes.ts";
 import { SYMBOL_CARDS, SYMBOLS } from "./common-symbol.ts";
 import { dotComputerMove } from "./circle-the-dot.ts";
 import { morrisComputerMove } from "./morris.ts";
+import { connectComputerMove } from "./connect-four.ts";
 
 const other = (player: Player): Player => player === "X" ? "O" : "X";
 const emptyCells = (board: Cell[]) => board.flatMap((cell, index) => cell ? [] : [index]);
@@ -198,6 +199,7 @@ function boxesMove(game: GameState): number {
 // The UI and worker both use the same legal-move contract as human players.
 export function chooseComputerMove(game: GameState): number | null {
   if (game.gameOver) return null;
+  if (game.kind === "connect-four") return connectComputerMove(game);
   if (game.kind === "morris") return morrisComputerMove(game);
   if (game.kind === "common-symbol") {
     if (!game.started) return null;

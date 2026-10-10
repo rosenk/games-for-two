@@ -4,8 +4,9 @@ import { boxEdges, boxesWinner, claimBoxes, DOTS_SIZES } from "./dots-and-boxes.
 import { dealSymbolCards, makeSymbolMove, SYMBOL_CARDS, SYMBOL_TARGET } from "./common-symbol.ts";
 import { createDotGame, playDotTurn, restoreDotGame, type DotGame } from "./circle-the-dot.ts";
 import { createMorris, playMorris, restoreMorris, type MorrisState } from "./morris.ts";
+import { CONNECT_COLUMNS, CONNECT_ROWS, connectLanding, connectWinningLine } from "./connect-four.ts";
 
-export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes", "common-symbol", "circle-the-dot", "morris"] as const;
+export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes", "common-symbol", "circle-the-dot", "morris", "connect-four"] as const;
 export type GameKind = typeof gameKinds[number];
 export type Player = "X" | "O";
 export type Cell = Player | null;
@@ -35,6 +36,7 @@ export function isBoardSize(kind: GameKind, size: number): boolean {
 }
 
 function winnerPath(game: GameState, board: Cell[], player: Player): number[] | null {
+  if (game.kind === "connect-four") return connectWinningLine(board);
   return game.kind === "hex" ? findHexPath(board, player, game.boardSize as HexSize) : findWinningLine(board);
 }
 
@@ -44,7 +46,7 @@ export function createGameState(kind: GameKind = "tic-tac-toe", boardSize = kind
   return {
     kind,
     boardSize,
-    board: Array<Cell>(kind === "morris" ? 24 : kind === "common-symbol" || kind === "circle-the-dot" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2).fill(null),
+    board: Array<Cell>(kind === "connect-four" ? CONNECT_COLUMNS * CONNECT_ROWS : kind === "morris" ? 24 : kind === "common-symbol" || kind === "circle-the-dot" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2).fill(null),
     ...(kind === "morris" ? { morris: createMorris() } : {}),
     ...(kind === "circle-the-dot" ? { dotGame: createDotGame() } : {}),
     ...(kind === "dots-and-boxes" ? { boxes: Array<Cell>(boardSize ** 2).fill(null) } : {}),
@@ -69,6 +71,11 @@ export function makeMove(game: GameState, index: number, player: Player): GameSt
     return { ...game, dotGame, gameOver,
       currentPlayer: gameOver ? player : player === "X" ? "O" : "X",
       scores: gameOver ? { ...game.scores, [winner]: game.scores[winner] + 1 } : game.scores };
+  }
+  if (game.kind === "connect-four") {
+    const landing = connectLanding(game.board, index);
+    if (landing === null) return game;
+    index = landing;
   }
   if (!Number.isInteger(index) || index < 0 || index >= game.board.length) return game;
   if (game.gameOver || game.board[index] || player !== game.currentPlayer) return game;
@@ -140,7 +147,7 @@ export function restoreGame(state: unknown): GameState | null {
   if (!isGameKind(kind)
     || !isBoardSize(kind, boardSize)
     || !Array.isArray(candidate.board)
-    || (kind !== "common-symbol" && candidate.board.length !== (kind === "morris" ? 24 : kind === "circle-the-dot" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2))
+    || (kind !== "common-symbol" && candidate.board.length !== (kind === "connect-four" ? CONNECT_COLUMNS * CONNECT_ROWS : kind === "morris" ? 24 : kind === "circle-the-dot" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2))
     || !candidate.board.every(validCell)
     || (candidate.currentPlayer !== "X" && candidate.currentPlayer !== "O")
     || (candidate.nextStarter !== "X" && candidate.nextStarter !== "O")
@@ -151,6 +158,12 @@ export function restoreGame(state: unknown): GameState | null {
     || !validScore(candidate.scores.draw)) return null;
 
   const board: Cell[] = [...candidate.board];
+  if (kind === "connect-four") {
+    const line = connectWinningLine(board);
+    if (board.some((cell, index) => cell && index < board.length - CONNECT_COLUMNS && !board[index + CONNECT_COLUMNS])
+      || candidate.gameOver !== Boolean(line || board.every(Boolean))
+      || (line && board[line[0]] !== candidate.currentPlayer)) return null;
+  }
   const morris = kind === "morris" ? restoreMorris(candidate as GameState, candidate.morris) : null;
   if (kind === "morris" && !morris) return null;
   const dotGame = kind === "circle-the-dot" ? restoreDotGame(candidate.dotGame) : null;
@@ -183,6 +196,7 @@ export function restoreGame(state: unknown): GameState | null {
     scores: { X: candidate.scores.X, O: candidate.scores.O, draw: candidate.scores.draw },
     winningLine: kind === "hex"
       ? findHexPath(board, "X", boardSize as HexSize) || findHexPath(board, "O", boardSize as HexSize)
+      : kind === "connect-four" ? connectWinningLine(board)
       : kind === "morris" || kind === "dots-and-boxes" || kind === "common-symbol" || kind === "circle-the-dot" ? null : findWinningLine(board),
   };
 }

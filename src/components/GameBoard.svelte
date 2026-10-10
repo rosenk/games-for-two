@@ -5,6 +5,7 @@
   import CommonSymbolBoard from "./CommonSymbolBoard.svelte";
   import CircleTheDot from "./CircleTheDot.svelte";
   import MorrisBoard from "./MorrisBoard.svelte";
+  import ConnectFourBoard from "./ConnectFourBoard.svelte";
   import { boxesWinner } from "../game/dots-and-boxes.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
@@ -82,7 +83,9 @@
     </p>
   </div>
 
-  {#if game.kind === "morris"}
+  {#if game.kind === "connect-four"}
+    <ConnectFourBoard {game} {canMove} {displayName} {onPlay} />
+  {:else if game.kind === "morris"}
     <MorrisBoard {game} {canMove} {displayName} {onPlay} />
   {:else if game.kind === "circle-the-dot"}
     <CircleTheDot {game} {canMove} {onPlay} />
