@@ -16,6 +16,7 @@
   import { DEFAULT_HEX_SIZE, HEX_SIZES } from "./game/hex.ts";
   import { DOTS_SIZES } from "./game/dots-and-boxes.ts";
   import { SYMBOL_TARGET } from "./game/common-symbol.ts";
+  import { battleView } from "./game/battleship.ts";
   import {
     clearMatchPath,
     createMatchUrl,
@@ -73,8 +74,8 @@
     if (screen !== "play" || !computerGame || game.gameOver) return;
     const simultaneous = game.kind === "common-symbol";
     if (simultaneous ? !game.started : game.currentPlayer === selectedDotSide) return;
-    const current = serializeGame(game);
     const player = selectedDotSide === "X" ? "O" : "X";
+    const current = serializeGame(battleView(game, player));
     const worker = new Worker(new URL("./game/computer.worker.ts", import.meta.url), { type: "module" });
     let ready = false;
     let move = null;
@@ -243,8 +244,8 @@
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
-          text: `Играй ${selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
+          title: selectedGame === "battleship" ? "Морски бой" : selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
+          text: `Играй ${selectedGame === "battleship" ? "Морски бой" : selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -304,13 +305,13 @@
 
     session = new OnlineSession({
       getRemoteAudio: () => remoteAudio,
-      getGameState: () => serializeGame(game),
+      getGameState: () => serializeGame(battleView(game, session.localPlayer === "X" ? "O" : "X")),
       onChange: (state) => {
         online = state;
         if (!state.connected) movePending = false;
       },
       onState: (state) => {
-        const restored = restoreGame(state);
+        const restored = restoreGame(state, session.localPlayer);
         if (restored?.kind === selectedGame && restored.boardSize === chosenSize()) {
           game = restored;
           movePending = false;
@@ -391,7 +392,7 @@
 <main class="game-shell">
   {#if screen === "setup"}
     <div class="setup-header">
-      <p class="eyebrow">Седем игри · заедно или сам</p>
+      <p class="eyebrow">Осем игри · заедно или сам</p>
       <h1>Хайде да играем<span>.</span></h1>
       <p>Избери игра — с приятел или срещу компютъра.</p>
       {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
@@ -426,6 +427,10 @@
         <button class:selected={selectedGame === "connect-four"} aria-pressed={selectedGame === "connect-four"} type="button" onclick={() => selectedGame = "connect-four"}>
           <span class="option-art" aria-hidden="true">● ● ● ●</span>
           <strong>Четири в редица</strong><small>Пускай пулове и подреди четири на поле 7 × 6.</small>
+        </button>
+        <button class:selected={selectedGame === "battleship"} aria-pressed={selectedGame === "battleship"} type="button" onclick={() => selectedGame = "battleship"}>
+          <span class="option-art" aria-hidden="true">🚢</span>
+          <strong>Морски бой</strong><small>Скрий флота си и потопи чуждите кораби.</small>
         </button>
       </div>
       {#if selectedGame === "hex" || selectedGame === "dots-and-boxes"}
@@ -465,7 +470,7 @@
   {:else}
     <div class="play-topbar">
       <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
-      <span>{game.kind === "connect-four" ? "Четири в редица 7 × 6" : game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+      <span>{game.kind === "battleship" ? "Морски бой 10 × 10" : game.kind === "connect-four" ? "Четири в редица 7 × 6" : game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
     </div>
     <Scoreboard {game} online={boardOnline} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
     {#if online.mode !== "local"}

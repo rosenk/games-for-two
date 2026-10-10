@@ -5,8 +5,9 @@ import { dealSymbolCards, makeSymbolMove, SYMBOL_CARDS, SYMBOL_TARGET } from "./
 import { createDotGame, playDotTurn, restoreDotGame, type DotGame } from "./circle-the-dot.ts";
 import { createMorris, playMorris, restoreMorris, type MorrisState } from "./morris.ts";
 import { CONNECT_COLUMNS, CONNECT_ROWS, connectLanding, connectWinningLine } from "./connect-four.ts";
+import { createBattle, playBattle, restoreBattle, cloneBattle, type BattleState } from "./battleship.ts";
 
-export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes", "common-symbol", "circle-the-dot", "morris", "connect-four"] as const;
+export const gameKinds = ["tic-tac-toe", "hex", "dots-and-boxes", "common-symbol", "circle-the-dot", "morris", "connect-four", "battleship"] as const;
 export type GameKind = typeof gameKinds[number];
 export type Player = "X" | "O";
 export type Cell = Player | null;
@@ -19,6 +20,7 @@ export type GameState = {
   started?: boolean;
   dotGame?: DotGame;
   morris?: MorrisState;
+  battle?: BattleState;
   currentPlayer: Player;
   nextStarter: Player;
   gameOver: boolean;
@@ -47,6 +49,7 @@ export function createGameState(kind: GameKind = "tic-tac-toe", boardSize = kind
     kind,
     boardSize,
     board: Array<Cell>(kind === "connect-four" ? CONNECT_COLUMNS * CONNECT_ROWS : kind === "morris" ? 24 : kind === "common-symbol" || kind === "circle-the-dot" ? 0 : kind === "dots-and-boxes" ? 2 * boardSize * (boardSize + 1) : boardSize ** 2).fill(null),
+    ...(kind === "battleship" ? { battle: createBattle() } : {}),
     ...(kind === "morris" ? { morris: createMorris() } : {}),
     ...(kind === "circle-the-dot" ? { dotGame: createDotGame() } : {}),
     ...(kind === "dots-and-boxes" ? { boxes: Array<Cell>(boardSize ** 2).fill(null) } : {}),
@@ -60,6 +63,7 @@ export function createGameState(kind: GameKind = "tic-tac-toe", boardSize = kind
 }
 
 export function makeMove(game: GameState, index: number, player: Player): GameState {
+  if (game.kind === "battleship") return playBattle(game, index, player);
   if (game.kind === "morris") return playMorris(game, index, player);
   if (game.kind === "common-symbol") return makeSymbolMove(game, index, player);
   if (game.kind === "circle-the-dot") {
@@ -113,6 +117,7 @@ export function startRound(game: GameState): GameState {
     ...(game.boxes ? { boxes: game.boxes.map(() => null) } : {}),
     ...(game.kind === "common-symbol" ? { deck: dealSymbolCards(), started: false } : {}),
     ...(game.kind === "morris" ? { morris: createMorris() } : {}),
+    ...(game.kind === "battleship" ? { battle: createBattle(game.nextStarter) } : {}),
     ...(game.kind === "circle-the-dot" ? { dotGame: { ...createDotGame(), blocker: game.dotGame!.blocker } } : {}),
     currentPlayer: game.kind === "circle-the-dot" ? game.dotGame!.blocker : game.nextStarter,
     nextStarter: game.nextStarter === "X" ? "O" : "X",
@@ -132,12 +137,13 @@ export function serializeGame(game: GameState): Omit<GameState, "winningLine"> {
     ...(game.deck ? { deck: [...game.deck] } : {}),
     ...(game.kind === "common-symbol" ? { started: game.started } : {}),
     ...(game.morris ? { morris: { ...game.morris, reserve: { ...game.morris.reserve }, history: [...game.morris.history] } } : {}),
+    ...(game.battle ? { battle: cloneBattle(game.battle) } : {}),
     ...(game.dotGame ? { dotGame: { ...game.dotGame, blocked: [...game.dotGame.blocked] } } : {}),
     nextStarter: game.nextStarter, gameOver: game.gameOver, scores: { ...game.scores },
   };
 }
 
-export function restoreGame(state: unknown): GameState | null {
+export function restoreGame(state: unknown, viewer?: Player): GameState | null {
   if (!state || typeof state !== "object") return null;
   const candidate = state as Partial<GameState>;
   const kind = candidate.kind ?? "tic-tac-toe"; // Legacy invitations had no game kind.
@@ -158,6 +164,8 @@ export function restoreGame(state: unknown): GameState | null {
     || !validScore(candidate.scores.draw)) return null;
 
   const board: Cell[] = [...candidate.board];
+  const battle = kind === "battleship" ? restoreBattle(candidate.battle, candidate as GameState, viewer) : null;
+  if (kind === "battleship" && (!battle || board.some(Boolean))) return null;
   if (kind === "connect-four") {
     const line = connectWinningLine(board);
     if (board.some((cell, index) => cell && index < board.length - CONNECT_COLUMNS && !board[index + CONNECT_COLUMNS])
@@ -192,11 +200,12 @@ export function restoreGame(state: unknown): GameState | null {
     ...(kind === "common-symbol" ? { deck: [...candidate.deck!], started: candidate.started } : {}),
     ...(dotGame ? { dotGame } : {}),
     ...(morris ? { morris } : {}),
+    ...(battle ? { battle } : {}),
     gameOver: candidate.gameOver,
     scores: { X: candidate.scores.X, O: candidate.scores.O, draw: candidate.scores.draw },
     winningLine: kind === "hex"
       ? findHexPath(board, "X", boardSize as HexSize) || findHexPath(board, "O", boardSize as HexSize)
       : kind === "connect-four" ? connectWinningLine(board)
-      : kind === "morris" || kind === "dots-and-boxes" || kind === "common-symbol" || kind === "circle-the-dot" ? null : findWinningLine(board),
+      : kind === "battleship" || kind === "morris" || kind === "dots-and-boxes" || kind === "common-symbol" || kind === "circle-the-dot" ? null : findWinningLine(board),
   };
 }

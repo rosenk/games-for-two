@@ -6,6 +6,7 @@
   import CircleTheDot from "./CircleTheDot.svelte";
   import MorrisBoard from "./MorrisBoard.svelte";
   import ConnectFourBoard from "./ConnectFourBoard.svelte";
+  import BattleshipBoard from "./BattleshipBoard.svelte";
   import { boxesWinner } from "../game/dots-and-boxes.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
@@ -36,7 +37,7 @@
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }
-    const winner = game.kind === "morris" ? game.morris.result === "draw" ? null : game.morris.result : game.kind === "circle-the-dot" && game.gameOver
+    const winner = game.kind === "battleship" && game.gameOver ? game.currentPlayer : game.kind === "morris" ? game.morris.result === "draw" ? null : game.morris.result : game.kind === "circle-the-dot" && game.gameOver
       ? game.dotGame.result === "trapped" ? game.dotGame.blocker : game.dotGame.blocker === "X" ? "O" : "X"
       : game.kind === "common-symbol" ? boxesWinner(game.board) : game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
     if (game.gameOver && winner) {
@@ -83,7 +84,9 @@
     </p>
   </div>
 
-  {#if game.kind === "connect-four"}
+  {#if game.kind === "battleship"}
+    <BattleshipBoard {game} {online} {canMove} {displayName} {onPlay} />
+  {:else if game.kind === "connect-four"}
     <ConnectFourBoard {game} {canMove} {displayName} {onPlay} />
   {:else if game.kind === "morris"}
     <MorrisBoard {game} {canMove} {displayName} {onPlay} />
