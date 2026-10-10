@@ -243,8 +243,8 @@
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
-          text: `Играй ${selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
+          title: selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
+          text: `Играй ${selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -390,7 +390,7 @@
 <main class="game-shell">
   {#if screen === "setup"}
     <div class="setup-header">
-      <p class="eyebrow">Пет игри · заедно или сам</p>
+      <p class="eyebrow">Шест игри · заедно или сам</p>
       <h1>Хайде да играем<span>.</span></h1>
       <p>Избери игра — с приятел или срещу компютъра.</p>
       {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
@@ -417,6 +417,10 @@
         <button class:selected={selectedGame === "circle-the-dot"} aria-pressed={selectedGame === "circle-the-dot"} type="button" onclick={() => selectedGame = "circle-the-dot"}>
           <span class="option-art" aria-hidden="true">🟠 🔵 🟠</span>
           <strong>Огради точката</strong><small>Ограждай или бягай. Сам или с приятел.</small>
+        </button>
+        <button class:selected={selectedGame === "morris"} aria-pressed={selectedGame === "morris"} type="button" onclick={() => selectedGame = "morris"}>
+          <span class="option-art" aria-hidden="true">●—●—●</span>
+          <strong>Дама</strong><small>9 пула. Образувай тройки и надхитри противника.</small>
         </button>
       </div>
       {#if selectedGame === "hex" || selectedGame === "dots-and-boxes"}
@@ -456,7 +460,7 @@
   {:else}
     <div class="play-topbar">
       <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
-      <span>{game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+      <span>{game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
     </div>
     <Scoreboard {game} online={boardOnline} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
     {#if online.mode !== "local"}

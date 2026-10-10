@@ -68,6 +68,8 @@ export class MatchmakingQueue {
     for (const waitingSocket of this.context.getWebSockets(QUEUE_TAG)) {
       if (waitingSocket === socket) continue;
       const details = waitingDetails(waitingSocket);
+      // A connected newcomer has not sent ready yet; it is not an expired entry.
+      if (details?.status === "connected") continue;
       if (
         details?.status !== "waiting"
         || waitingSocket.readyState !== 1

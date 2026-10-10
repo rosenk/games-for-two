@@ -54,7 +54,12 @@ test("pairs twenty simultaneous entrants into ten distinct FIFO matches", async 
     sockets.push(socket);
     roomIds.push(roomId);
     queue.connect(socket, roomId);
+  }
+
+  // Connections may all open before their ready messages reach the Worker.
+  for (const socket of sockets) {
     queue.webSocketMessage(socket, "ready");
+    assert.equal(socket.readyState, 1);
   }
 
   for (let index = 0; index < sockets.length; index += 2) {
@@ -87,7 +92,7 @@ test("does not match a new player with an expired queue entry", async () => {
   assert.equal(current.readyState, 1);
 });
 
-for (const game of ["hex", "dots-and-boxes", "common-symbol", "circle-the-dot"]) test(`keeps ${game} and tic-tac-toe in separate matchmaking queues`, async () => {
+for (const game of ["hex", "dots-and-boxes", "common-symbol", "circle-the-dot", "morris"]) test(`keeps ${game} and tic-tac-toe in separate matchmaking queues`, async () => {
   const queue = new MatchmakingQueue(fakeContext());
   const rooms = await Promise.all(["1", "2", "3"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
   const tic = new FakeSocket();
