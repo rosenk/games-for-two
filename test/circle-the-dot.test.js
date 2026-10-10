@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { playDotTurn, dotComputerMove, createDotGame, dotNeighbors, escapeDistances } from "../src/game/circle-the-dot.ts";
+import { playDotTurn, createDotGame, dotNeighbors, escapeDistances } from "../src/game/circle-the-dot/rules.ts";
+import { dotComputerMove } from "../src/game/circle-the-dot/bot.ts";
 import { createGameState, makeMove, serializeGame, restoreGame, startRound, resetScore } from "../src/game/game-state.ts";
 import { createMatchUrl, createRoomId, parseMatchRoute } from "../src/online/match-url.js";
 import { matchmakerSocketUrl } from "../src/online/matchmaker.js";

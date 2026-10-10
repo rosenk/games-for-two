@@ -1,5 +1,5 @@
 <script>
-  import { FLEET, shipCells, canPlace } from "../game/battleship.ts";
+  import { FLEET, shipCells, canPlace } from "./rules.ts";
   let { game, online, canMove, displayName, onPlay } = $props();
   let vertical = $state(false);
   let revealed = $state("");
@@ -98,12 +98,13 @@
   .seas { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .seas.single { grid-template-columns: minmax(0, 430px); justify-content: center; }
   h2 { font-size: 1rem; margin: .8rem 0; } h2 small { display: block; margin-top: .3rem; font-size: .75rem; font-weight: 500; color: #a8b5cb; }
-  .sea { display: grid; grid-template-columns: 1.1rem repeat(10, minmax(0, 1fr)); gap: 3px; }
+  .sea { display: grid; grid-template-columns: 1.1rem repeat(10, minmax(0, 1fr)); gap: 3px; padding: 8px; border: 1px solid #3c6477; border-radius: 12px; background: radial-gradient(ellipse at 30% 20%, #234d5c, #102e40); box-shadow: inset 0 1px 0 #ffffff20, 0 7px 0 #071925, 0 16px 24px #0004; }
   .axis { display: flex; align-items: center; justify-content: center; color: #a8b5cb; font-size: .7rem; }
   .sea button { aspect-ratio: 1; min-width: 0; padding: 0; border: 1px solid #294664; border-radius: 4px; background: #102940; color: #edf5ff; font-size: 1.15rem; cursor: crosshair; }
   .sea button:not(:disabled):hover, .sea button.preview { background: #265479; border-color: #85bfff; }
-  .sea button.ship { background: #376b95; } .sea button.miss { color: #a8b5cb; background: #172535; }
-  .sea button.hit { background: #b66a25; } .sea button.sunk { background: #963d52; }
+  .sea button.ship { background: linear-gradient(135deg, #85a5b9, #40657a); box-shadow: inset 0 2px 0 #ffffff35; } .sea button.miss { color: #a8b5cb; background: #172535; }
+  .sea button.hit { background: radial-gradient(circle, #ffd591, #b66a25); animation: impact 260ms ease-out; } .sea button.sunk { background: #963d52; }
+  @keyframes impact { from { box-shadow: 0 0 18px #ffc475; transform: scale(1.12); } to { box-shadow: none; transform: scale(1); } }
   button:focus-visible { outline: 3px solid #f6cc79; outline-offset: 2px; }
   .legend { font-size: .8rem; display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; } .legend strong { color: #ff91a7; }
   .handoff { text-align: center; padding: 3rem 1rem; border: 1px dashed #37516d; border-radius: 1rem; } .handoff > span { font-size: 3rem; } .handoff h2 { font-size: 1.2rem; } .handoff p { color: #a8b5cb; }

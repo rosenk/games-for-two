@@ -1,29 +1,24 @@
 <script>
-  import HexBoard from "./HexBoard.svelte";
-  import TicTacToeBoard from "./TicTacToeBoard.svelte";
-  import DotsAndBoxesBoard from "./DotsAndBoxesBoard.svelte";
-  import CommonSymbolBoard from "./CommonSymbolBoard.svelte";
-  import CircleTheDot from "./CircleTheDot.svelte";
-  import MorrisBoard from "./MorrisBoard.svelte";
-  import ConnectFourBoard from "./ConnectFourBoard.svelte";
-  import BattleshipBoard from "./BattleshipBoard.svelte";
-  import { boxesWinner } from "../game/dots-and-boxes.ts";
+  import "../game/views.ts";
+  import { getGame } from "../game/catalog.ts";
+  import { getGameView } from "../game/view-registry.ts";
 
   let { game, online, canMove, waiting, roundCountdown, onPlay, onNewRound } = $props();
+  let view = $derived(getGameView(game.kind));
+  let definition = $derived(getGame(game.kind));
+  let Board = $derived(view.Board);
 
   const mark = (player) => player === "X" ? "×" : "○";
-  const name = (player) => game.kind === "circle-the-dot"
-    ? player === game.dotGame.blocker ? "Ограждащият" : "Точката"
-    : player === "X" ? "Играч 1" : "Играч 2";
+  const name = (player) => view.roleName(game, player);
   const localTurnMessage = "Ваш ред";
   const displayName = (player) => {
     if (online.mode === "local" || online.mode === "matching") return name(player);
     return player === online.localPlayer ? "Вие" : online.mode === "computer" ? "Компютърът" : "Противникът";
   };
   let reminderTurn = $derived(
-    game.kind !== "common-symbol" && online.mode !== "local" && canMove
+    !definition.simultaneous && online.mode !== "local" && canMove
       && !online.audioEnabled && !online.audioBusy
-      ? `${online.localPlayer}:${game.currentPlayer}:${game.dotGame ? JSON.stringify(game.dotGame) : game.board.map((cell) => cell || "-").join("")}`
+      ? `${online.localPlayer}:${game.currentPlayer}:${view.reminderKey(game)}`
       : "",
   );
 
@@ -37,9 +32,7 @@
       if (online.phase === "error") return ["Няма връзка с двубоя.", ""];
       return ["Свързваме ви с двубоя…", ""];
     }
-    const winner = game.kind === "battleship" && game.gameOver ? game.currentPlayer : game.kind === "morris" ? game.morris.result === "draw" ? null : game.morris.result : game.kind === "circle-the-dot" && game.gameOver
-      ? game.dotGame.result === "trapped" ? game.dotGame.blocker : game.dotGame.blocker === "X" ? "O" : "X"
-      : game.kind === "common-symbol" ? boxesWinner(game.board) : game.kind === "dots-and-boxes" ? boxesWinner(game.boxes) : game.winningLine ? game.board[game.winningLine[0]] : null;
+    const winner = view.winner(game);
     if (game.gameOver && winner) {
       const message = online.mode === "local"
         ? `${name(winner)} печели!`
@@ -47,7 +40,7 @@
       return [message, mark(winner)];
     }
     if (game.gameOver) return ["Равенство — чудесна игра!", ""];
-    if (game.kind === "common-symbol") return ["Кой ще открие символа пръв?", ""];
+    if (definition.simultaneous) return [view.simultaneousStatus, ""];
     if (online.mode === "local") return [`${name(game.currentPlayer)} е на ход`, mark(game.currentPlayer)];
     if (game.currentPlayer === online.localPlayer) return [localTurnMessage, mark(game.currentPlayer)];
     return [online.mode === "computer" ? "Компютърът мисли…" : "Ход на противника", mark(game.currentPlayer)];
@@ -84,27 +77,12 @@
     </p>
   </div>
 
-  {#if game.kind === "battleship"}
-    <BattleshipBoard {game} {online} {canMove} {displayName} {onPlay} />
-  {:else if game.kind === "connect-four"}
-    <ConnectFourBoard {game} {canMove} {displayName} {onPlay} />
-  {:else if game.kind === "morris"}
-    <MorrisBoard {game} {canMove} {displayName} {onPlay} />
-  {:else if game.kind === "circle-the-dot"}
-    <CircleTheDot {game} {canMove} {onPlay} />
-  {:else if game.kind === "hex"}
-    <HexBoard {game} {canMove} {displayName} {onPlay} />
-  {:else if game.kind === "dots-and-boxes"}
-    <DotsAndBoxesBoard {game} {canMove} {displayName} {onPlay} />
-  {:else if game.kind === "common-symbol"}
-    <CommonSymbolBoard {game} {online} {canMove} {displayName} {onPlay} />
-  {:else}
-    <TicTacToeBoard {game} {canMove} {displayName} {onPlay} />
-  {/if}
+  <Board {game} {online} {canMove} {displayName} {onPlay} />
 
   <button
     class="new-round"
     type="button"
+    hidden={!game.gameOver}
     onclick={onNewRound}
     disabled={waiting || !game.gameOver}
     aria-label={game.gameOver ? `Нов рунд след ${roundCountdown} секунди` : "Нов рунд"}

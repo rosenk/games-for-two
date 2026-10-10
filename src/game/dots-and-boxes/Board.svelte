@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { GameState, Player } from "../game/game-state.ts";
-  import { boxScore } from "../game/dots-and-boxes.ts";
+  import type { GameState, Player } from "../game-state.ts";
+  import { boxScore } from "./rules.ts";
 
   let { game, canMove, displayName, onPlay }: {
     game: GameState;
@@ -91,7 +91,7 @@
   .move-hint { text-align: center; color: var(--muted); font-size: .7rem; margin: 0 0 8px; }
   .pan-hint { text-align: center; color: var(--muted); font-size: .7rem; margin: 0 0 8px; }
   .dots-scroll { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
-  .dots-board { display: block; width: min(100%, 400px); aspect-ratio: 1; margin: auto; }
+  .dots-board { display: block; width: min(100%, 400px); aspect-ratio: 1; margin: auto; border-radius: 20px; background: radial-gradient(circle at 30% 20%, #2c3e4c, #172633); box-shadow: inset 0 1px 0 #ffffff15, 0 8px 0 #0b1720; }
   .dot { fill: #dbe5f1; pointer-events: none; }
   .edge { cursor: pointer; outline: none; color: #354458; }
   .x { color: var(--x); }
@@ -104,6 +104,7 @@
   .edge[aria-disabled="false"]:hover .stroke { stroke: #dbe5f1; }
   .edge:focus-visible .hit { stroke: var(--o); stroke-width: 2; }
   .box { pointer-events: none; }
-  .box rect { fill: currentColor; fill-opacity: .15; }
+  .box rect { fill: currentColor; fill-opacity: .3; animation: close-box 240ms ease-out; }
+  @keyframes close-box { from { fill-opacity: 0; } to { fill-opacity: .3; } }
   .box path, .box circle { fill: none; stroke: currentColor; stroke-width: 2.5; }
 </style>

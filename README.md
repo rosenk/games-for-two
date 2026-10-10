@@ -27,4 +27,6 @@ npm run dev
 
 `npm run check` проверява TypeScript, Svelte, тестовете, production сборката и Cloudflare Worker конфигурацията. Онлайн играта използва PeerJS, а услугата за търсене на противник е описана в [matchmaker/README.md](matchmaker/README.md). За разделени опашки по игра в production е нужно обновяване на Worker-а.
 
+Всяка игра е в собствена директория `src/game/<game>/`: `rules.ts` за правилата и игровото състояние, `bot.ts` за компютърния противник, `Board.svelte` за дъската, `definition.ts` за регистрация на игровия договор и `view.ts` за регистрация на представянето. Общите входове използват типизирани договори и lookup по идентификатор, без разклонения по конкретни игри. За добавяне на игра включи нейния `definition.ts` в `src/game/catalog.ts` и `bot.ts` в `src/game/computers.ts`; браузърът зарежда `view.ts` файловете автоматично. Споделените UI компоненти са в `src/components/`, тестовете — в `test/`.
+
 Значимите архитектурни решения и заменените им предшественици са в [индекса на ADR](docs/adr/README.md); [0001](docs/adr/0001-record-architecture-decisions.md) описва правилото за воденето им.

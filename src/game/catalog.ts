@@ -1,0 +1,11 @@
+import "./tic-tac-toe/definition.ts";
+import "./hex/definition.ts";
+import "./dots-and-boxes/definition.ts";
+import "./common-symbol/definition.ts";
+import "./circle-the-dot/definition.ts";
+import "./morris/definition.ts";
+import "./connect-four/definition.ts";
+import "./battleship/definition.ts";
+import { games } from "./registry.ts";
+export * from "./registry.ts";
+export const DEFAULT_GAME_KIND = games[0].kind;

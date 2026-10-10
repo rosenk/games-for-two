@@ -1,7 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { isBoardSize, isGameKind, type GameKind } from "../src/game/game-state.ts";
-import { DEFAULT_HEX_SIZE } from "../src/game/hex.ts";
+import { isBoardSize, isGameKind, defaultBoardSize, isSizeParameter, type GameKind } from "../src/game/game-state.ts";
+import { DEFAULT_GAME_KIND } from "../src/game/catalog.ts";
 import { isValidRoomId } from "../src/online/match-url.js";
 
 const QUEUE_TAG = "queue";
@@ -57,12 +57,12 @@ export class MatchmakingQueue {
     this.context = context;
   }
 
-  connect(socket: WebSocket, roomId: string, game: GameKind = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3): void {
+  connect(socket: WebSocket, roomId: string, game: GameKind = DEFAULT_GAME_KIND, boardSize = defaultBoardSize(game)): void {
     this.context.acceptWebSocket(socket, [QUEUE_TAG]);
     socket.serializeAttachment({ roomId, game, boardSize, status: "connected" } satisfies QueueDetails);
   }
 
-  enqueue(socket: WebSocket, roomId: string, now = Date.now(), game: GameKind = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3): void {
+  enqueue(socket: WebSocket, roomId: string, now = Date.now(), game: GameKind = DEFAULT_GAME_KIND, boardSize = defaultBoardSize(game)): void {
     const candidates: Array<{ socket: WebSocket; roomId: string; queuedAt: number }> = [];
 
     for (const waitingSocket of this.context.getWebSockets(QUEUE_TAG)) {
@@ -83,8 +83,8 @@ export class MatchmakingQueue {
         } catch {}
         continue;
       }
-      if ((details.game || "tic-tac-toe") !== game
-        || (details.boardSize ?? (game === "hex" ? DEFAULT_HEX_SIZE : 3)) !== boardSize) continue;
+      if ((details.game || DEFAULT_GAME_KIND) !== game
+        || (details.boardSize ?? defaultBoardSize(game)) !== boardSize) continue;
       candidates.push({ socket: waitingSocket, roomId: details.roomId, queuedAt: details.queuedAt });
     }
 
@@ -121,15 +121,14 @@ export class MatchmakingQueue {
 
     const parameters = new URL(request.url).searchParams;
     const roomId = parameters.get("room");
-    const game = parameters.get("game") || "tic-tac-toe";
+    const game = parameters.get("game") || DEFAULT_GAME_KIND;
     const sizeParameter = parameters.get("size");
     const boardSize = sizeParameter === null
-      ? game === "hex" ? DEFAULT_HEX_SIZE : 3
+      ? defaultBoardSize(game)
       : Number(sizeParameter);
     if (!roomId || !isValidRoomId(roomId)) return new Response("Invalid room", { status: 400 });
     if (!isGameKind(game)) return new Response("Invalid game", { status: 400 });
-    if (!isBoardSize(game, boardSize) || (game === "tic-tac-toe" && sizeParameter !== null)
-      || (sizeParameter !== null && sizeParameter !== String(boardSize))) {
+    if (!isBoardSize(game, boardSize) || !isSizeParameter(game, sizeParameter)) {
       return new Response("Invalid board size", { status: 400 });
     }
 
@@ -142,8 +141,8 @@ export class MatchmakingQueue {
   webSocketMessage(socket: WebSocket, payload: string | ArrayBuffer): void {
     const details = waitingDetails(socket);
     if (payload === "ready" && details?.status === "connected") {
-      this.enqueue(socket, details.roomId, Date.now(), details.game || "tic-tac-toe",
-        details.boardSize ?? (details.game === "hex" ? DEFAULT_HEX_SIZE : 3));
+      this.enqueue(socket, details.roomId, Date.now(), details.game || DEFAULT_GAME_KIND,
+        details.boardSize ?? defaultBoardSize(details.game));
       return;
     }
 

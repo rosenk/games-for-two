@@ -1,14 +1,14 @@
 import { isValidRoomId } from "./match-url.js";
-import { gameKinds, isBoardSize } from "../game/game-state.ts";
-import { DEFAULT_HEX_SIZE } from "../game/hex.ts";
+import { isGameKind, isBoardSize, defaultBoardSize } from "../game/game-state.ts";
+import { DEFAULT_GAME_KIND } from "../game/catalog.ts";
 
 const SEARCH_TIMEOUT = 60_000;
 const PRODUCTION_ENDPOINT = "https://tic-tac-toe-matchmaker.rosen4obg.workers.dev";
 const defaultEndpoint = import.meta.env?.VITE_MATCHMAKER_URL || PRODUCTION_ENDPOINT;
 
-export function matchmakerSocketUrl(endpoint, roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
+export function matchmakerSocketUrl(endpoint, roomId, game = DEFAULT_GAME_KIND, boardSize = defaultBoardSize(game)) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
-  if (!gameKinds.includes(game)) throw new TypeError("Invalid game");
+  if (!isGameKind(game)) throw new TypeError("Invalid game");
   if (!isBoardSize(game, boardSize)) throw new TypeError("Invalid board size");
   const url = new URL(endpoint);
   if (url.protocol === "https:") url.protocol = "wss:";
@@ -18,8 +18,8 @@ export function matchmakerSocketUrl(endpoint, roomId, game = "tic-tac-toe", boar
   }
   if (url.pathname === "/") url.pathname = "/match";
   url.searchParams.set("room", roomId);
-  if (game !== "tic-tac-toe") url.searchParams.set("game", game);
-  if (boardSize !== (game === "hex" ? DEFAULT_HEX_SIZE : 3)) url.searchParams.set("size", String(boardSize));
+  if (game !== DEFAULT_GAME_KIND) url.searchParams.set("game", game);
+  if (boardSize !== defaultBoardSize(game)) url.searchParams.set("size", String(boardSize));
   return url.toString();
 }
 
@@ -52,7 +52,7 @@ export class Matchmaker {
     return Boolean(this.endpoint && this.WebSocketClass);
   }
 
-  search(roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
+  search(roomId, game = DEFAULT_GAME_KIND, boardSize = defaultBoardSize(game)) {
     this.cancel();
 
     let socketUrl;

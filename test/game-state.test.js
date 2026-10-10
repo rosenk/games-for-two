@@ -9,7 +9,7 @@ import {
   serializeGame,
   startRound,
 } from "../src/game/game-state.ts";
-import { findHexPath } from "../src/game/hex.ts";
+import { findHexPath } from "../src/game/hex/rules.ts";
 
 test("accepts only the current player's move in an empty cell", () => {
   const initial = createGameState();

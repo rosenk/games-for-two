@@ -1,4 +1,4 @@
-import type { Cell } from "./game-state.ts";
+import type { Cell } from "../game-state.ts";
 
 export const cellLabels = [
   "Горе вляво", "Горе в средата", "Горе вдясно",

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createGameState, makeMove, resetScore, restoreGame, serializeGame, startRound } from "../src/game/game-state.ts";
-import { boxesWinner, boxScore } from "../src/game/dots-and-boxes.ts";
+import { boxesWinner, boxScore } from "../src/game/dots-and-boxes/rules.ts";
 
 test("closing two adjacent boxes awards both and retains the turn without mutating the old state", () => {
   let game = createGameState("dots-and-boxes");

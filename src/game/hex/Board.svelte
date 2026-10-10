@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GameState, Player } from "../game/game-state.ts";
+  import type { GameState, Player } from "../game-state.ts";
 
   let { game, canMove, displayName, onPlay }: {
     game: GameState;

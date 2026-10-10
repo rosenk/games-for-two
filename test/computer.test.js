@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { chooseComputerMove, computerDelay } from "../src/game/computer.ts";
 import { createGameState, makeMove, startRound } from "../src/game/game-state.ts";
-import { boxScore } from "../src/game/dots-and-boxes.ts";
-import { SYMBOL_CARDS, SYMBOLS } from "../src/game/common-symbol.ts";
+import { boxScore } from "../src/game/dots-and-boxes/rules.ts";
+import { SYMBOL_CARDS, SYMBOLS } from "../src/game/common-symbol/rules.ts";
 
 test("tic-tac-toe computer cannot lose against any human move, as either side", () => {
   for (const bot of ["X", "O"]) {

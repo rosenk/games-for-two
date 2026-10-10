@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { dotNeighbors, DOT_SIZE } from "../game/circle-the-dot.ts";
-  import type { GameState } from "../game/game-state.ts";
+  import { dotNeighbors, DOT_SIZE } from "./rules.ts";
+  import type { GameState } from "../game-state.ts";
   let { game, canMove, onPlay }: {
     game: GameState; canMove: boolean; onPlay: (index: number) => void;
   } = $props();
@@ -40,10 +40,10 @@
   .dot-row { display: flex; }
   .offset { margin-left: calc(var(--step) / 2); }
   .dot-row button { display: grid; place-items: center; width: var(--step); height: calc(var(--step) * .87); padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; touch-action: manipulation; }
-  .dot-row button span { width: 78%; aspect-ratio: 1; border-radius: 50%; background: #8591a3; }
+  .dot-row button span { width: 78%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 25%, #a3b3c2, #5d7084); box-shadow: inset 0 1px 2px #ffffff55, 0 3px 2px #0005; transition: background 150ms, transform 150ms; }
   .dot-row button:enabled:hover span { background: #c4cfdf; }
-  button.blocked span { background: #ff9e52; }
-  button.blue span { background: #58adff; box-shadow: 0 0 0 3px #58adff30; }
+  button.blocked span { background: radial-gradient(circle at 35% 25%, #ffc291, #ef8844); transform: scale(.88); }
+  button.blue span { background: radial-gradient(circle at 35% 25%, #c1e8ff, #58adff); box-shadow: 0 0 0 3px #58adff30, 0 0 18px #58adff70; }
   button.destination span { box-shadow: 0 0 0 2px #58adff; }
   button:disabled { cursor: default; }
   .feedback { display: flex; flex-direction: column; gap: 6px; margin: 18px 0; text-align: center; }

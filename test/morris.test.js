@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGameState, makeMove, restoreGame, serializeGame, startRound, resetScore } from "../src/game/game-state.ts";
-import { morrisActions, morrisMovement } from "../src/game/morris.ts";
+import { morrisActions, morrisMovement } from "../src/game/morris/rules.ts";
 import { chooseComputerMove } from "../src/game/computer.ts";
 import { createMatchUrl, createRoomId, parseMatchRoute } from "../src/online/match-url.js";
 import { matchmakerSocketUrl } from "../src/online/matchmaker.js";

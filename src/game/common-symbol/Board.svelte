@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { GameState, Player } from "../game/game-state.ts";
-  import { SYMBOL_CARDS, SYMBOLS, SYMBOL_TARGET } from "../game/common-symbol.ts";
-  import { boxScore } from "../game/dots-and-boxes.ts";
+  import type { GameState, Player } from "../game-state.ts";
+  import { SYMBOL_CARDS, SYMBOLS, SYMBOL_TARGET } from "./rules.ts";
 
   let { game, online, canMove, displayName, onPlay }: {
     game: GameState;
@@ -24,9 +23,9 @@
     {online.mode === "local" ? "Всеки натиска само своята карта." : "Натисни на която и да е карта."}
     {#if online.mode === "computer"}Ботът отговаря след пауза, не мигновено. Ако води, ти дава повече време.{/if}</p>
   <div class="round-score">
-    <span aria-label="Точки на играч 1">× {boxScore(game.board, "X")}</span>
+    <span aria-label="Точки на играч 1">× {game.board.filter((owner) => owner === "X").length}</span>
     <strong class="target">Първи до {SYMBOL_TARGET}</strong>
-    <span aria-label="Точки на играч 2">○ {boxScore(game.board, "O")}</span>
+    <span aria-label="Точки на играч 2">○ {game.board.filter((owner) => owner === "O").length}</span>
   </div>
   <div class="cards">
     {#each [0, 1] as side}
@@ -63,8 +62,8 @@
   .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .zone { min-width: 0; color: var(--x); }
   .player-o { color: var(--o); }
-  .symbol-card { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); aspect-ratio: 1; border-radius: 50%; background: #fff5df; padding: 9%; box-shadow: 0 0 0 3px currentColor; }
-  .player-o .symbol-card { background: #e1f6f0; }
+  .symbol-card { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 30% 20%, #fffdf6, #f2dfbb); padding: 9%; box-shadow: 0 0 0 3px currentColor, 0 6px 0 #b59b76, 0 14px 24px #0005; }
+  .player-o .symbol-card { background: radial-gradient(circle at 30% 20%, #f8fffc, #c9e9dd); box-shadow: 0 0 0 3px currentColor, 0 6px 0 #7fa99a, 0 14px 24px #0005; }
   button { border: 0; background: transparent; border-radius: 14px; padding: 0; min-width: 0; min-height: 44px; cursor: pointer; touch-action: none; user-select: none; }
   button span { display: block; font-size: clamp(1.6rem, 5.5vw, 3.1rem); transform: rotate(var(--tilt)) scale(var(--scale)); pointer-events: none; }
   button:enabled:hover { background: #0001; }

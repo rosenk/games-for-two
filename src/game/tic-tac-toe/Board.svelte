@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { GameState, Player } from "../game/game-state.ts";
-  import { cellLabels } from "../game/tic-tac-toe.ts";
+  import type { GameState, Player } from "../game-state.ts";
+  import { cellLabels } from "./rules.ts";
 
   let { game, canMove, displayName, onPlay }: {
     game: GameState;

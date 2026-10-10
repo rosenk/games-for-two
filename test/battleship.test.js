@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createGameState, makeMove, restoreGame, serializeGame, startRound, resetScore } from "../src/game/game-state.ts";
-import { battleView } from "../src/game/battleship.ts";
+import { battleView } from "../src/game/battleship/rules.ts";
 import { chooseComputerMove } from "../src/game/computer.ts";
 import { createMatchUrl, parseMatchRoute } from "../src/online/match-url.js";
 

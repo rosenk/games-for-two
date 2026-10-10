@@ -1,4 +1,4 @@
-import type { Cell, Player } from "./game-state.ts";
+import type { Cell, Player } from "../game-state.ts";
 
 export const HEX_SIZES = [5, 7, 9, 11] as const;
 export const DEFAULT_HEX_SIZE = 5;
@@ -8,7 +8,7 @@ export function isHexSize(value: unknown): value is HexSize {
   return HEX_SIZES.some((size) => size === value);
 }
 
-function neighbors(index: number, size: number): number[] {
+export function neighbors(index: number, size: number): number[] {
   const row = Math.floor(index / size);
   const col = index % size;
   return [[row - 1, col], [row - 1, col + 1], [row, col - 1],

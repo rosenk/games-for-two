@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { MatchmakingQueue } from "../matchmaker/worker.ts";
-import { createRoomId } from "../src/online/match-url.js";
+import { createRoomId, createMatchUrl, parseMatchRoute } from "../src/online/match-url.js";
+import { matchmakerSocketUrl } from "../src/online/matchmaker.js";
+import { registerGame } from "../src/game/catalog.ts";
 
 const browserSecret = "a".repeat(43);
 
@@ -150,4 +152,32 @@ test("Worker rejects invalid sizes before opening a WebSocket", async () => {
     });
     assert.equal(queue.fetch(request).status, 400);
   }
+});
+
+test("a registered game supplies invitation and matchmaking defaults without transport changes", async () => {
+  const kind = "transport-contract-game";
+  registerGame({ kind, defaultSize: 2, sizes: [2, 5], play: (game) => game });
+  const rooms = await Promise.all(["c", "d", "e", "f"].map((digit) => createRoomId(browserSecret, digit.repeat(32))));
+  const invite = new URL(createMatchUrl("https://games.example/", rooms[0], kind));
+  assert.equal(invite.searchParams.has("size"), false);
+  assert.deepEqual(parseMatchRoute(invite.search), { roomId: rooms[0], game: kind, boardSize: 2, valid: true });
+  assert.equal(parseMatchRoute(new URL(createMatchUrl("https://games.example/", rooms[0], kind, 5)).search).boardSize, 5);
+  assert.equal(parseMatchRoute(`${invite.search}&size=02`).valid, false);
+  assert.equal(parseMatchRoute(`${invite.search}&size=3`).valid, false);
+  const socketUrl = new URL(matchmakerSocketUrl("https://match.example/", rooms[0], kind));
+  assert.equal(socketUrl.searchParams.get("game"), kind);
+  assert.equal(socketUrl.searchParams.has("size"), false);
+
+  const queue = new MatchmakingQueue(fakeContext());
+  const sockets = rooms.map(() => new FakeSocket());
+  queue.connect(sockets[0], rooms[0]);
+  queue.connect(sockets[1], rooms[1], kind);
+  queue.connect(sockets[2], rooms[2], kind, 5);
+  queue.connect(sockets[3], rooms[3], kind);
+  for (const socket of sockets) queue.webSocketMessage(socket, "ready");
+  assert.deepEqual(sockets[0].messages, [{ type: "waiting" }]);
+  assert.deepEqual(sockets[2].messages, [{ type: "waiting" }]);
+  assert.deepEqual(sockets[1].messages.at(-1), { type: "matched", role: "host", roomId: rooms[1] });
+  assert.deepEqual(sockets[3].messages, [{ type: "matched", role: "guest", roomId: rooms[1] }]);
+  assert.equal(sockets[1].attachment.boardSize, 2);
 });

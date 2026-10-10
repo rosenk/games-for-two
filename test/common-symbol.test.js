@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { SYMBOL_CARDS, SYMBOLS, dealSymbolCards } from "../src/game/common-symbol.ts";
+import { SYMBOL_CARDS, SYMBOLS, dealSymbolCards } from "../src/game/common-symbol/rules.ts";
 import { createGameState, makeMove, restoreGame, serializeGame, startRound, resetScore } from "../src/game/game-state.ts";
 import { createMatchUrl, createRoomId, parseMatchRoute } from "../src/online/match-url.js";
 import { matchmakerSocketUrl } from "../src/online/matchmaker.js";

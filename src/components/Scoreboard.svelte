@@ -1,12 +1,17 @@
 <script>
+  import "../game/views.ts";
+  import { getGame } from "../game/catalog.ts";
+  import { getGameView } from "../game/view-registry.ts";
   let { game, online, waiting, onReset, onAudio } = $props();
+  let view = $derived(getGameView(game.kind));
+  let definition = $derived(getGame(game.kind));
 
   const label = (player) => {
     if (online.mode === "local" || online.mode === "matching") {
-      return game.kind === "circle-the-dot" ? player === game.dotGame.blocker ? "Ограждащият" : "Точката" : player === "X" ? "Играч 1" : "Играч 2";
+      return view.roleName(game, player);
     }
     return (online.localPlayer === player ? "Вие" : online.mode === "computer" ? "Компютър" : "Противник")
-      + (game.kind === "circle-the-dot" ? player === game.dotGame.blocker ? " · Ограда" : " · Точка" : "");
+      + view.roleSuffix(game, player);
   };
 
   const audioEnabled = (player) => (
@@ -54,8 +59,8 @@
 
 <header class="game-header">
   <div>
-    <p class="eyebrow">{game.kind === "battleship" ? "Скрий флота · стреляй · потопи корабите" : game.kind === "connect-four" ? "Пусни пул · свържи четири · спечелени рундове" : game.kind === "morris" ? "Девет пула · тройки · спечелени рундове" : game.kind === "circle-the-dot" ? "Ограда срещу точка · спечелени рундове" : game.kind === "common-symbol" ? "Открий съвпадението · спечелени рундове" : game.kind === "dots-and-boxes" ? "Затвори квадратчетата · спечелени рундове" : game.kind === "hex" ? "Свържи страните" : "Три в редица"}</p>
-    <h1>{game.kind === "battleship" ? "Морски бой" : game.kind === "connect-four" ? "Четири в редица" : game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? "Точки и квадратчета" : game.kind === "hex" ? "Hex" : "Морски шах"}<span aria-hidden="true">.</span></h1>
+    <p class="eyebrow">{view.tagline}</p>
+    <h1>{view.title}<span aria-hidden="true">.</span></h1>
   </div>
   <button class="icon-button" type="button" onclick={onReset} disabled={waiting}>
     <span aria-hidden="true">↻</span>
@@ -63,10 +68,10 @@
   </button>
 </header>
 
-<section class="scoreboard" class:no-draw={game.kind === "battleship" || game.kind === "hex" || game.kind === "common-symbol" || game.kind === "circle-the-dot"} aria-label="Резултат">
+<section class="scoreboard" class:no-draw={!view.supportsDraw} aria-label="Резултат">
   <article
     class="player-card player-x"
-    class:active={(game.kind === "common-symbol" || game.currentPlayer === "X") && !game.gameOver && !waiting}
+    class:active={(definition.simultaneous || game.currentPlayer === "X") && !game.gameOver && !waiting}
   >
     <span class="player-symbol" aria-hidden="true">×</span>
     <div>
@@ -76,7 +81,7 @@
     {@render playerAudio("X")}
   </article>
 
-  {#if game.kind !== "battleship" && game.kind !== "hex" && game.kind !== "common-symbol" && game.kind !== "circle-the-dot"}
+  {#if view.supportsDraw}
     <div class="draw-score">
       <span>Равни</span>
       <strong>{game.scores.draw}</strong>
@@ -85,7 +90,7 @@
 
   <article
     class="player-card player-o"
-    class:active={(game.kind === "common-symbol" || game.currentPlayer === "O") && !game.gameOver && !waiting}
+    class:active={(definition.simultaneous || game.currentPlayer === "O") && !game.gameOver && !waiting}
   >
     <span class="player-symbol" aria-hidden="true">○</span>
     <div>

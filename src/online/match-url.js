@@ -1,5 +1,5 @@
-import { gameKinds, isBoardSize } from "../game/game-state.ts";
-import { DEFAULT_HEX_SIZE } from "../game/hex.ts";
+import { isGameKind, isBoardSize, defaultBoardSize, isSizeParameter } from "../game/game-state.ts";
+import { DEFAULT_GAME_KIND } from "../game/catalog.ts";
 
 const matchParameters = ["room", "game", "size", "player", "host", "role"];
 const tokenPattern = /^[A-Za-z0-9_-]{1,100}$/;
@@ -88,17 +88,17 @@ export async function hashPlayerToken(playerToken) {
   return encode(new Uint8Array(digest));
 }
 
-export function createMatchUrl(address, roomId, game = "tic-tac-toe", boardSize = game === "hex" ? DEFAULT_HEX_SIZE : 3) {
+export function createMatchUrl(address, roomId, game = DEFAULT_GAME_KIND, boardSize = defaultBoardSize(game)) {
   if (!isValidRoomId(roomId)) throw new TypeError("Invalid room ID");
-  if (!gameKinds.includes(game)) throw new TypeError("Invalid game");
+  if (!isGameKind(game)) throw new TypeError("Invalid game");
   if (!isBoardSize(game, boardSize)) throw new TypeError("Invalid board size");
 
   const matchUrl = new URL(address);
   matchUrl.search = "";
   matchUrl.hash = "";
   matchUrl.searchParams.set("room", roomId);
-  if (game !== "tic-tac-toe") matchUrl.searchParams.set("game", game);
-  if (boardSize !== (game === "hex" ? DEFAULT_HEX_SIZE : 3)) matchUrl.searchParams.set("size", String(boardSize));
+  if (game !== DEFAULT_GAME_KIND) matchUrl.searchParams.set("game", game);
+  if (boardSize !== defaultBoardSize(game)) matchUrl.searchParams.set("size", String(boardSize));
   return matchUrl.toString();
 }
 
@@ -106,10 +106,10 @@ export function parseMatchRoute(search) {
   const parameters = new URLSearchParams(search);
   const roomId = parameters.get("room");
   if (!roomId) return null;
-  const game = parameters.get("game") || "tic-tac-toe";
+  const game = parameters.get("game") || DEFAULT_GAME_KIND;
   const sizeParameter = parameters.get("size");
   const boardSize = sizeParameter === null
-    ? game === "hex" ? DEFAULT_HEX_SIZE : 3
+    ? defaultBoardSize(game)
     : Number(sizeParameter);
 
   return {
@@ -117,10 +117,9 @@ export function parseMatchRoute(search) {
     game,
     boardSize,
     valid: isValidRoomId(roomId)
-      && gameKinds.includes(game)
+      && isGameKind(game)
       && isBoardSize(game, boardSize)
-      && (game !== "tic-tac-toe" || sizeParameter === null)
-      && (sizeParameter === null || sizeParameter === String(boardSize))
+      && isSizeParameter(game, sizeParameter)
       && !matchParameters.slice(3).some((parameter) => parameters.has(parameter)),
   };
 }

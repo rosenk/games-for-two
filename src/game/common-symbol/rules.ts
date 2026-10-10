@@ -1,5 +1,6 @@
-import type { GameState, Player } from "./game-state.ts";
-import { boxScore } from "./dots-and-boxes.ts";
+import type { GameState, Player } from "../game-state.ts";
+
+declare module "../types.ts" { interface GameState { deck?: number[]; started?: boolean; } }
 
 export const SYMBOL_TARGET = 10;
 
@@ -52,7 +53,7 @@ export function makeSymbolMove(game: GameState, index: number, player: Player): 
   if (!left.includes(symbol) && !right.includes(symbol)) return game;
   const recipient = left.includes(symbol) && right.includes(symbol) ? player : player === "X" ? "O" : "X";
   const board = [...game.board, recipient];
-  const gameOver = boxScore(board, recipient) === SYMBOL_TARGET;
+  const gameOver = board.filter((owner) => owner === recipient).length === SYMBOL_TARGET;
   const scores = { ...game.scores };
   if (gameOver) scores[recipient] += 1;
   return { ...game, board, gameOver, scores, deck: gameOver ? game.deck : dealSymbolCards() };

@@ -13,10 +13,9 @@
     serializeGame,
     startRound,
   } from "./game/game-state.ts";
-  import { DEFAULT_HEX_SIZE, HEX_SIZES } from "./game/hex.ts";
-  import { DOTS_SIZES } from "./game/dots-and-boxes.ts";
-  import { SYMBOL_TARGET } from "./game/common-symbol.ts";
-  import { battleView } from "./game/battleship.ts";
+  import "./game/views.ts";
+  import { games, getGame, DEFAULT_GAME_KIND } from "./game/catalog.ts";
+  import { getGameView } from "./game/view-registry.ts";
   import {
     clearMatchPath,
     createMatchUrl,
@@ -39,9 +38,10 @@
 
   let game = $state(createGameState());
   let screen = $state("setup");
-  let selectedGame = $state("tic-tac-toe");
-  let selectedHexSize = $state(DEFAULT_HEX_SIZE);
-  let selectedDotsSize = $state(3);
+  let selectedGame = $state(DEFAULT_GAME_KIND);
+  let selectedSizes = $state({});
+  let selectedView = $derived(getGameView(selectedGame));
+  let definition = $derived(getGame(game.kind));
   let selectedOpponent = $state("local");
   let selectedDotSide = $state("X");
   let computerGame = $state(false);
@@ -61,21 +61,20 @@
 
   let waiting = $derived(online.mode !== "local" && !online.connected);
   let canMove = $derived(
-    !game.gameOver
-      && (computerGame ? game.kind === "common-symbol" || game.currentPlayer === selectedDotSide : online.mode === "local"
-        || (online.connected && (game.kind === "common-symbol" || game.currentPlayer === online.localPlayer) && !movePending)),
+    !game.gameOver && definition.ready(game)
+      && (computerGame ? definition.simultaneous || game.currentPlayer === selectedDotSide : online.mode === "local"
+        || (online.connected && (definition.simultaneous || game.currentPlayer === online.localPlayer) && !movePending)),
   );
   let boardOnline = $derived(computerGame
     ? { ...online, mode: "computer", localPlayer: selectedDotSide, connected: true } : online);
 
-  const chosenSize = () => selectedGame === "hex" ? selectedHexSize : selectedGame === "dots-and-boxes" ? selectedDotsSize : 3;
+  const chosenSize = () => selectedSizes[selectedGame] ?? getGame(selectedGame).defaultSize;
 
   $effect(() => {
     if (screen !== "play" || !computerGame || game.gameOver) return;
-    const simultaneous = game.kind === "common-symbol";
-    if (simultaneous ? !game.started : game.currentPlayer === selectedDotSide) return;
+    if (definition.simultaneous ? !definition.ready(game) : game.currentPlayer === selectedDotSide) return;
     const player = selectedDotSide === "X" ? "O" : "X";
-    const current = serializeGame(battleView(game, player));
+    const current = serializeGame(definition.view(game, player));
     const worker = new Worker(new URL("./game/computer.worker.ts", import.meta.url), { type: "module" });
     let ready = false;
     let move = null;
@@ -91,9 +90,9 @@
 
   // Reveal the cards only when both players are present; no game clock is needed.
   $effect(() => {
-    if (screen === "play" && game.kind === "common-symbol" && !game.started
+    if (screen === "play" && !definition.ready(game)
       && online.mode !== "guest" && !waiting) {
-      untrack(() => updateGame((current) => ({ ...current, started: true })));
+      untrack(() => updateGame((current) => getGame(current.kind).reveal(current)));
     }
   });
 
@@ -169,9 +168,8 @@
     const matchUrl = createMatchUrl(window.location.href, roomId, selectedGame, chosenSize());
     window.history.replaceState({}, "", matchPath(matchUrl));
     session.host(roomId, matchUrl, hostedPlayerTokenHash || "");
-    if (selectedGame === "circle-the-dot" && !restored && shareable) {
-      const blocker = selectedDotSide === "X" ? session.localPlayer : session.localPlayer === "X" ? "O" : "X";
-      game = { ...game, dotGame: { ...game.dotGame, blocker }, currentPlayer: blocker };
+    if (!restored && shareable) {
+      game = getGame(game.kind).configureHost(game, selectedDotSide, session.localPlayer);
     }
     persistHostedMatch();
   }
@@ -233,7 +231,7 @@
 
   function startGame() {
     computerGame = selectedOpponent === "computer";
-    if (computerGame && selectedGame === "common-symbol") selectedDotSide = "X";
+    if (computerGame && selectedView.computerSide) selectedDotSide = selectedView.computerSide;
     game = createGameState(selectedGame, chosenSize());
     screen = "play";
     if (selectedOpponent === "invite") createOnlineGame();
@@ -244,8 +242,8 @@
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedGame === "battleship" ? "Морски бой" : selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "Морски шах",
-          text: `Играй ${selectedGame === "battleship" ? "Морски бой" : selectedGame === "connect-four" ? "Четири в редица" : selectedGame === "morris" ? "Дама" : selectedGame === "circle-the-dot" ? "Огради точката" : selectedGame === "common-symbol" ? "Общ символ" : selectedGame === "dots-and-boxes" ? "Точки и квадратчета" : selectedGame === "hex" ? "Hex" : "морски шах"} с мен!`,
+          title: selectedView.shareTitle,
+          text: selectedView.shareText,
           url: online.inviteUrl,
         });
         return "Линкът е споделен ✓";
@@ -305,7 +303,7 @@
 
     session = new OnlineSession({
       getRemoteAudio: () => remoteAudio,
-      getGameState: () => serializeGame(battleView(game, session.localPlayer === "X" ? "O" : "X")),
+      getGameState: () => serializeGame(getGame(game.kind).view(game, session.localPlayer === "X" ? "O" : "X")),
       onChange: (state) => {
         online = state;
         if (!state.connected) movePending = false;
@@ -338,8 +336,7 @@
       const route = parseMatchRoute(window.location.search);
       if (route?.valid) {
         selectedGame = route.game;
-        if (route.game === "hex") selectedHexSize = route.boardSize;
-        if (route.game === "dots-and-boxes") selectedDotsSize = route.boardSize;
+        selectedSizes[route.game] = route.boardSize;
       }
       if (route?.valid && await isRoomHost(route.roomId, tabSecret)) {
         hostGame(route.roomId, loadHostedMatch(localStorage, route.roomId));
@@ -389,10 +386,10 @@
   });
 </script>
 
-<main class="game-shell">
+<main class="game-shell" class:arena={screen !== "setup"}>
   {#if screen === "setup"}
     <div class="setup-header">
-      <p class="eyebrow">Осем игри · заедно или сам</p>
+      <p class="eyebrow">{games.length} игри · заедно или сам</p>
       <h1>Хайде да играем<span>.</span></h1>
       <p>Избери игра — с приятел или срещу компютъра.</p>
       {#if online.phase === "error"}<p class="setup-error" role="alert">{online.error}</p>{/if}
@@ -400,49 +397,24 @@
     <section class="setup-section" aria-labelledby="choose-game">
       <div class="section-heading"><span>01</span><h2 id="choose-game">Избери игра</h2></div>
       <div class="game-options">
-        <button class:selected={selectedGame === "tic-tac-toe"} aria-pressed={selectedGame === "tic-tac-toe"} type="button" onclick={() => selectedGame = "tic-tac-toe"}>
-          <span class="option-art tic-art" aria-hidden="true">× ○<br />○ ×</span>
-          <strong>Морски шах</strong><small>Подреди три знака в редица на поле 3 × 3.</small>
-        </button>
-        <button class:selected={selectedGame === "hex"} aria-pressed={selectedGame === "hex"} type="button" onclick={() => selectedGame = "hex"}>
-          <span class="option-art hex-art" aria-hidden="true">⬡ ⬡<br /> ⬡ ⬡</span>
-          <strong>Hex</strong><small>Свържи срещуположните страни.</small>
-        </button>
-        <button class:selected={selectedGame === "dots-and-boxes"} aria-pressed={selectedGame === "dots-and-boxes"} type="button" onclick={() => selectedGame = "dots-and-boxes"}>
-          <span class="option-art" aria-hidden="true">•—•<br />•—•</span>
-          <strong>Точки и квадратчета</strong><small>Затвори квадратче и играй пак.</small>
-        </button>
-        <button class:selected={selectedGame === "common-symbol"} aria-pressed={selectedGame === "common-symbol"} type="button" onclick={() => selectedGame = "common-symbol"}>
-          <span class="option-art" aria-hidden="true">☀️ 🌸</span>
-          <strong>Общ символ</strong><small>8 символа. Първи до {SYMBOL_TARGET} точки!</small>
-        </button>
-        <button class:selected={selectedGame === "circle-the-dot"} aria-pressed={selectedGame === "circle-the-dot"} type="button" onclick={() => selectedGame = "circle-the-dot"}>
-          <span class="option-art" aria-hidden="true">🟠 🔵 🟠</span>
-          <strong>Огради точката</strong><small>Ограждай или бягай. Сам или с приятел.</small>
-        </button>
-        <button class:selected={selectedGame === "morris"} aria-pressed={selectedGame === "morris"} type="button" onclick={() => selectedGame = "morris"}>
-          <span class="option-art" aria-hidden="true">●—●—●</span>
-          <strong>Дама</strong><small>9 пула. Образувай тройки и надхитри противника.</small>
-        </button>
-        <button class:selected={selectedGame === "connect-four"} aria-pressed={selectedGame === "connect-four"} type="button" onclick={() => selectedGame = "connect-four"}>
-          <span class="option-art" aria-hidden="true">● ● ● ●</span>
-          <strong>Четири в редица</strong><small>Пускай пулове и подреди четири на поле 7 × 6.</small>
-        </button>
-        <button class:selected={selectedGame === "battleship"} aria-pressed={selectedGame === "battleship"} type="button" onclick={() => selectedGame = "battleship"}>
-          <span class="option-art" aria-hidden="true">🚢</span>
-          <strong>Морски бой</strong><small>Скрий флота си и потопи чуждите кораби.</small>
-        </button>
+        {#each games as choice (choice.kind)}
+          {@const view = getGameView(choice.kind)}
+          <button class:selected={selectedGame === choice.kind} aria-pressed={selectedGame === choice.kind} type="button" onclick={() => selectedGame = choice.kind}>
+            <span class={`option-art ${view.artClass}`} aria-hidden="true">{#each view.art as line, index}{#if index}<br />{/if}{line}{/each}</span>
+            <strong>{view.title}</strong><small>{view.description}</small>
+          </button>
+        {/each}
       </div>
-      {#if selectedGame === "hex" || selectedGame === "dots-and-boxes"}
-        <div class="size-picker" role="group" aria-label={selectedGame === "hex" ? "Размер на дъската за Hex" : "Размер на дъската за Точки и квадратчета"}>
-          <span>{selectedGame === "hex" ? "Размер на дъската" : "Брой точки на страна"}</span>
+      {#if selectedView.sizePicker}
+        <div class="size-picker" role="group" aria-label={selectedView.sizePicker.ariaLabel}>
+          <span>{selectedView.sizePicker.label}</span>
           <div class="size-options">
-            {#each selectedGame === "hex" ? HEX_SIZES : DOTS_SIZES as size}
-              {@const points = selectedGame === "hex" ? size : size + 1}
-              <button type="button" class:selected={chosenSize() === size} aria-pressed={chosenSize() === size} onclick={() => selectedGame === "hex" ? selectedHexSize = size : selectedDotsSize = size}>{points} × {points}</button>
+            {#each getGame(selectedGame).sizes as size}
+              {@const points = selectedView.sizePicker.displaySize(size)}
+              <button type="button" class:selected={chosenSize() === size} aria-pressed={chosenSize() === size} onclick={() => selectedSizes[selectedGame] = size}>{points} × {points}</button>
             {/each}
           </div>
-          {#if selectedGame === "dots-and-boxes"}<small>{selectedDotsSize ** 2} квадратчета за завладяване.</small>{/if}
+          {#if selectedView.sizePicker.hint}<small>{selectedView.sizePicker.hint(chosenSize())}</small>{/if}
           <small>По-големите дъски се плъзгат хоризонтално на тесен екран.</small>
         </div>
       {/if}
@@ -450,27 +422,27 @@
     <section class="setup-section" aria-labelledby="choose-opponent">
       <div class="section-heading"><span>02</span><h2 id="choose-opponent">С кого ще играеш?</h2></div>
       <div class="opponent-options">
-        <button class:selected={selectedOpponent === "computer"} aria-pressed={selectedOpponent === "computer"} type="button" onclick={() => selectedOpponent = "computer"}><strong>Срещу компютъра</strong><small>{selectedGame === "common-symbol" ? "Умен бот с човешко темпо" : selectedGame === "circle-the-dot" ? "Избери оградата или точката" : "Силен бот, който мисли напред"}</small></button>
-        <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>{selectedGame === "common-symbol" ? "Играйте едновременно, всеки в своята зона" : "Редувайте се на това устройство"}</small></button>
+        <button class:selected={selectedOpponent === "computer"} aria-pressed={selectedOpponent === "computer"} type="button" onclick={() => selectedOpponent = "computer"}><strong>Срещу компютъра</strong><small>{selectedView.computerDescription}</small></button>
+        <button class:selected={selectedOpponent === "local"} aria-pressed={selectedOpponent === "local"} type="button" onclick={() => selectedOpponent = "local"}><strong>На един екран</strong><small>{selectedView.localDescription}</small></button>
         <button class:selected={selectedOpponent === "invite"} aria-pressed={selectedOpponent === "invite"} type="button" onclick={() => selectedOpponent = "invite"}><strong>Покани приятел</strong><small>Сподели линк за онлайн игра</small></button>
         {#if matchmakingAvailable}<button class:selected={selectedOpponent === "matching"} aria-pressed={selectedOpponent === "matching"} type="button" onclick={() => selectedOpponent = "matching"}><strong>Намери играч</strong><small>Срещни непознат онлайн</small></button>{/if}
       </div>
     </section>
-    {#if (selectedOpponent === "computer" && selectedGame !== "common-symbol") || (selectedGame === "circle-the-dot" && selectedOpponent === "invite")}
+    {#if selectedView.sidePicker(selectedOpponent)}
       <div class="size-picker" role="group" aria-label="Твоята страна">
         <span>Твоята страна</span>
         <div class="size-options" style="grid-template-columns: repeat(2, 1fr)">
-          <button type="button" class:selected={selectedDotSide === "X"} aria-pressed={selectedDotSide === "X"} onclick={() => selectedDotSide = "X"}>{selectedGame === "circle-the-dot" ? "🟠 Ограждай" : "× Играй с X"}</button>
-          <button type="button" class:selected={selectedDotSide === "O"} aria-pressed={selectedDotSide === "O"} onclick={() => selectedDotSide = "O"}>{selectedGame === "circle-the-dot" ? "🔵 Бягай" : "○ Играй с O"}</button>
+          <button type="button" class:selected={selectedDotSide === "X"} aria-pressed={selectedDotSide === "X"} onclick={() => selectedDotSide = "X"}>{selectedView.sideLabels.X}</button>
+          <button type="button" class:selected={selectedDotSide === "O"} aria-pressed={selectedDotSide === "O"} onclick={() => selectedDotSide = "O"}>{selectedView.sideLabels.O}</button>
         </div>
-        <small>{selectedGame === "circle-the-dot" ? "Ограждащият винаги започва. Точката се мести с една стъпка." : "X започва първия рунд. После се редувате кой започва."}</small>
+        <small>{selectedView.sideHint}</small>
       </div>
     {/if}
     <button class="start-button" type="button" onclick={startGame}>Започни игра <span aria-hidden="true">→</span></button>
   {:else}
     <div class="play-topbar">
       <button type="button" class="back-button" onclick={backToSetup}>← Към игрите</button>
-      <span>{game.kind === "battleship" ? "Морски бой 10 × 10" : game.kind === "connect-four" ? "Четири в редица 7 × 6" : game.kind === "morris" ? "Дама" : game.kind === "circle-the-dot" ? "Огради точката" : game.kind === "common-symbol" ? "Общ символ" : game.kind === "dots-and-boxes" ? `Точки и квадратчета ${game.boardSize + 1} × ${game.boardSize + 1}` : game.kind === "hex" ? `Hex ${game.boardSize} × ${game.boardSize}` : "Морски шах"} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
+      <span>{getGameView(game.kind).playTitle(game)} <span aria-hidden="true">·</span> {computerGame ? "Срещу компютъра" : online.mode === "local" ? "На един екран" : shareableMatch ? "С приятел онлайн" : "С непознат онлайн"}</span>
     </div>
     <Scoreboard {game} online={boardOnline} {waiting} onReset={requestScoreReset} onAudio={() => session.toggleAudio()} />
     {#if online.mode !== "local"}
