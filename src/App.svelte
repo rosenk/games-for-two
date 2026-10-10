@@ -276,6 +276,7 @@
   onMount(() => {
     // iOS Safari needs a speech call within a gesture before delayed reminders.
     const unlockSpeech = () => {
+      if (online.audioEnabled || online.audioBusy) return;
       if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
       const silence = new SpeechSynthesisUtterance(" ");
       silence.volume = 0;

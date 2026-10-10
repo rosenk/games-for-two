@@ -31,6 +31,88 @@ test("reports when the remote player starts and stops their microphone", () => {
   assert.equal(changes.at(-1).remoteAudioEnabled, false);
 });
 
+test("automatically enables microphones for both roles, preserving manual off on reconnect", async () => {
+  const originalWindow = globalThis.window;
+  const mediaDescriptor = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
+  let requests = 0;
+  let stopped = 0;
+  const stream = { getTracks: () => [{ stop: () => stopped++ }] };
+  globalThis.window = {
+    setTimeout: () => 1,
+    clearTimeout() {},
+    setInterval: () => 1,
+    clearInterval() {},
+  };
+  Object.defineProperty(navigator, "mediaDevices", {
+    configurable: true,
+    value: { getUserMedia: async () => { requests++; return stream; } },
+  });
+  try {
+    for (const mode of ["host", "guest"]) {
+      const sent = [];
+      const session = new OnlineSession({
+        getGameState: () => ({}),
+        getRemoteAudio: () => null,
+        onChange: () => {},
+      });
+      session.mode = mode;
+      const connection = () => ({ open: true, on() {}, send: (data) => sent.push(data) });
+      session.attachConnection(connection());
+      assert.equal(session.snapshot().audioBusy, true);
+      await Promise.resolve();
+      assert.equal(session.snapshot().audioEnabled, true);
+      assert.ok(sent.some((data) => data.type === "audio-ready"));
+
+      session.attachConnection(connection());
+      assert.equal(session.snapshot().audioEnabled, true);
+      await session.toggleAudio();
+      assert.equal(session.snapshot().audioEnabled, false);
+      assert.equal(sent.at(-1).type, "audio-off");
+      session.attachConnection(connection());
+      await Promise.resolve();
+      assert.equal(session.snapshot().audioEnabled, false);
+      session.destroy();
+    }
+    assert.equal(requests, 2);
+    assert.equal(stopped, 2);
+  } finally {
+    globalThis.window = originalWindow;
+    if (mediaDescriptor) Object.defineProperty(navigator, "mediaDevices", mediaDescriptor);
+    else delete navigator.mediaDevices;
+  }
+});
+
+test("microphone denial permits retry and a late permission result cannot enter a new session", async () => {
+  const mediaDescriptor = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
+  let resolve;
+  let stopped = false;
+  const session = new OnlineSession({ getRemoteAudio: () => null, onChange: () => {} });
+  session.connected = true;
+  Object.defineProperty(navigator, "mediaDevices", {
+    configurable: true,
+    value: { getUserMedia: async () => { throw new Error("denied"); } },
+  });
+  try {
+    await session.toggleAudio();
+    assert.equal(session.snapshot().audioEnabled, false);
+    assert.equal(session.snapshot().audioBusy, false);
+    assert.match(session.snapshot().audioError, /Разреши достъп/);
+    navigator.mediaDevices.getUserMedia = () => new Promise((done) => { resolve = done; });
+    const pending = session.toggleAudio();
+    await session.toggleAudio();
+    session.leave();
+    session.connected = true;
+    resolve({ getTracks: () => [{ stop: () => { stopped = true; } }] });
+    await pending;
+    assert.equal(stopped, true);
+    assert.equal(session.snapshot().audioEnabled, false);
+    assert.equal(session.snapshot().audioError, "");
+  } finally {
+    if (mediaDescriptor) Object.defineProperty(navigator, "mediaDevices", mediaDescriptor);
+    else delete navigator.mediaDevices;
+  }
+});
+
 test("host binds the first valid player token hash and rejects a different one", async () => {
   let acceptedHash = "";
   const phases = [];

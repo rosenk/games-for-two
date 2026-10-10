@@ -20,6 +20,7 @@
   };
   let reminderTurn = $derived(
     game.kind !== "common-symbol" && online.mode !== "local" && canMove
+      && !online.audioEnabled && !online.audioBusy
       ? `${online.localPlayer}:${game.currentPlayer}:${game.dotGame ? JSON.stringify(game.dotGame) : game.board.map((cell) => cell || "-").join("")}`
       : "",
   );

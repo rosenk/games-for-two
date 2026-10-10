@@ -55,6 +55,8 @@ export class OnlineSession {
     this.audioConnected = false;
     this.audioBusy = false;
     this.audioError = "";
+    this.audioRequested = false;
+    this.audioRequest = null;
   }
 
   snapshot() {
@@ -161,6 +163,8 @@ export class OnlineSession {
     this.remoteAudioReady = false;
     this.audioConnected = false;
     this.audioBusy = false;
+    this.audioRequested = false;
+    this.audioRequest = null;
     this.clearConnectionTimer();
     this.clearReconnectTimer();
     this.clearHeartbeatTimer();
@@ -254,7 +258,7 @@ export class OnlineSession {
   }
 
   async toggleAudio() {
-    if (!this.connected) return;
+    if (!this.connected || this.audioBusy) return;
 
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => track.stop());
@@ -268,6 +272,8 @@ export class OnlineSession {
 
     this.audioBusy = true;
     this.audioError = "";
+    const request = {};
+    this.audioRequest = request;
     this.emit();
 
     try {
@@ -279,7 +285,7 @@ export class OnlineSession {
         },
       });
 
-      if (!this.connected) {
+      if (this.audioRequest !== request || !this.connected) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
@@ -288,10 +294,15 @@ export class OnlineSession {
       this.send({ type: "audio-ready" });
       this.maybeStartAudioCall();
     } catch {
-      this.audioError = "Разреши достъп до микрофона и опитай отново.";
+      if (this.audioRequest === request) {
+        this.audioError = "Разреши достъп до микрофона и опитай отново.";
+      }
     } finally {
-      this.audioBusy = false;
-      this.emit();
+      if (this.audioRequest === request) {
+        this.audioRequest = null;
+        this.audioBusy = false;
+        this.emit();
+      }
     }
   }
 
@@ -382,6 +393,10 @@ export class OnlineSession {
       if (this.mode === "host") this.callbacks.onActivity?.();
       else this.startHeartbeat();
       if (this.localStream) this.send({ type: "audio-ready" });
+      if (!this.audioRequested) {
+        this.audioRequested = true;
+        void this.toggleAudio();
+      }
       this.maybeStartAudioCall();
       this.clearArrivalTimer();
       this.arrivalTimer = window.setTimeout(() => {
